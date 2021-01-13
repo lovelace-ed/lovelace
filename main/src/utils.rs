@@ -79,7 +79,7 @@ pub fn launch() -> Rocket {
 }
 
 pub fn error_message(title: String, message: String) -> Html<'static> {
-    Html::default().head(default_head(title)).body(
+    Html::default().head(default_head(title.clone())).body(
         Body::default()
             .child(H1::new(title))
             .child(P::with_text(message)),

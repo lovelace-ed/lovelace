@@ -1,5 +1,5 @@
 use chrono::Utc;
-use html::{Body, Div, Html, Input, A, H1, H3, P};
+use malvolio::{Body, Div, Html, Input, A, H1, H3, P};
 
 use diesel::prelude::*;
 use rocket::request::Form;
@@ -14,36 +14,35 @@ use crate::{
     utils::{default_head, error_message},
 };
 
-fn create_class_form() -> html::Form {
-    html::Form::default()
-        .attribute(format!("method"), format!("post"))
+fn create_class_form() -> malvolio::Form<'static> {
+    malvolio::Form::default()
+        .attribute("method", "post")
         .child(
             Input::default()
-                .attribute(format!("type"), format!("text"))
-                .attribute(format!("placeholder"), format!("Class name")),
+                .attribute("type", "text")
+                .attribute("placeholder", "Class name"),
         )
         .child(
             Input::default()
-                .attribute(format!("type"), format!("textarea"))
-                .attribute(
-                    format!("placeholder"),
-                    format!("Add a description for this class here."),
-                ),
+                .attribute("type", "textarea")
+                .attribute("placeholder", "Add a description for this class here."),
         )
         .child(
             Input::default()
-                .attribute(format!("type"), format!("submit"))
-                .attribute(format!("value"), format!("Create class")),
+                .attribute("type", "submit")
+                .attribute("value", "Create class"),
         )
 }
 
 #[get("/class/create")]
-pub fn create_class_page(_auth_cookie: AuthCookie) -> Html {
-    Html::default().head(default_head("Create a class")).body(
-        Body::default()
-            .child(H1(format!("Create a class")))
-            .child(create_class_form()),
-    )
+pub fn create_class_page(_auth_cookie: AuthCookie) -> Html<'static> {
+    Html::default()
+        .head(default_head("Create a class".to_string()))
+        .body(
+            Body::default()
+                .child(H1::new("Create a class"))
+                .child(create_class_form()),
+        )
 }
 
 #[derive(FromForm)]
@@ -53,7 +52,11 @@ pub struct CreateClassForm {
 }
 
 #[post("/class/create", data = "<form>")]
-pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Database) -> Html {
+pub fn create_class(
+    form: Form<CreateClassForm>,
+    cookie: AuthCookie,
+    conn: Database,
+) -> Html<'static> {
     use crate::schema::class::dsl as class;
     use crate::schema::class_teacher::dsl as class_teacher;
     match diesel::insert_into(class::class)
@@ -74,10 +77,10 @@ pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Datab
                 .execute(&*conn)
             {
                 Ok(_) => Html::default()
-                    .head(default_head("Successfully created"))
+                    .head(default_head("Successfully created".to_string()))
                     .body(
                         Body::default()
-                            .child(H1(format!("This class has been sucessfully created")))
+                            .child(H1::new("This class has been sucessfully created"))
                             .child(
                                 A::new(format!("/class/{}", res.id))
                                     .text(format!("Click me to the class description.")),
@@ -86,13 +89,13 @@ pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Datab
                 Err(e) => {
                     error!("{:#?}", e);
                     Html::default()
-                        .head(default_head("Internal server error"))
+                        .head(default_head("Internal server error".to_string()))
                         .body(
                             Body::default()
-                                .child(H1(format!("Internal server error")))
-                                .child(P::with_text(format!(
-                                    "There was a problem on our end creating this class."
-                                ))),
+                                .child(H1::new("Internal server error"))
+                                .child(P::with_text(
+                                    "There was a problem on our end creating this class.",
+                                )),
                         )
                 }
             }
@@ -100,20 +103,20 @@ pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Datab
         Err(err) => {
             error!("{:#?}", err);
             Html::default()
-                .head(default_head("Internal server error"))
+                .head(default_head("Internal server error".to_string()))
                 .body(
                     Body::default()
-                        .child(H1(format!("Internal server error")))
-                        .child(P::with_text(format!(
-                            "There was a problem on our end creating this class."
-                        ))),
+                        .child(H1::new("Internal server error"))
+                        .child(P::with_text(
+                            "There was a problem on our end creating this class.",
+                        )),
                 )
         }
     }
 }
 
 #[get("/join/<join_code>")]
-pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Html {
+pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Html<'static> {
     use crate::schema::class::dsl as class;
     let class_id = match class::class
         .filter(class::code.eq(join_code))
@@ -140,13 +143,13 @@ pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Htm
         })
         .get_result::<ClassStudent>(&*conn)
     {
-        Ok(_) => Html::default().head(default_head("Joined")).body(
-            Body::default()
-                .child(H1(format!("Class joined!")))
-                .child(P::with_text(format!(
-                    "You have sucessfully joined this class."
-                ))),
-        ),
+        Ok(_) => Html::default()
+            .head(default_head("Joined".to_string()))
+            .body(
+                Body::default()
+                    .child(H1::new("Class joined!"))
+                    .child(P::with_text("You have sucessfully joined this class.")),
+            ),
         Err(_) => error_message(
             format!("Internal server error"),
             format!("Something's up with our database – fear not, we're fixing it."),
@@ -155,7 +158,7 @@ pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Htm
 }
 
 #[get("/class")]
-pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
+pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_teacher::dsl as class_teacher;
@@ -166,24 +169,24 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
         .load::<Class>(&*conn)
     {
         Ok(classes) => Div::default()
-            .attribute(format!("class"), format!("list"))
+            .attribute("class", "list")
             .map(|item| {
                 if !classes.is_empty() {
-                    item.child(H1(format!("Classes I'm a student in")))
+                    item.child(H1::new(format!("Classes I'm a student in")))
                 } else {
                     item
                 }
             })
             .children(classes.iter().map(|class| {
                 Div::default()
-                    .attribute(format!("class"), format!("list-item"))
-                    .child(H3(class.name.clone()))
+                    .attribute("class", "list-item")
+                    .child(H3::new(class.name.clone()))
                     .child(P::with_text(class.description.clone()))
                     .child(A::new(format!("/class/{}", class.id)))
             })),
-        Err(_) => Div::default().child(P::with_text(format!(
-            "There was a database error loading this content."
-        ))),
+        Err(_) => Div::default().child(P::with_text(
+            "There was a database error loading this content.",
+        )),
     };
     let teacher_classes = match class_teacher::class_teacher
         .filter(class_teacher::user_id.eq(auth_cookie.0))
@@ -192,49 +195,53 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
         .load::<Class>(&*conn)
     {
         Ok(classes) => Div::default()
-            .attribute(format!("class"), format!("list"))
+            .attribute("class", "list")
             .map(|item| {
                 if !classes.is_empty() {
-                    item.child(H1(format!("Classes I teach")))
+                    item.child(H1::new("Classes I teach"))
                 } else {
                     item
                 }
             })
             .children(classes.iter().map(|class| {
                 Div::default()
-                    .attribute(format!("class"), format!("list-item"))
-                    .child(H3(class.name.clone()))
+                    .attribute("class", "list-item")
+                    .child(H3::new(class.name.clone()))
                     .child(P::with_text(class.description.clone()))
                     .child(A::new(format!("/class/{}", class.id)))
             })),
-        Err(_) => Div::default().child(P::with_text(format!(
-            "There was a database error loading this content."
-        ))),
+        Err(_) => Div::default().child(P::with_text(
+            "There was a database error loading this content.",
+        )),
     };
-    Html::default().head(default_head("Classes")).body(
-        Body::default()
-            .child(teacher_classes)
-            .child(student_classes),
-    )
+    Html::default()
+        .head(default_head("Classes".to_string()))
+        .body(
+            Body::default()
+                .child(teacher_classes)
+                .child(student_classes),
+        )
 }
 
 #[get("/class/<id>")]
-pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
+pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
     match get_user_role_in_class(auth_cookie.0 as i32, id as i32, &conn) {
         ClassMemberRole::Student => {
             let class = Class::with_id(id as i32, conn).unwrap();
-            Html::default().head(default_head(&class.name)).body(
-                Body::default()
-                    .child(H1(format!("Class: {}", class.name)))
-                    .child(P::with_text(class.description)),
-            )
+            Html::default()
+                .head(default_head(class.name.to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new(format!("Class: {}", class.name)))
+                        .child(P::with_text(class.description)),
+                )
         }
         ClassMemberRole::Teacher => {
             let class = Class::with_id(id as i32, conn).unwrap();
-            Html::default().head(default_head(&class.name)).body(
+            Html::default().head(default_head(class.name.clone())).body(
                 Body::default()
-                    .child(H1(format!("Class: {}", class.name)))
-                    .child(H3(format!(
+                    .child(H1::new(format!("Class: {}", class.name)))
+                    .child(H3::new(format!(
                         "Invite people to join with the code: {}",
                         class.code
                     )))
@@ -244,31 +251,32 @@ pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -
             )
         }
         ClassMemberRole::None => Html::default()
-            .head(default_head("Invalid permission"))
+            .head(default_head("Invalid permission".to_string()))
             .body(
                 Body::default()
-                    .child(H1(format!("You don't have permission to view this class.")))
-                    .child(P::with_text(format!(
-                        "You might need to ask your teacher for an invite code."
-                    ))),
+                    .child(H1::new("You don't have permission to view this class."))
+                    .child(P::with_text(
+                        "You might need to ask your teacher for an invite code.",
+                    )),
             ),
     }
 }
 
 #[get("/class/<id>/settings")]
-pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
+pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
     if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn) == ClassMemberRole::Teacher {
-        Html::default().head(default_head("Settings")).body(
-            Body::default()
-                .child(H1(format!("Settings")))
-                .child(Div::default().child(
-                    A::new(format!("/class/{}/delete", id)).text(format!("Delete this class.")),
-                )),
-        )
+        Html::default()
+            .head(default_head("Settings".to_string()))
+            .body(
+                Body::default().child(H1::new("Settings")).child(
+                    Div::default()
+                        .child(A::new(format!("/class/{}/delete", id)).text("Delete this class.")),
+                ),
+            )
     } else {
         error_message(
-            format!("Insufficient permissions."),
-            format!("You need to be a teacher for this class to see it's settings."),
+            "Insufficient permissions.".to_string(),
+            "You need to be a teacher for this class to see it's settings.".to_string(),
         )
     }
 }
@@ -307,7 +315,11 @@ fn get_user_role_in_class(user: i32, class: i32, conn: &DatabaseConnection) -> C
 }
 
 #[get("/class/<id>/members")]
-pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCookie) -> Html {
+pub fn view_class_members_page(
+    id: usize,
+    conn: Database,
+    auth_cookie: AuthCookie,
+) -> Html<'static> {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::users::dsl as users;
@@ -325,8 +337,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         .map(|users| {
             users.into_iter().map(|user| {
                 Div::default()
-                    .attribute(format!("class"), format!("list-item"))
-                    .child(H3(user.username))
+                    .attribute("class", "list-item")
+                    .child(H3::new(user.username))
             })
         })
         .unwrap();
@@ -338,48 +350,44 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         .map(|users| {
             users.into_iter().map(|user| {
                 Div::default()
-                    .attribute(format!("class"), format!("list-item"))
-                    .child(H3(user.username))
+                    .attribute("class", "list-item")
+                    .child(H3::new(user.username))
             })
         })
         .unwrap();
-    Html::default().head(default_head("")).body(
-        Body::default()
-            .child(
-                Div::default()
-                    .child(H3(format!("Teachers")))
-                    .children(teachers),
-            )
-            .child(
-                Div::default()
-                    .child(H3(format!("Students")))
-                    .children(students),
-            ),
-    )
+    Html::default()
+        .head(default_head("Class".to_string()))
+        .body(
+            Body::default()
+                .child(Div::default().child(H3::new("Teachers")).children(teachers))
+                .child(Div::default().child(H3::new("Students")).children(students)),
+        )
 }
 
-fn invite_user_form() -> html::Form {
-    html::Form::default()
-        .attribute(format!("method"), format!("post"))
+fn invite_user_form() -> malvolio::Form<'static> {
+    malvolio::Form::default()
+        .attribute("method", "post")
         .child(
             Input::default()
-                .attribute(format!("type"), format!("text"))
-                .attribute(format!("name"), format!("invited-user-identifier")),
+                .attribute("type", "text")
+                .attribute("name", "invited-user-identifier"),
         )
         .child(
             Input::default()
-                .attribute(format!("type"), format!("submit"))
-                .attribute(format!("value"), format!("Invite teacher!")),
+                .attribute("type", "submit")
+                .attribute("value", "Invite teacher!"),
         )
 }
 
 #[get("/class/<_id>/invite/teacher")]
-pub fn invite_teacher_page(_id: usize) -> Html {
-    Html::default().head(default_head("Invite teacher")).body(
-        Body::default()
-            .child(H1(format!("Invite a new teacher")))
-            .child(invite_user_form()),
-    )
+pub fn invite_teacher_page(_id: usize) -> Html<'static> {
+    Html::default()
+        .head(default_head("Invite teacher".to_string()))
+        .body(
+            Body::default()
+                .child(H1::new("Invite a new teacher"))
+                .child(invite_user_form()),
+        )
 }
 
 #[derive(FromForm)]
@@ -405,16 +413,16 @@ pub fn invite_teacher(
     auth_cookie: AuthCookie,
     form: Form<InviteTeacherForm>,
     conn: Database,
-) -> Html {
+) -> Html<'static> {
     use crate::schema::class_teacher_invite::dsl as class_teacher_invite;
     use crate::schema::users::dsl as users;
     if !user_is_teacher(auth_cookie.0, id as i32, &*conn) {
-        return Html::default().head(default_head("Permission denied")).body(
+        return Html::default().head(default_head("Permission denied".to_string())).body(
             Body::default()
-                .child(H1(format!("Invite a new teacher")))
-                .child(P::with_text(format!(
+                .child(H1::new("Invite a new teacher"))
+                .child(P::with_text(
                     "You don't have permission to do that because you're not a teacher for this class ."
-                )))
+                ))
                 .child(invite_user_form()),
         );
     }
@@ -434,8 +442,8 @@ pub fn invite_teacher(
                 .execute(&*conn)
             {
                 Ok(_) => Html::default()
-                    .head(default_head("Header"))
-                    .body(Body::default().child(H1(format!("Successfully invited that user.")))),
+                    .head(default_head("Header".to_string()))
+                    .body(Body::default().child(H1::new("Successfully invited that user."))),
                 Err(e) => {
                     error!("{:#?}", e);
                     error_message(format!("Database error :("),
@@ -444,14 +452,16 @@ pub fn invite_teacher(
                 }
             }
         }
-        Err(diesel::result::Error::NotFound) => Html::default().head(default_head("")).body(
-            Body::default()
-                .child(H1(format!("Invite a new teacher")))
-                .child(P::with_text(format!(
-                    "A teacher with that username or email could not be found."
-                )))
-                .child(invite_user_form()),
-        ),
+        Err(diesel::result::Error::NotFound) => Html::default()
+            .head(default_head("Invite a new teacher".to_string()))
+            .body(
+                Body::default()
+                    .child(H1::new("Invite a new teacher"))
+                    .child(P::with_text(
+                        "A teacher with that username or email could not be found.",
+                    ))
+                    .child(invite_user_form()),
+            ),
         Err(e) => {
             error!("{:?}", e);
             error_message(
@@ -462,35 +472,31 @@ pub fn invite_teacher(
     }
 }
 
-fn delete_class_form(id: usize) -> html::Form {
-    html::Form::default()
-        .child(Input::default().attribute(format!("type"), format!("text")))
+fn delete_class_form(id: usize) -> malvolio::Form<'static> {
+    malvolio::Form::default()
+        .child(Input::default().attribute("type", "text"))
         .child(
             Input::default()
-                .attribute(format!("type"), format!("hidden"))
-                .attribute(format!("name"), format!("id"))
-                .attribute(format!("value"), id.to_string()),
+                .attribute("type", "hidden")
+                .attribute("name", "id")
+                .attribute("value", id.to_string()),
         )
-        .child(
-            Input::default()
-                .attribute(format!("type"), format!("submit"))
-                .attribute(
-                    format!("value"),
-                    format!("Delete this class (which I will never be able to get back!)"),
-                ),
-        )
+        .child(Input::default().attribute("type", "submit").attribute(
+            "value",
+            "Delete this class (which I will never be able to get back!)",
+        ))
 }
 
 #[get("/class/<id>/delete")]
-pub fn delete_class_page(id: usize, _auth_cookie: AuthCookie) -> Html {
+pub fn delete_class_page(id: usize, _auth_cookie: AuthCookie) -> Html<'static> {
     Html::default()
-        .head(default_head("Delete this class"))
+        .head(default_head("Delete this class".to_string()))
         .body(
             Body::default()
-                .child(H1(format!(
-                    "Warning – after deleting a class it will be forever gone."
-                )))
-                .child(H1(format!("This means that you *cannot* get it back.")))
+                .child(H1::new(
+                    "Warning – after deleting a class it will be forever gone.",
+                ))
+                .child(H1::new("This means that you *cannot* get it back."))
                 .child(delete_class_form(id)),
         )
 }
@@ -502,7 +508,11 @@ pub struct DeleteClassForm {
 }
 
 #[post("/class/delete", data = "<form>")]
-pub fn delete_class(form: Form<DeleteClassForm>, auth_cookie: AuthCookie, conn: Database) -> Html {
+pub fn delete_class(
+    form: Form<DeleteClassForm>,
+    auth_cookie: AuthCookie,
+    conn: Database,
+) -> Html<'static> {
     use crate::schema::class::dsl as class;
     use crate::schema::class_teacher::dsl as class_teacher;
     let user_is_teacher = diesel::dsl::select(diesel::dsl::exists(
@@ -517,24 +527,26 @@ pub fn delete_class(form: Form<DeleteClassForm>, auth_cookie: AuthCookie, conn: 
     });
     if let Ok(is_teacher) = user_is_teacher {
         if !is_teacher {
-            return Html::default().head(default_head("Permission denied")).body(
+            return Html::default().head(default_head("Permission denied".to_string())).body(
                 Body::default()
-                    .child(H1(format!("You aren't allowed to do this!")))
-                    .child(P::with_text(format!(
+                    .child(H1::new("You aren't allowed to do this!"))
+                    .child(P::with_text(
                         "You don't have permission to do that because you're not a teacher for this class ."
-                    )))
+                    ))
                     .child(delete_class_form(form.id as usize))
             );
         }
     } else {
-        return Html::default().head(default_head("Class not found")).body(
-            Body::default()
-                .child(H1(format!("We can't find a class with that id")))
-                .child(P::with_text(format!(
-                    "Check that the class in question does exist and try again."
-                )))
-                .child(delete_class_form(form.id as usize)),
-        );
+        return Html::default()
+            .head(default_head("Class not found".to_string()))
+            .body(
+                Body::default()
+                    .child(H1::new("We can't find a class with that id"))
+                    .child(P::with_text(
+                        "Check that the class in question does exist and try again.",
+                    ))
+                    .child(delete_class_form(form.id as usize)),
+            );
     }
     match diesel::delete(
         class::class
@@ -546,23 +558,23 @@ pub fn delete_class(form: Form<DeleteClassForm>, auth_cookie: AuthCookie, conn: 
         Ok(num_deleted) => {
             if num_deleted == 0 {
                 return Html::default()
-                    .head(default_head("Could not delete this class"))
+                    .head(default_head("Could not delete this class".to_string()))
                     .body(
                         Body::default()
-                            .child(H1(format!("Delete this class")))
-                            .child(P::with_text(format!(
-                                "The name you've typed in doesn't match this class's name."
-                            )))
+                            .child(H1::new("Delete this class"))
+                            .child(P::with_text(
+                                "The name you've typed in doesn't match this class's name.",
+                            ))
                             .child(delete_class_form(form.id as usize)),
                     );
             }
-            Html::default().head(default_head("Class deleted")).body(
-                Body::default()
-                    .child(H1(format!("Class deleted")))
-                    .child(P::with_text(format!(
-                        "That class has been sucessfully deleted."
-                    ))),
-            )
+            Html::default()
+                .head(default_head("Class deleted".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Class deleted"))
+                        .child(P::with_text("That class has been sucessfully deleted.")),
+                )
         }
         Err(e) => {
             error!("{:#?}", e);

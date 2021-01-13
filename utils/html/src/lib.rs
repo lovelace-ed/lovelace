@@ -252,11 +252,14 @@ pub enum BodyNode<'a> {
 pub struct A<'a> {
     attrs: Vec<(&'a str, &'a str)>,
     text: Cow<'a, str>,
-    href: Cow<'a, str>
+    href: Cow<'a, str>,
 }
 
 impl<'a> A<'a> {
-    pub fn new<S>(href: S) -> Self where S: Into<Cow<'a, str>> {
+    pub fn new<S>(href: S) -> Self
+    where
+        S: Into<Cow<'a, str>>,
+    {
         Self {
             href: href.into(),
             ..Default::default()
@@ -266,7 +269,10 @@ impl<'a> A<'a> {
         self.attrs.push(("target", target));
         self
     }
-    pub fn text<S>(mut self, text: S) -> Self where S: Into<Cow<'a, str>> {
+    pub fn text<S>(mut self, text: S) -> Self
+    where
+        S: Into<Cow<'a, str>>,
+    {
         self.text = text.into();
         self
     }
@@ -471,7 +477,10 @@ impl<'a> P<'a> {
         self.children.push(child.into());
         self
     }
-    pub fn with_text(text: &'a str) -> Self {
+    pub fn with_text<S>(text: S) -> Self
+    where
+        S: Into<Cow<'a, str>>,
+    {
         P::default().child(BodyNode::Text(Text::new(text)))
     }
     pub fn text<S>(self, text: S) -> Self
@@ -557,7 +566,7 @@ enum_display!(FormNode, Input, Label, Br);
 
 #[derive(Debug, Clone, Default)]
 pub struct Input<'a> {
-    attrs: Vec<(&'a str, &'a str)>,
+    attrs: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
 
 impl<'a> Display for Input<'a> {
@@ -578,8 +587,12 @@ into_grouping_union!(Input, FormNode);
 
 impl<'a> Input<'a> {
     #[inline(always)]
-    pub fn attribute(mut self, k: &'a str, v: &'a str) -> Self {
-        self.attrs.push((k, v));
+    pub fn attribute<S1, S2>(mut self, k: S1, v: S2) -> Self
+    where
+        S1: Into<Cow<'a, str>>,
+        S2: Into<Cow<'a, str>>,
+    {
+        self.attrs.push((k.into(), v.into()));
         self
     }
 }

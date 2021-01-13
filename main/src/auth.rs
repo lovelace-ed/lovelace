@@ -323,15 +323,15 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
 pub fn logout(mut cookies: Cookies) -> Html {
     if cookies.get_private(LOGIN_COOKIE).is_none() {
         return Html::default()
-            .head(default_head("Cannot log you out."))
-            .body(Body::default().child(H1(format!(
-                "You are not logged in, so we cannot log you out."
-            ))));
+            .head(default_head("Cannot log you out.".to_string()))
+            .body(
+                Body::default().child(H1::new("You are not logged in, so we cannot log you out.")),
+            );
     }
     cookies.remove_private(Cookie::named(LOGIN_COOKIE));
     Html::default()
-        .head(default_head("Logged out."))
-        .body(Body::default().child(H1(format!("You are logged out."))))
+        .head(default_head("Logged out.".to_string()))
+        .body(Body::default().child(H1::new(format!("You are logged out."))))
 }
 
 #[get("/reset")]
