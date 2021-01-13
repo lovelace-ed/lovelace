@@ -13,7 +13,7 @@ use rocket::{http::ContentType, local::Client};
 
 pub fn default_head<'a>(title: String) -> Head<'a> {
     Head::default()
-        .child(Title::new(title.to_string() + " | Lovelace"))
+        .child(Title::new(title + " | Lovelace"))
         .child(
             Meta::default()
                 .attribute("rel", "stylesheet")
