@@ -17,7 +17,7 @@ use crate::{
     utils::default_head,
 };
 
-const LOGIN_COOKIE: &str = "AUTHORISED";
+pub const LOGIN_COOKIE: &str = "AUTHORISED";
 
 #[derive(ThisError, Debug)]
 pub enum AuthError {
@@ -27,7 +27,7 @@ pub enum AuthError {
     InvalidCookieIssued,
 }
 
-struct AuthCookie(i32);
+pub struct AuthCookie(pub i32);
 
 impl AuthCookie {
     fn parse(c: Cookie) -> Result<Self, AuthError> {
@@ -311,6 +311,21 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
     }
 }
 
+#[get("/logout")]
+pub fn logout(mut cookies: Cookies) -> Html {
+    if cookies.get_private(LOGIN_COOKIE).is_none() {
+        return Html::default()
+            .head(default_head("Cannot log you out."))
+            .body(Body::default().child(H1(format!(
+                "You are not logged in, so we cannot log you out."
+            ))));
+    }
+    cookies.remove_private(Cookie::named(LOGIN_COOKIE));
+    Html::default()
+        .head(default_head("Logged out."))
+        .body(Body::default().child(H1(format!("You are logged out."))))
+}
+
 #[get("/reset")]
 fn reset() -> Html {
     todo!()
@@ -327,18 +342,13 @@ mod test {
     const EMAIL: &str = "user@example.com";
     const PASSWORD: &str = "SecurePasswordWhichM33tsTh3Criteri@";
 
-    use rocket::{http::ContentType, local::Client};
+    use rocket::http::ContentType;
 
-    use crate::utils::launch;
-
-    fn client() -> Client {
-        let rocket = launch();
-        Client::new(rocket).expect("needs a valid rocket instance")
-    }
+    use super::LOGIN_COOKIE;
 
     #[test]
     fn test_register_validation() {
-        let client = client();
+        let client = crate::utils::client();
         let mut register_res = client
             .post("/auth/register")
             .header(ContentType::Form)
@@ -353,8 +363,7 @@ mod test {
 
     #[test]
     fn test_auth() {
-        let rocket = launch();
-        let client = Client::new(rocket).expect("needs a valid rocket instance");
+        let client = crate::utils::client();
         // check register page looks right
         let mut register_page = client.get("/auth/register").dispatch();
         let page = register_page.body_string().expect("invalid body response");
@@ -380,6 +389,13 @@ mod test {
             .header(ContentType::Form)
             .body(format!("identifier={}&password={}", USERNAME, PASSWORD))
             .dispatch();
+        // check cookie set
+        login_res
+            .cookies()
+            .into_iter()
+            .filter(|c| c.name() == LOGIN_COOKIE)
+            .next()
+            .unwrap();
         let page = login_res.body_string().expect("invalid body response");
         assert!(page.contains("now logged in"));
     }

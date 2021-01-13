@@ -10,8 +10,15 @@ use rocket_contrib::databases::{diesel, DatabaseConfig, Poolable};
 
 embed_migrations!("../migrations/");
 
+#[cfg(test)]
+pub type DatabaseConnection = TestPgConnection;
+
+#[cfg(not(test))]
+pub type DatabaseConnection = PgConnection;
+
 #[cfg(not(test))]
 #[database("postgres")]
+#[derive(Clone)]
 pub struct Database(diesel::PgConnection);
 
 #[derive(Debug)]

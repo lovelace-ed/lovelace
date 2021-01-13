@@ -19,10 +19,14 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
+extern crate nanoid;
+
 use html::{Body, Head, Html, Meta, H1};
 use utils::launch;
 
 mod auth;
+mod class;
 mod db;
 mod models;
 mod schema;

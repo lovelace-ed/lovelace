@@ -1,4 +1,5 @@
 //! A small set of data types for producing HTML code.
+#![allow(clippy::useless_format)]
 
 use std::{fmt::Display, io::Cursor};
 
@@ -228,6 +229,102 @@ pub enum BodyNode {
     Text(Text),
     Form(Form),
     Br(Br),
+    Div(Div),
+    A(A),
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct A {
+    attrs: Vec<(String, String)>,
+    text: String,
+}
+
+impl A {
+    pub fn new(href: String) -> Self {
+        Self {
+            attrs: vec![(format!("href"), href)],
+            ..Default::default()
+        }
+    }
+    pub fn target(mut self, target: String) -> Self {
+        self.attrs.push((format!("target"), target));
+        self
+    }
+    pub fn text(mut self, text: String) -> Self {
+        self.text = text;
+        self
+    }
+}
+
+impl Display for A {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<a")?;
+        for attr in &self.attrs {
+            f.write_str(" ")?;
+            attr.0.fmt(f)?;
+            f.write_str("=\"")?;
+            attr.1.fmt(f)?;
+            f.write_str("\"")?;
+        }
+        f.write_str(">")?;
+        self.text.fmt(f)?;
+        f.write_str("</a>")
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Div {
+    children: Vec<BodyNode>,
+    attrs: Vec<(String, String)>,
+}
+
+impl Div {
+    pub fn children<C, D>(mut self, children: C) -> Self
+    where
+        C: IntoIterator<Item = D>,
+        D: Into<BodyNode>,
+    {
+        self.children
+            .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
+        self
+    }
+    pub fn child<C>(mut self, child: C) -> Self
+    where
+        C: Into<BodyNode>,
+    {
+        self.children.push(child.into());
+        self
+    }
+    pub fn map<F>(mut self, mapping: F) -> Self
+    where
+        F: Fn(Self) -> Self,
+    {
+        self = mapping(self);
+        self
+    }
+    #[inline(always)]
+    pub fn attribute(mut self, k: String, v: String) -> Self {
+        self.attrs.push((k, v));
+        self
+    }
+}
+
+impl Display for Div {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<div")?;
+        for attr in &self.attrs {
+            f.write_str(" ")?;
+            attr.0.fmt(f)?;
+            f.write_str("=\"")?;
+            attr.1.fmt(f)?;
+            f.write_str("\"")?;
+        }
+        f.write_str("/>")?;
+        for node in &self.children {
+            node.fmt(f)?;
+        }
+        f.write_str("</div>")
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -249,13 +346,17 @@ macro_rules! into_grouping_union {
     };
 }
 
+into_grouping_union!(Div, BodyNode);
+
 into_grouping_union!(Br, BodyNode);
 into_grouping_union!(Br, FormNode);
 
 into_grouping_union!(Meta, HeadNode);
 into_grouping_union!(Title, HeadNode);
 
-enum_display!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form);
+into_grouping_union!(A, BodyNode);
+
+enum_display!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A);
 
 #[derive(Default, Debug, Clone)]
 pub struct H1(pub String);
