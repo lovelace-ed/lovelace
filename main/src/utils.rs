@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 #[cfg(test)]
 use crate::auth::LOGIN_COOKIE;
-use html::{Body, Head, Html, Meta, Title, H1, P};
+use malvolio::{Body, Head, Html, Meta, Title, H1, P};
 use rocket::{
     config::{Environment, Value},
     fairing::AdHoc,
@@ -11,13 +11,13 @@ use rocket::{
 #[cfg(test)]
 use rocket::{http::ContentType, local::Client};
 
-pub fn default_head(title: &str) -> Head {
+pub fn default_head<'a>(title: String) -> Head<'a> {
     Head::default()
-        .child(Title(format!("{} | Lovelace", title)))
+        .child(Title::new(title.to_string() + " | Lovelace"))
         .child(
             Meta::default()
-                .attribute(format!("rel"), format!("stylesheet"))
-                .attribute(format!("href"), format!("/css/styles.css")),
+                .attribute("rel", "stylesheet")
+                .attribute("href", "/css/styles.css"),
         )
 }
 
@@ -78,10 +78,10 @@ pub fn launch() -> Rocket {
         )
 }
 
-pub fn error_message(title: String, message: String) -> Html {
-    Html::default().head(default_head(&title)).body(
+pub fn error_message(title: String, message: String) -> Html<'static> {
+    Html::default().head(default_head(title)).body(
         Body::default()
-            .child(H1(title))
+            .child(H1::new(title))
             .child(P::with_text(message)),
     )
 }

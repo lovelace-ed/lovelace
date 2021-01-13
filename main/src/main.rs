@@ -22,7 +22,7 @@ extern crate lazy_static;
 #[macro_use]
 extern crate nanoid;
 
-use html::{Body, Head, Html, Meta, H1};
+use malvolio::{Body, Head, Html, Meta, H1};
 use utils::launch;
 
 mod auth;
@@ -33,14 +33,14 @@ mod schema;
 mod utils;
 
 #[get("/")]
-fn index() -> Html {
+fn index() -> Html<'static> {
     Html::default()
         .head(
             Head::default()
-                .child(Meta::default().attribute(format!("charset"), format!("UTF-8")))
-                .child(Meta::default().attribute(format!("lang"), format!("en-GB"))),
+                .child(Meta::default().attribute("charset", "UTF-8"))
+                .child(Meta::default().attribute("lang", "en-GB")),
         )
-        .body(Body::default().child(H1(format!("Hello World!"))))
+        .body(Body::default().child(H1::new("Hello World!")))
 }
 
 fn main() {

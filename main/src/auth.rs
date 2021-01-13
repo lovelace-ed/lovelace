@@ -2,7 +2,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use html::{Body, Br, Html, Input, H1, P};
+use malvolio::{Body, Br, Html, Input, H1, P};
 use regex::Regex;
 use rocket::{
     http::{Cookie, Cookies, Status},
@@ -65,37 +65,35 @@ impl FromRequest<'_, '_> for AuthCookie {
     }
 }
 
-fn login_form() -> html::Form {
-    html::Form::default()
-        .attribute(format!("method"), format!("post"))
+fn login_form() -> malvolio::Form<'static> {
+    malvolio::Form::default()
+        .attribute("method", "post")
         .child(
             Input::default()
-                .attribute(format!("type"), format!("text"))
-                .attribute(format!("placeholder"), format!("Username"))
-                .attribute(format!("name"), format!("identifier")),
+                .attribute("type", "text")
+                .attribute("placeholder", "Username")
+                .attribute("name", "identifier"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("password"))
-                .attribute(format!("placeholder"), format!("Password"))
-                .attribute(format!("name"), format!("password")),
+                .attribute("type", "password")
+                .attribute("placeholder", "Password")
+                .attribute("name", "password"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("submit"))
-                .attribute(format!("value"), format!("Login!")),
+                .attribute("type", "submit")
+                .attribute("value", "Login!"),
         )
 }
 
 #[get("/login")]
-pub fn login_page() -> Html {
-    Html::default().head(default_head("Login")).body(
-        Body::default()
-            .child(H1(format!("Login")))
-            .child(login_form()),
-    )
+pub fn login_page() -> Html<'static> {
+    Html::default()
+        .head(default_head("Login".to_string()))
+        .body(Body::default().child(H1::new("Login")).child(login_form()))
 }
 
 #[derive(FromForm)]
@@ -118,92 +116,98 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
                 .unwrap_or(false)
             {
                 cookies.add_private(Cookie::new(LOGIN_COOKIE, user.id.to_string()));
-                Html::default().head(default_head("Logged in")).body(
-                    Body::default()
-                        .child(H1(format!("Logged in!")))
-                        .child(P::with_text(format!("You are now logged in."))),
-                )
+                Html::default()
+                    .head(default_head("Logged in".to_string()))
+                    .body(
+                        Body::default()
+                            .child(H1::new("Logged in!"))
+                            .child(P::with_text("You are now logged in.")),
+                    )
             } else {
-                Html::default().head(default_head("Error")).body(
-                    Body::default()
-                        .child(H1(format!("Invalid password")))
-                        .child(P::with_text(format!(
-                            "The password you've supplied isn't correct."
-                        )))
-                        .child(login_form()),
-                )
+                Html::default()
+                    .head(default_head("Error".to_string()))
+                    .body(
+                        Body::default()
+                            .child(H1::new("Invalid password"))
+                            .child(P::with_text("The password you've supplied isn't correct."))
+                            .child(login_form()),
+                    )
             }
         }
         Err(error) => match error {
-            diesel::result::Error::NotFound => {
-                Html::default().head(default_head("Not found")).body(
+            diesel::result::Error::NotFound => Html::default()
+                .head(default_head("Not found".to_string()))
+                .body(
                     Body::default()
-                        .child(H1(format!("Login error")))
-                        .child(P::with_text(format!(
+                        .child(H1::new("Login error"))
+                        .child(P::with_text(
                             "We searched everywhere (in our database) but we couldn't \
-                                find a user with that username or email."
-                        )))
+                                find a user with that username or email.",
+                        ))
                         .child(login_form()),
-                )
-            }
-            _ => Html::default().head(default_head("Unknown error")).body(
-                Body::default()
-                    .child(H1(format!("Database error")))
-                    .child(P::with_text(format!(
-                        "Something's up on our end. We're working to fix it as fast as
-                            we can!"
-                    )))
-                    .child(login_form()),
-            ),
+                ),
+            _ => Html::default()
+                .head(default_head("Unknown error".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Database error"))
+                        .child(P::with_text(
+                            "Something's up on our end. We're working to fix it as fast as
+                            we can!",
+                        ))
+                        .child(login_form()),
+                ),
         },
     }
 }
 
-fn register_form() -> html::Form {
-    html::Form::default()
-        .attribute(format!("method"), format!("post"))
+fn register_form() -> malvolio::Form<'static> {
+    malvolio::Form::default()
+        .attribute("method", "post")
         .child(
             Input::default()
-                .attribute(format!("type"), format!("text"))
-                .attribute(format!("placeholder"), format!("Username"))
-                .attribute(format!("name"), format!("username")),
+                .attribute("type", "text")
+                .attribute("placeholder", "Username")
+                .attribute("name", "username"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("email"))
-                .attribute(format!("placeholder"), format!("Email"))
-                .attribute(format!("name"), format!("email")),
+                .attribute("type", "email")
+                .attribute("placeholder", "Email")
+                .attribute("name", "email"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("password"))
-                .attribute(format!("placeholder"), format!("Password"))
-                .attribute(format!("name"), format!("password")),
+                .attribute("type", "password")
+                .attribute("placeholder", "Password")
+                .attribute("name", "password"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("password"))
-                .attribute(format!("placeholder"), format!("Password confirmation"))
-                .attribute(format!("name"), format!("password_confirmation")),
+                .attribute("type", "password")
+                .attribute("placeholder", "Password confirmation")
+                .attribute("name", "password_confirmation"),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute(format!("type"), format!("submit"))
-                .attribute(format!("value"), format!("Login!")),
+                .attribute("type", "submit")
+                .attribute("value", "Login!"),
         )
 }
 
 #[get("/register")]
-pub fn register_page() -> Html {
-    Html::default().head(default_head("Login")).body(
-        Body::default()
-            .child(H1(format!("Register")))
-            .child(register_form()),
-    )
+pub fn register_page() -> Html<'static> {
+    Html::default()
+        .head(default_head("Login".to_string()))
+        .body(
+            Body::default()
+                .child(H1::new("Register"))
+                .child(register_form()),
+        )
 }
 
 #[derive(FromForm)]
@@ -220,44 +224,48 @@ lazy_static! {
 }
 
 #[post("/register", data = "<data>")]
-pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> Html {
+pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> Html<'static> {
     use crate::schema::users::dsl::*;
     if cookies.get(LOGIN_COOKIE).is_some() {
         return Html::default()
-            .head(default_head("Already logged in"))
+            .head(default_head("Already logged in".to_string()))
             .body(
                 Body::default()
-                    .child(H1(format!("You are already loggged in.")))
-                    .child(P::with_text(format!(
+                    .child(H1::new("You are already loggged in."))
+                    .child(P::with_text(
                         "It looks like you've just tried to register, but are already logged in.",
-                    ))),
+                    )),
             );
     };
     if !EMAIL_RE.is_match(&data.email) {
-        return Html::default().head(default_head("Invalid email")).body(
-            Body::default()
-                .child(H1(format!("Invalid email")))
-                .child(P::with_text(format!("The email provided is not valid.")))
-                .child(register_form()),
-        );
+        return Html::default()
+            .head(default_head("Invalid email".to_string()))
+            .body(
+                Body::default()
+                    .child(H1::new("Invalid email"))
+                    .child(P::with_text("The email provided is not valid."))
+                    .child(register_form()),
+            );
     }
     if data.password != data.password_confirmation {
         return Html::default()
-            .head(default_head("Passwords don't match"))
+            .head(default_head("Passwords don't match".to_string()))
             .body(Body::default().child(register_form()));
     }
     let hashed_password = match hash(&data.password, DEFAULT_COST) {
         Ok(string) => string,
         Err(err) => {
             error!("{:#?}", err);
-            return Html::default().head(default_head("Encryption error")).body(
-                Body::default()
-                    .child(H1(format!("Encryption error")))
-                    .child(P::with_text(format!(
-                        "We're having problems encrypting your password."
-                    )))
-                    .child(register_form()),
-            );
+            return Html::default()
+                .head(default_head("Encryption error".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Encryption error"))
+                        .child(P::with_text(
+                            "We're having problems encrypting your password.",
+                        ))
+                        .child(register_form()),
+                );
         }
     };
     match insert_into(users)
@@ -270,13 +278,13 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
         .get_result::<User>(&*conn)
     {
         Ok(_) => Html::default()
-            .head(default_head("You have sucessfully registered!"))
+            .head(default_head("You have sucessfully registered!".to_string()))
             .body(
                 Body::default()
-                    .child(H1(format!("Registration successful!")))
-                    .child(P::with_text(format!(
+                    .child(H1::new("Registration successful!"))
+                    .child(P::with_text(
                         "We're so happy to have you on board."
-                    ))),
+                    )),
             ),
         Err(problem) => {
             match problem {
@@ -284,25 +292,25 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
                     diesel::result::DatabaseErrorKind::UniqueViolation,
                     _,
                 ) => Html::default()
-                    .head(default_head("User already registered"))
+                    .head(default_head("User already registered".to_string()))
                     .body(
                         Body::default()
-                            .child(H1(format!("Registration error")))
-                            .child(P::with_text(format!(
+                            .child(H1::new("Registration error"))
+                            .child(P::with_text(
                                 "A user with that username or email already exists."
-                            )))
+                            ))
                             .child(register_form()),
                     ),
                 _ => {
-                    Html::default().head(default_head("Server error")).body(
+                    Html::default().head(default_head("Server error".to_string())).body(
                         Body::default()
-                            .child(H1(format!("Registration error")))
-                            .child(P::with_text(format!(
+                            .child(H1::new("Registration error"))
+                            .child(P::with_text(
                                 "There was an error adding your account to the database. This is not because
                                 there is a problem with the data that you have supplied, but because we have
                                 made a programming mistake. We're very sorry about this (no really) and are
                                 working to resolve it."
-                            )))
+                            ))
                             .child(register_form()),
                     )
                 }
@@ -327,12 +335,12 @@ pub fn logout(mut cookies: Cookies) -> Html {
 }
 
 #[get("/reset")]
-fn reset() -> Html {
+fn reset() -> Html<'static> {
     todo!()
 }
 
 #[post("/reset")]
-fn reset_page() -> Html {
+fn reset_page() -> Html<'static> {
     todo!()
 }
 
