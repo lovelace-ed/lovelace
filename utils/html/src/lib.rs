@@ -288,6 +288,9 @@ impl<'a> Display for A<'a> {
             attr.1.fmt(f)?;
             f.write_str("\"")?;
         }
+        f.write_str("href=\"")?;
+        self.href.fmt(f)?;
+        f.write_str("\"")?;
         f.write_str(">")?;
         self.text.fmt(f)?;
         f.write_str("</a>")
