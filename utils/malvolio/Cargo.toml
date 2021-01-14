@@ -3,7 +3,12 @@ name = "malvolio"
 version = "0.1.0"
 authors = ["teymour-aldridge <teymour.aldridge@icloud.com>"]
 edition = "2018"
-
+readme="README.md"
+description = "An HTML templating library."
+repository = "https://github.com/lovelace-ed/lovelace"
+homepage = "https://github.com/lovelace-ed/lovelace"
+license = "MPL-2.0"
+keywords = ["web-applications", "HTML"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the GNU Affero General Public License.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 use chrono::Utc;
 use malvolio::{Body, Div, Html, Input, A, H1, H3, P};
 
