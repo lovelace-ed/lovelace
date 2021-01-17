@@ -1,4 +1,3 @@
-
 name: Test
 
 on:
@@ -71,15 +70,29 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./coverage.txt
+  test-utils-malvolio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - run: (cd utils/malvolio && wasm-pack test --headless --chrome -- --features with_yew)
+      - run: (cd utils/malvolio && wasm-pack test --headless --firefox -- --features with_yew)
   bors-report:
     if: ${{ always() && github.event_name == 'push' && contains('refs/heads/staging refs/heads/trying', github.ref) }}
     needs:
     - lint
     - test
+    # tested seperately from everything else
+    - test-utils-malvolio
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Check
       run: |
-        [ ${{ needs.lint.result }} == success ] && [ ${{ needs.test.result }} == success ] || exit 1
+        [ ${{ needs.lint.result }} == success ] &&
+        [ ${{ needs.test.result }} == success ] &&
+        [ ${{ needs.test-utils-malvolio.result }} == success ] || exit 1
