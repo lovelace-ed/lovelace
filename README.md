@@ -1,7 +1,16 @@
 # Lovelace
 
-A computer system designed to get out of your way (when you want it to) and let you get on with
-education.
+[![codecov](https://codecov.io/gh/lovelace-ed/lovelace/branch/main/graph/badge.svg?token=jBGczgf8yB)](https://codecov.io/gh/lovelace-ed/lovelace)
+
+Designed to replace proprietary for-profit solutions, Lovelace is a computer system designed to
+get out of your way (when you want it to) and let you get on with education (whether as a student or
+teacher).
+
+## Using this (non-technical edition)
+
+Unfortunately Lovelace is not yet ready for general use. If you'd like to help us get there, we'd
+love your input on what you would like to see in the "edtech" solutions of tomorrow which you
+[can provide here](https://github.com/lovelace-ed/lovelace/discussions/categories/ideas).
 
 ## Features
 - **Fast** (should be at least, let us know if you're experiencing issues!)
@@ -30,4 +39,5 @@ and help each other solve issues – if you get stuck, don't hesitate to reach 
 
 ## Code of conduct
 
-Everyone participating in the project must
+Everyone participating in the project must follow the code of conduct which sets out the
+expectations and guidelines for all participants. You can find a copy in `CODE_OF_CONDUCT.md`.

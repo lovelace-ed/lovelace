@@ -37,7 +37,7 @@ mod test {
             .to_html());
         yew::initialize();
 
-        let document = yew::utils::document();
+        let document = web_sys::window().unwrap().document().unwrap();
         let root = document
             .create_element("div")
             .expect("failed to create element");
@@ -85,7 +85,7 @@ mod test {
             .to_html());
         yew::initialize();
 
-        let document = yew::utils::document();
+        let document = web_sys::window().unwrap().document().unwrap();
         let root = document
             .create_element("div")
             .expect("failed to create element");
@@ -133,7 +133,7 @@ mod test {
             )
             .to_html());
         yew::initialize();
-        let document = yew::utils::document();
+        let document = web_sys::window().unwrap().document().unwrap();
         let root = document
             .create_element("div")
             .expect("failed to create element");
