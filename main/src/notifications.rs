@@ -124,12 +124,12 @@ pub enum NotificationPriority {
     Info,
 }
 
-impl Into<i16> for NotificationPriority {
-    fn into(self) -> i16 {
-        match self {
-            Self::Danger => 3,
-            Self::Warning => 2,
-            Self::Info => 1,
+impl From<NotificationPriority> for i16 {
+    fn from(from: NotificationPriority) -> Self {
+        match from {
+            NotificationPriority::Danger => 3,
+            NotificationPriority::Warning => 2,
+            NotificationPriority::Info => 1,
         }
     }
 }
