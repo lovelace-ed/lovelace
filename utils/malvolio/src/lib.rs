@@ -24,6 +24,14 @@ macro_rules! heading_display {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.write_str("<")?;
                 f.write_str(stringify!($name))?;
+                f.write_str(" ")?;
+                write_attributes(
+                    #[cfg(feature = "with_yew")]
+                    &self.2,
+                    #[cfg(not(feature = "with_yew"))]
+                    &self.1,
+                    f,
+                )?;
                 f.write_str(">")?;
                 self.0.fmt(f)?;
                 f.write_str("</")?;
