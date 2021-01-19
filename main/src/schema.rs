@@ -1,7 +1,3 @@
-/*
-This source code file is distributed subject to the terms of the GNU Affero General Public License.
-A copy of this license can be found in the `licenses` directory at the root of this project.
-*/
 table! {
     class (id) {
         id -> Int4,
@@ -39,12 +35,26 @@ table! {
 }
 
 table! {
+    notifications (id) {
+        id -> Int4,
+        title -> Text,
+        contents -> Text,
+        created_at -> Timestamp,
+        priority -> Int2,
+        user_id -> Int4,
+        read -> Bool,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Text,
         email -> Text,
         password -> Text,
         created -> Timestamp,
+        timezone -> Text,
+        email_verified -> Bool,
     }
 }
 
@@ -53,11 +63,13 @@ joinable!(class_student -> users (user_id));
 joinable!(class_teacher -> class (class_id));
 joinable!(class_teacher -> users (user_id));
 joinable!(class_teacher_invite -> class (class_id));
+joinable!(notifications -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     class,
     class_student,
     class_teacher,
     class_teacher_invite,
+    notifications,
     users,
 );

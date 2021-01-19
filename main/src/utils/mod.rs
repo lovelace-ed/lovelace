@@ -4,6 +4,8 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::collections::HashMap;
 
+pub mod timezones;
+
 #[cfg(test)]
 use crate::auth::LOGIN_COOKIE;
 use malvolio::{Body, Head, Html, Meta, Title, H1, P};
@@ -15,7 +17,7 @@ use rocket::{
 #[cfg(test)]
 use rocket::{http::ContentType, local::Client};
 
-pub fn default_head<'a>(title: String) -> Head<'a> {
+pub fn default_head(title: String) -> Head {
     Head::default()
         .child(Title::new(title + " | Lovelace"))
         .child(
@@ -25,15 +27,14 @@ pub fn default_head<'a>(title: String) -> Head<'a> {
         )
 }
 
+pub fn retrieve_database_url() -> String {
+    std::env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost".to_string())
+}
+
 pub fn launch() -> Rocket {
     let mut database_config = HashMap::new();
     let mut databases = HashMap::new();
-    database_config.insert(
-        "url",
-        Value::from(
-            std::env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost".to_string()),
-        ),
-    );
+    database_config.insert("url", Value::from(retrieve_database_url()));
     databases.insert("postgres", Value::from(database_config));
     let config = Config::build(
         std::env::var("DEV")
@@ -80,9 +81,17 @@ pub fn launch() -> Rocket {
                 crate::auth::register
             ],
         )
+        .mount(
+            "/notifications",
+            routes![
+                crate::notifications::list_notifications,
+                crate::notifications::mark_notification_as_read,
+                crate::notifications::delete_notification_with_id
+            ],
+        )
 }
 
-pub fn error_message(title: String, message: String) -> Html<'static> {
+pub fn error_message(title: String, message: String) -> Html {
     Html::default().head(default_head(title.clone())).body(
         Body::default()
             .child(H1::new(title))
@@ -97,13 +106,13 @@ pub fn client() -> Client {
 }
 
 #[cfg(test)]
-pub fn create_user(username: &str, email: &str, password: &str, client: &Client) {
+pub fn create_user(username: &str, email: &str, timezone: &str, password: &str, client: &Client) {
     let mut register_res = client
         .post("/auth/register")
         .header(ContentType::Form)
         .body(format!(
-            "username={}&email={}&password={}&password_confirmation={}",
-            username, email, password, password
+            "username={}&email={}&timezone={timezone}&password={password}&password_confirmation={password}",
+            username, email, timezone=timezone, password=password
         ))
         .dispatch();
     assert!(register_res
@@ -119,10 +128,8 @@ pub fn login_user(identifier: &str, password: &str, client: &Client) {
         .header(ContentType::Form)
         .body(format!("identifier={}&password={}", identifier, password))
         .dispatch();
-    assert!(login_res
-        .body_string()
-        .expect("invalid body response")
-        .contains("Logged in"));
+    let string = login_res.body_string().expect("invalid body response");
+    assert!(string.contains("Logged in"));
     login_res
         .cookies()
         .into_iter()

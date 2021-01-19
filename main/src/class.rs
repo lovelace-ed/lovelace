@@ -18,7 +18,7 @@ use crate::{
     utils::{default_head, error_message},
 };
 
-fn create_class_form() -> malvolio::Form<'static> {
+fn create_class_form() -> malvolio::Form {
     malvolio::Form::default()
         .attribute("method", "post")
         .child(
@@ -39,7 +39,7 @@ fn create_class_form() -> malvolio::Form<'static> {
 }
 
 #[get("/class/create")]
-pub fn create_class_page(_auth_cookie: AuthCookie) -> Html<'static> {
+pub fn create_class_page(_auth_cookie: AuthCookie) -> Html {
     Html::default()
         .head(default_head("Create a class".to_string()))
         .body(
@@ -56,11 +56,7 @@ pub struct CreateClassForm {
 }
 
 #[post("/class/create", data = "<form>")]
-pub fn create_class(
-    form: Form<CreateClassForm>,
-    cookie: AuthCookie,
-    conn: Database,
-) -> Html<'static> {
+pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_teacher::dsl as class_teacher;
     match diesel::insert_into(class::class)
@@ -120,7 +116,7 @@ pub fn create_class(
 }
 
 #[get("/join/<join_code>")]
-pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Html<'static> {
+pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     let class_id = match class::class
         .filter(class::code.eq(join_code))
@@ -162,7 +158,7 @@ pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Htm
 }
 
 #[get("/class")]
-pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
+pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_teacher::dsl as class_teacher;
@@ -228,7 +224,7 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html<'static
 }
 
 #[get("/class/<id>")]
-pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
+pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
     match get_user_role_in_class(auth_cookie.0 as i32, id as i32, &conn) {
         ClassMemberRole::Student => {
             let class = Class::with_id(id as i32, conn).unwrap();
@@ -267,7 +263,7 @@ pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -
 }
 
 #[get("/class/<id>/settings")]
-pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html<'static> {
+pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
     if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn) == ClassMemberRole::Teacher {
         Html::default()
             .head(default_head("Settings".to_string()))
@@ -319,11 +315,7 @@ fn get_user_role_in_class(user: i32, class: i32, conn: &DatabaseConnection) -> C
 }
 
 #[get("/class/<id>/members")]
-pub fn view_class_members_page(
-    id: usize,
-    conn: Database,
-    auth_cookie: AuthCookie,
-) -> Html<'static> {
+pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCookie) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::users::dsl as users;
@@ -368,7 +360,7 @@ pub fn view_class_members_page(
         )
 }
 
-fn invite_user_form() -> malvolio::Form<'static> {
+fn invite_user_form() -> malvolio::Form {
     malvolio::Form::default()
         .attribute("method", "post")
         .child(
@@ -384,7 +376,7 @@ fn invite_user_form() -> malvolio::Form<'static> {
 }
 
 #[get("/class/<_id>/invite/teacher")]
-pub fn invite_teacher_page(_id: usize) -> Html<'static> {
+pub fn invite_teacher_page(_id: usize) -> Html {
     Html::default()
         .head(default_head("Invite teacher".to_string()))
         .body(
@@ -417,7 +409,7 @@ pub fn invite_teacher(
     auth_cookie: AuthCookie,
     form: Form<InviteTeacherForm>,
     conn: Database,
-) -> Html<'static> {
+) -> Html {
     use crate::schema::class_teacher_invite::dsl as class_teacher_invite;
     use crate::schema::users::dsl as users;
     if !user_is_teacher(auth_cookie.0, id as i32, &*conn) {
@@ -476,7 +468,7 @@ pub fn invite_teacher(
     }
 }
 
-fn delete_class_form(id: usize) -> malvolio::Form<'static> {
+fn delete_class_form(id: usize) -> malvolio::Form {
     malvolio::Form::default()
         .child(Input::default().attribute("type", "text"))
         .child(
@@ -492,7 +484,7 @@ fn delete_class_form(id: usize) -> malvolio::Form<'static> {
 }
 
 #[get("/class/<id>/delete")]
-pub fn delete_class_page(id: usize, _auth_cookie: AuthCookie) -> Html<'static> {
+pub fn delete_class_page(id: usize, _auth_cookie: AuthCookie) -> Html {
     Html::default()
         .head(default_head("Delete this class".to_string()))
         .body(
@@ -512,11 +504,7 @@ pub struct DeleteClassForm {
 }
 
 #[post("/class/delete", data = "<form>")]
-pub fn delete_class(
-    form: Form<DeleteClassForm>,
-    auth_cookie: AuthCookie,
-    conn: Database,
-) -> Html<'static> {
+pub fn delete_class(form: Form<DeleteClassForm>, auth_cookie: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_teacher::dsl as class_teacher;
     let user_is_teacher = diesel::dsl::select(diesel::dsl::exists(
@@ -597,6 +585,7 @@ mod tests {
 
     use crate::utils::{create_user, login_user, logout};
 
+    const TIMEZONE: &str = "Africa/Abidjan";
     const TEACHER_USERNAME: &str = "some_teacher";
     const TEACHER_EMAIL: &str = "some_teacher@example.com";
     const TEACHER_PASSWORD: &str = "somePASSW0RD123";
@@ -611,14 +600,27 @@ mod tests {
     #[test]
     fn test_class_handling() {
         let client = crate::utils::client();
-        create_user(TEACHER_USERNAME, TEACHER_EMAIL, TEACHER_PASSWORD, &client);
+        create_user(
+            TEACHER_USERNAME,
+            TEACHER_EMAIL,
+            TIMEZONE,
+            TEACHER_PASSWORD,
+            &client,
+        );
         create_user(
             SECONDARY_TEACHER_USERNAME,
             SECONDARY_TEACHER_EMAIL,
+            TIMEZONE,
             SECONDARY_TEACHER_PASSWORD,
             &client,
         );
-        create_user(STUDENT_USERNAME, STUDENT_EMAIL, STUDENT_PASSWORD, &client);
+        create_user(
+            STUDENT_USERNAME,
+            STUDENT_EMAIL,
+            TIMEZONE,
+            STUDENT_PASSWORD,
+            &client,
+        );
 
         // test can create class
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);

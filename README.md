@@ -1,6 +1,7 @@
 # Lovelace
 
-[![codecov](https://codecov.io/gh/lovelace-ed/lovelace/branch/main/graph/badge.svg?token=jBGczgf8yB)](https://codecov.io/gh/lovelace-ed/lovelace)
+[![codecov](https://img.shields.io/codecov/c/github/lovelace-ed/lovelace?style=flat-square)](https://codecov.io/gh/lovelace-ed/lovelace)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/lovelace-ed/lovelace/Test?style=flat-square)
 
 Designed to replace proprietary for-profit solutions, Lovelace is a computer system designed to
 get out of your way (when you want it to) and let you get on with education (whether as a student or

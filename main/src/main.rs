@@ -26,18 +26,24 @@ extern crate lazy_static;
 #[macro_use]
 extern crate nanoid;
 
+#[macro_use]
+extern crate derive_builder;
+
 use malvolio::{Body, Head, Html, Meta, H1};
 use utils::launch;
 
 mod auth;
 mod class;
+mod css_names;
 mod db;
+mod email;
 mod models;
+mod notifications;
 mod schema;
 mod utils;
 
 #[get("/")]
-fn index() -> Html<'static> {
+fn index() -> Html {
     Html::default()
         .head(
             Head::default()

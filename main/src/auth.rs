@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 /*
 This source code file is distributed subject to the terms of the GNU Affero General Public License.
 A copy of this license can be found in the `licenses` directory at the root of this project.
@@ -18,7 +20,7 @@ use crate::{
     db::Database,
     models::{NewUser, User},
     schema,
-    utils::default_head,
+    utils::{default_head, timezones::timezone_form},
 };
 
 pub const LOGIN_COOKIE: &str = "AUTHORISED";
@@ -69,7 +71,7 @@ impl FromRequest<'_, '_> for AuthCookie {
     }
 }
 
-fn login_form() -> malvolio::Form<'static> {
+fn login_form() -> malvolio::Form {
     malvolio::Form::default()
         .attribute("method", "post")
         .child(
@@ -94,7 +96,7 @@ fn login_form() -> malvolio::Form<'static> {
 }
 
 #[get("/login")]
-pub fn login_page() -> Html<'static> {
+pub fn login_page() -> Html {
     Html::default()
         .head(default_head("Login".to_string()))
         .body(Body::default().child(H1::new("Login")).child(login_form()))
@@ -165,7 +167,7 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
     }
 }
 
-fn register_form() -> malvolio::Form<'static> {
+fn register_form() -> malvolio::Form {
     malvolio::Form::default()
         .attribute("method", "post")
         .child(
@@ -181,6 +183,8 @@ fn register_form() -> malvolio::Form<'static> {
                 .attribute("placeholder", "Email")
                 .attribute("name", "email"),
         )
+        .child(Br)
+        .child(timezone_form("timezone", None))
         .child(Br)
         .child(
             Input::default()
@@ -204,7 +208,7 @@ fn register_form() -> malvolio::Form<'static> {
 }
 
 #[get("/register")]
-pub fn register_page() -> Html<'static> {
+pub fn register_page() -> Html {
     Html::default()
         .head(default_head("Login".to_string()))
         .body(
@@ -218,6 +222,7 @@ pub fn register_page() -> Html<'static> {
 pub struct RegisterData {
     username: String,
     email: String,
+    timezone: String,
     password: String,
     password_confirmation: String,
 }
@@ -228,7 +233,7 @@ lazy_static! {
 }
 
 #[post("/register", data = "<data>")]
-pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> Html<'static> {
+pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> Html {
     use crate::schema::users::dsl::*;
     if cookies.get(LOGIN_COOKIE).is_some() {
         return Html::default()
@@ -240,6 +245,22 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
                         "It looks like you've just tried to register, but are already logged in.",
                     )),
             );
+    };
+    let chrono_timezone: chrono_tz::Tz = match FromStr::from_str(data.timezone.trim()) {
+        Ok(tz) => tz,
+        Err(_) => {
+            return Html::default()
+                .head(default_head("Invalid timezone".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Invalid timezone"))
+                        .child(P::with_text(
+                            "Something could be very wrong on our end if this has
+                    happened. Please don't hesitate to get in touch if the problem persists.",
+                        ))
+                        .child(register_form()),
+                );
+        }
     };
     if !EMAIL_RE.is_match(&data.email) {
         return Html::default()
@@ -278,6 +299,7 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
             &data.email,
             &hashed_password,
             Utc::now().naive_utc(),
+            &chrono_timezone.to_string(),
         ))
         .get_result::<User>(&*conn)
     {
@@ -286,27 +308,25 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
             .body(
                 Body::default()
                     .child(H1::new("Registration successful!"))
-                    .child(P::with_text(
-                        "We're so happy to have you on board."
-                    )),
+                    .child(P::with_text("We're so happy to have you on board.")),
             ),
-        Err(problem) => {
-            match problem {
-                diesel::result::Error::DatabaseError(
-                    diesel::result::DatabaseErrorKind::UniqueViolation,
-                    _,
-                ) => Html::default()
-                    .head(default_head("User already registered".to_string()))
-                    .body(
-                        Body::default()
-                            .child(H1::new("Registration error"))
-                            .child(P::with_text(
-                                "A user with that username or email already exists."
-                            ))
-                            .child(register_form()),
-                    ),
-                _ => {
-                    Html::default().head(default_head("Server error".to_string())).body(
+        Err(problem) => match problem {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UniqueViolation,
+                _,
+            ) => Html::default()
+                .head(default_head("User already registered".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Registration error"))
+                        .child(P::with_text(
+                            "A user with that username or email already exists.",
+                        ))
+                        .child(register_form()),
+                ),
+            _ => {
+                error!("{:#?}", problem);
+                Html::default().head(default_head("Server error".to_string())).body(
                         Body::default()
                             .child(H1::new("Registration error"))
                             .child(P::with_text(
@@ -317,9 +337,8 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
                             ))
                             .child(register_form()),
                     )
-                }
             }
-        }
+        },
     }
 }
 
@@ -339,12 +358,12 @@ pub fn logout(mut cookies: Cookies) -> Html {
 }
 
 #[get("/reset")]
-fn reset() -> Html<'static> {
+fn reset() -> Html {
     todo!()
 }
 
 #[post("/reset")]
-fn reset_page() -> Html<'static> {
+fn reset_page() -> Html {
     todo!()
 }
 
@@ -353,6 +372,8 @@ mod test {
     const USERNAME: &str = "user";
     const EMAIL: &str = "user@example.com";
     const PASSWORD: &str = "SecurePasswordWhichM33tsTh3Criteri@";
+    /// This was chosen for no other reason than it is alphabetically first.
+    const TIMEZONE: &str = "Africa/Abidjan";
 
     use rocket::http::ContentType;
 
@@ -365,8 +386,12 @@ mod test {
             .post("/auth/register")
             .header(ContentType::Form)
             .body(format!(
-                "username={}&email={}&password={}&password_confirmation={}",
-                "something", "an_invalid_email", "validPASSW0RD", "validPASSW0RD"
+                "username={}&email={}&timezone={timezone}&password={}&password_confirmation={}",
+                "something",
+                "an_invalid_email",
+                "validPASSW0RD",
+                "validPASSW0RD",
+                timezone = TIMEZONE
             ))
             .dispatch();
         let response = register_res.body_string().expect("invalid body response");
@@ -385,8 +410,12 @@ mod test {
             .post("/auth/register")
             .header(ContentType::Form)
             .body(format!(
-                "username={}&email={}&password={}&password_confirmation={}",
-                USERNAME, EMAIL, PASSWORD, PASSWORD
+                "username={username}&email={email}&password={password}&timezone={timezone}
+                &password_confirmation={password}",
+                username = USERNAME,
+                email = EMAIL,
+                password = PASSWORD,
+                timezone = TIMEZONE
             ))
             .dispatch();
         let response = register_res.body_string().expect("invalid body response");

@@ -20,7 +20,7 @@ use std::rc::Rc;
 
 macro_rules! heading_display {
     ($name:ident) => {
-        impl<'a> std::fmt::Display for $name<'a> {
+        impl std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.write_str("<")?;
                 f.write_str(stringify!($name))?;
@@ -46,7 +46,7 @@ macro_rules! to_html {
 #[cfg(feature = "with_yew")]
 macro_rules! into_vnode_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
-        impl IntoVNode for $name<'static> {
+        impl IntoVNode for $name {
             fn into(self) -> yew::virtual_dom::VNode {
                 match self {
                     $(
@@ -64,6 +64,21 @@ macro_rules! add_single_attribute {
         #[inline(always)]
         pub fn attribute(mut self, k: & $lifetime str, v: & $lifetime str) -> Self {
             self.attrs.push((k, v));
+            self
+        }
+    };
+}
+
+macro_rules! impl_of_data_struct_insert {
+    () => {
+        #[inline(always)]
+        pub fn attribute<S1, S2>(mut self, k: S1, v: S2) -> Self
+        where
+            S1: Into<&'static str>,
+            S2: Into<String>,
+        {
+            // all these features are probably going to come back to bite :-)
+            self.attrs.insert(k.into(), v.into());
             self
         }
     };
@@ -89,10 +104,10 @@ macro_rules! impl_of_heading_insert {
 
 macro_rules! impl_of_heading_new_fn {
     ($name:ident) => {
-        impl<'a> $name<'a> {
+        impl $name {
             pub fn new<S>(from: S) -> Self
             where
-                S: Into<std::borrow::Cow<'a, str>>,
+                S: Into<std::borrow::Cow<'static, str>>,
             {
                 Self(
                     from.into(),
@@ -109,7 +124,7 @@ macro_rules! impl_of_heading_new_fn {
 #[cfg(feature = "with_yew")]
 macro_rules! heading_of_vnode {
     ($name:ident) => {
-        impl IntoVNode for $name<'static> {
+        impl IntoVNode for $name {
             fn into(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
                 for (k, v) in self.2.into_iter() {
@@ -141,17 +156,17 @@ heading_of_vnode!(H5);
 heading_of_vnode!(H6);
 
 #[derive(Clone, Debug)]
-pub struct Html<'a> {
+pub struct Html {
     #[cfg(feature = "with_rocket")]
     status: u16,
     #[cfg(feature = "with_rocket")]
     reason: Option<&'static str>,
-    head: Head<'a>,
-    body: Body<'a>,
+    head: Head,
+    body: Body,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Html<'static> {
+impl IntoVNode for Html {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("html");
         tag.add_children(vec![IntoVNode::into(self.head), IntoVNode::into(self.body)]);
@@ -159,7 +174,7 @@ impl IntoVNode for Html<'static> {
     }
 }
 
-impl<'a> Default for Html<'a> {
+impl Default for Html {
     fn default() -> Self {
         Self {
             #[cfg(feature = "with_rocket")]
@@ -172,7 +187,7 @@ impl<'a> Default for Html<'a> {
     }
 }
 
-impl<'a> Display for Html<'a> {
+impl Display for Html {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<!DOCTYPE html>")?;
         f.write_str("<html>")?;
@@ -184,7 +199,7 @@ impl<'a> Display for Html<'a> {
 }
 
 #[cfg(feature = "with_rocket")]
-impl<'r> Responder<'r> for Html<'_> {
+impl<'r> Responder<'r> for Html {
     fn respond_to(self, _: &rocket::Request) -> rocket::response::Result<'r> {
         Response::build()
             .raw_status(self.status, self.reason.unwrap_or(""))
@@ -194,12 +209,12 @@ impl<'r> Responder<'r> for Html<'_> {
     }
 }
 
-impl Html<'static> {
-    pub fn head(mut self, head: Head<'static>) -> Self {
+impl Html {
+    pub fn head(mut self, head: Head) -> Self {
         self.head = head;
         self
     }
-    pub fn body(mut self, body: Body<'static>) -> Self {
+    pub fn body(mut self, body: Body) -> Self {
         self.body = body;
         self
     }
@@ -217,12 +232,12 @@ impl Html<'static> {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct Head<'a> {
-    children: Vec<HeadNode<'a>>,
+pub struct Head {
+    children: Vec<HeadNode>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Head<'static> {
+impl IntoVNode for Head {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("head");
         tag.add_children(self.children.into_iter().map(IntoVNode::into));
@@ -230,10 +245,10 @@ impl IntoVNode for Head<'static> {
     }
 }
 
-impl<'a> Head<'a> {
+impl Head {
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
-        C: Into<HeadNode<'a>>,
+        C: Into<HeadNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
@@ -241,14 +256,14 @@ impl<'a> Head<'a> {
     }
     pub fn child<C>(mut self, child: C) -> Self
     where
-        C: Into<HeadNode<'a>>,
+        C: Into<HeadNode>,
     {
         self.children.push(child.into());
         self
     }
 }
 
-impl<'a> Display for Head<'a> {
+impl Display for Head {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<head>")?;
         for child in &self.children {
@@ -259,29 +274,29 @@ impl<'a> Display for Head<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub enum HeadNode<'a> {
-    Title(Title<'a>),
-    Meta(Meta<'a>),
+pub enum HeadNode {
+    Title(Title),
+    Meta(Meta),
 }
 
 #[cfg(feature = "with_yew")]
 into_vnode_for_grouping_enum!(HeadNode, Title, Meta);
 
 #[derive(Default, Debug, Clone)]
-pub struct Meta<'a> {
-    attrs: Vec<(&'a str, &'a str)>,
+pub struct Meta {
+    attrs: Vec<(&'static str, &'static str)>,
 }
 
-impl<'a> Meta<'a> {
+impl Meta {
     #[inline(always)]
-    pub fn attribute(mut self, k: &'a str, v: &'a str) -> Self {
+    pub fn attribute(mut self, k: &'static str, v: &'static str) -> Self {
         self.attrs.push((k, v));
         self
     }
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Meta<'static> {
+impl IntoVNode for Meta {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("meta");
         for (a, b) in self.attrs {
@@ -291,7 +306,7 @@ impl IntoVNode for Meta<'static> {
     }
 }
 
-impl<'a> Display for Meta<'a> {
+impl Display for Meta {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<meta")?;
         for attr in &self.attrs {
@@ -325,8 +340,8 @@ impl Stylesheet {
 }
 
 #[derive(Debug, Clone)]
-pub struct Title<'a>(
-    Cow<'a, str>,
+pub struct Title(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -339,12 +354,12 @@ impl_of_heading_new_fn!(Title);
 heading_display!(Title);
 
 #[derive(Default, Debug, Clone)]
-pub struct Body<'a> {
-    children: Vec<BodyNode<'a>>,
+pub struct Body {
+    children: Vec<BodyNode>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Body<'static> {
+impl IntoVNode for Body {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("body");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
@@ -352,10 +367,10 @@ impl IntoVNode for Body<'static> {
     }
 }
 
-impl<'a> Body<'a> {
+impl Body {
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
-        C: Into<BodyNode<'a>>,
+        C: Into<BodyNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
@@ -363,14 +378,14 @@ impl<'a> Body<'a> {
     }
     pub fn child<C>(mut self, child: C) -> Self
     where
-        C: Into<BodyNode<'a>>,
+        C: Into<BodyNode>,
     {
         self.children.push(child.into());
         self
     }
 }
 
-impl<'a> Display for Body<'a> {
+impl Display for Body {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<body>")?;
         for node in &self.children {
@@ -382,7 +397,7 @@ impl<'a> Display for Body<'a> {
 
 macro_rules! enum_display {
     ($on:ident, $($variant:ident),*) => {
-        impl std::fmt::Display for $on <'_> {
+        impl std::fmt::Display for $on {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 match self {
                     $(Self::$variant(x) => <$variant as std::fmt::Display>::fmt(&x.clone(), f)),*
@@ -395,33 +410,38 @@ macro_rules! enum_display {
 enum_display!(HeadNode, Title, Meta);
 
 #[derive(Clone, Debug)]
-pub enum BodyNode<'a> {
-    H1(H1<'a>),
-    H2(H2<'a>),
-    H3(H3<'a>),
-    H4(H4<'a>),
-    H5(H5<'a>),
-    H6(H6<'a>),
-    P(P<'a>),
-    Text(Text<'a>),
-    Form(Form<'a>),
+pub enum BodyNode {
+    H1(H1),
+    H2(H2),
+    H3(H3),
+    H4(H4),
+    H5(H5),
+    H6(H6),
+    P(P),
+    Text(Text),
+    Form(Form),
     Br(Br),
-    Div(Div<'a>),
-    A(A<'a>),
+    Div(Div),
+    A(A),
+    Input(Input),
+    Label(Label),
+    Select(Select),
 }
 
 #[cfg(feature = "with_yew")]
-into_vnode_for_grouping_enum!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A);
+into_vnode_for_grouping_enum!(
+    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select
+);
 
 #[derive(Debug, Clone, Default)]
-pub struct A<'a> {
-    attrs: Vec<(&'a str, &'a str)>,
-    text: Cow<'a, str>,
-    href: Cow<'a, str>,
+pub struct A {
+    attrs: Vec<(&'static str, &'static str)>,
+    text: Cow<'static, str>,
+    href: Cow<'static, str>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for A<'static> {
+impl IntoVNode for A {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vnode = yew::virtual_dom::VTag::new("a");
         vnode.add_attribute("href", self.href);
@@ -433,7 +453,7 @@ impl IntoVNode for A<'static> {
     }
 }
 
-impl A<'static> {
+impl A {
     pub fn new<S>(href: S) -> Self
     where
         S: Into<Cow<'static, str>>,
@@ -458,7 +478,7 @@ impl A<'static> {
     to_html!();
 }
 
-impl<'a> Display for A<'a> {
+impl Display for A {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<a")?;
         for attr in &self.attrs {
@@ -478,13 +498,13 @@ impl<'a> Display for A<'a> {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Div<'a> {
-    children: Vec<BodyNode<'a>>,
-    attrs: Vec<(&'a str, &'a str)>,
+pub struct Div {
+    children: Vec<BodyNode>,
+    attrs: Vec<(&'static str, &'static str)>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Div<'static> {
+impl IntoVNode for Div {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("div");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
@@ -495,11 +515,11 @@ impl IntoVNode for Div<'static> {
     }
 }
 
-impl Div<'static> {
+impl Div {
     pub fn children<C, D>(mut self, children: C) -> Self
     where
         C: IntoIterator<Item = D>,
-        D: Into<BodyNode<'static>>,
+        D: Into<BodyNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
@@ -507,7 +527,7 @@ impl Div<'static> {
     }
     pub fn child<C>(mut self, child: C) -> Self
     where
-        C: Into<BodyNode<'static>>,
+        C: Into<BodyNode>,
     {
         self.children.push(child.into());
         self
@@ -523,7 +543,7 @@ impl Div<'static> {
     to_html!();
 }
 
-impl<'a> Display for Div<'a> {
+impl Display for Div {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<div")?;
         for attr in &self.attrs {
@@ -559,7 +579,7 @@ impl IntoVNode for Br {
 
 macro_rules! into_grouping_union {
     ($name:ident, $enum_name:ident) => {
-        impl<'a> From<$name<'a>> for $enum_name<'a> {
+        impl From<$name> for $enum_name {
             fn from(t: $name) -> $enum_name {
                 $enum_name::$name(t)
             }
@@ -571,8 +591,8 @@ into_grouping_union!(Div, BodyNode);
 
 macro_rules! into_grouping_union_without_lifetimes {
     ($name:ident, $enum_name:ident) => {
-        impl<'a> From<$name> for $enum_name<'a> {
-            fn from(t: $name) -> $enum_name<'a> {
+        impl From<$name> for $enum_name {
+            fn from(t: $name) -> $enum_name {
                 $enum_name::$name(t)
             }
         }
@@ -580,18 +600,17 @@ macro_rules! into_grouping_union_without_lifetimes {
 }
 
 into_grouping_union_without_lifetimes!(Br, BodyNode);
-into_grouping_union_without_lifetimes!(Br, FormNode);
 
 into_grouping_union!(Meta, HeadNode);
 into_grouping_union!(Title, HeadNode);
 
 into_grouping_union!(A, BodyNode);
 
-enum_display!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A);
+enum_display!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Select, Label);
 
 #[derive(Default, Debug, Clone)]
-pub struct H1<'a>(
-    Cow<'a, str>,
+pub struct H1(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -603,8 +622,8 @@ into_grouping_union!(H1, BodyNode);
 heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
-pub struct H2<'a>(
-    Cow<'a, str>,
+pub struct H2(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -616,8 +635,8 @@ into_grouping_union!(H2, BodyNode);
 heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
-pub struct H3<'a>(
-    Cow<'a, str>,
+pub struct H3(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -629,8 +648,8 @@ into_grouping_union!(H3, BodyNode);
 heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
-pub struct H4<'a>(
-    Cow<'a, str>,
+pub struct H4(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -642,8 +661,8 @@ into_grouping_union!(H4, BodyNode);
 heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
-pub struct H5<'a>(
-    Cow<'a, str>,
+pub struct H5(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -655,8 +674,8 @@ into_grouping_union!(H5, BodyNode);
 heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
-pub struct H6<'a>(
-    Cow<'a, str>,
+pub struct H6(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -668,12 +687,12 @@ into_grouping_union!(H6, BodyNode);
 heading_display!(H6);
 
 #[derive(Default, Debug, Clone)]
-pub struct P<'a> {
-    children: Vec<BodyNode<'a>>,
+pub struct P {
+    children: Vec<BodyNode>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for P<'static> {
+impl IntoVNode for P {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("br");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
@@ -683,7 +702,7 @@ impl IntoVNode for P<'static> {
 
 into_grouping_union!(P, BodyNode);
 
-impl<'a> Display for P<'a> {
+impl Display for P {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<p>")?;
         for child in &self.children {
@@ -693,10 +712,10 @@ impl<'a> Display for P<'a> {
     }
 }
 
-impl<'a> P<'a> {
+impl P {
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
-        C: Into<BodyNode<'a>>,
+        C: Into<BodyNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
@@ -704,28 +723,28 @@ impl<'a> P<'a> {
     }
     pub fn child<C>(mut self, child: C) -> Self
     where
-        C: Into<BodyNode<'a>>,
+        C: Into<BodyNode>,
     {
         self.children.push(child.into());
         self
     }
     pub fn with_text<S>(text: S) -> Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<Cow<'static, str>>,
     {
         P::default().child(BodyNode::Text(Text::new(text)))
     }
     pub fn text<S>(self, text: S) -> Self
     where
-        S: Into<Cow<'a, str>>,
+        S: Into<Cow<'static, str>>,
     {
         self.child(BodyNode::Text(Text::new(text)))
     }
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct Text<'a>(
-    Cow<'a, str>,
+pub struct Text(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -737,20 +756,20 @@ heading_of_vnode!(Text);
 
 into_grouping_union!(Text, BodyNode);
 
-impl<'a> Display for Text<'a> {
+impl Display for Text {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
     }
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Form<'a> {
-    children: Vec<FormNode<'a>>,
-    attrs: Vec<(&'a str, &'a str)>,
+pub struct Form {
+    children: Vec<BodyNode>,
+    attrs: Vec<(&'static str, &'static str)>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Form<'static> {
+impl IntoVNode for Form {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("form");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
@@ -761,11 +780,11 @@ impl IntoVNode for Form<'static> {
     }
 }
 
-impl Form<'static> {
+impl Form {
     #[inline(always)]
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
-        C: Into<FormNode<'static>>,
+        C: Into<BodyNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
@@ -774,7 +793,7 @@ impl Form<'static> {
     #[inline(always)]
     pub fn child<C>(mut self, child: C) -> Self
     where
-        C: Into<FormNode<'static>>,
+        C: Into<BodyNode>,
     {
         self.children.push(child.into());
         self
@@ -783,7 +802,7 @@ impl Form<'static> {
     to_html!();
 }
 
-impl<'a> Display for Form<'a> {
+impl Display for Form {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<form ")?;
         for attr in &self.attrs {
@@ -803,27 +822,15 @@ impl<'a> Display for Form<'a> {
 
 into_grouping_union!(Form, BodyNode);
 
-#[derive(Debug, Clone)]
-pub enum FormNode<'a> {
-    Input(Input<'a>),
-    Label(Label<'a>),
-    Br(Br),
-}
-
-#[cfg(feature = "with_yew")]
-into_vnode_for_grouping_enum!(FormNode, Input, Label, Br);
-
-enum_display!(FormNode, Input, Label, Br);
-
 #[derive(Debug, Clone, Default)]
-pub struct Input<'a> {
-    attrs: Vec<(&'static str, Cow<'a, str>)>,
+pub struct Input {
+    attrs: Vec<(&'static str, Cow<'static, str>)>,
     #[cfg(feature = "with_yew")]
     listeners: Vec<Rc<dyn Listener>>,
 }
 
 #[cfg(feature = "with_yew")]
-impl IntoVNode for Input<'static> {
+impl IntoVNode for Input {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("input");
         self.attrs
@@ -839,7 +846,7 @@ impl IntoVNode for Input<'static> {
     }
 }
 
-impl<'a> Display for Input<'a> {
+impl Display for Input {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<input")?;
         for attr in &self.attrs {
@@ -853,14 +860,14 @@ impl<'a> Display for Input<'a> {
     }
 }
 
-into_grouping_union!(Input, FormNode);
+into_grouping_union!(Input, BodyNode);
 
-impl<'a> Input<'a> {
+impl Input {
     #[inline(always)]
     pub fn attribute<S1, S2>(mut self, k: S1, v: S2) -> Self
     where
         S1: Into<&'static str>,
-        S2: Into<Cow<'a, str>>,
+        S2: Into<Cow<'static, str>>,
     {
         self.attrs.push((k.into(), v.into()));
         self
@@ -878,8 +885,8 @@ impl<'a> Input<'a> {
 }
 
 #[derive(Debug, Clone)]
-pub struct Label<'a>(
-    Cow<'a, str>,
+pub struct Label(
+    Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
     HashMap<&'static str, String>,
 );
@@ -891,4 +898,114 @@ impl_of_heading_new_fn!(Label);
 
 heading_display!(Label);
 
-into_grouping_union!(Label, FormNode);
+into_grouping_union!(Label, BodyNode);
+
+#[derive(Default, Debug, Clone)]
+pub struct Select {
+    attrs: HashMap<&'static str, String>,
+    children: Vec<SelectOption>,
+}
+
+impl Select {
+    impl_of_data_struct_insert!();
+    pub fn children<I, C>(mut self, children: I) -> Self
+    where
+        C: Into<SelectOption>,
+        I: IntoIterator<Item = C>,
+    {
+        self.children
+            .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
+        self
+    }
+    pub fn child<C>(mut self, child: C) -> Self
+    where
+        C: Into<SelectOption>,
+    {
+        self.children.push(child.into());
+        self
+    }
+}
+
+into_grouping_union!(Select, BodyNode);
+
+impl Display for Select {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<select ")?;
+        write_attributes(&self.attrs, f)?;
+        f.write_str(">")?;
+        for child in &self.children {
+            child.fmt(f)?;
+        }
+        f.write_str("</select>")
+    }
+}
+
+#[cfg(feature = "with_yew")]
+impl IntoVNode for Select {
+    fn into(self) -> yew::virtual_dom::VNode {
+        let mut vtag = yew::virtual_dom::VTag::new("select");
+        write_attributes_to_vtag(self.attrs, &mut vtag);
+        vtag.add_children(self.children.into_iter().map(IntoVNode::into));
+        vtag.into()
+    }
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct SelectOption {
+    attrs: HashMap<&'static str, String>,
+    text: Cow<'static, str>,
+}
+
+impl SelectOption {
+    impl_of_data_struct_insert!();
+    pub fn text<S>(mut self, text: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
+        self.text = text.into();
+        self
+    }
+}
+
+impl Display for SelectOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("<option ")?;
+        write_attributes(&self.attrs, f)?;
+        f.write_str(">")?;
+        self.text.fmt(f)?;
+        f.write_str("</option>")
+    }
+}
+
+#[cfg(feature = "with_yew")]
+impl IntoVNode for SelectOption {
+    fn into(self) -> yew::virtual_dom::VNode {
+        let mut vtag = yew::virtual_dom::VTag::new("option");
+        write_attributes_to_vtag(self.attrs, &mut vtag);
+        vtag.add_child(::yew::virtual_dom::VText::new(self.text).into());
+        vtag.into()
+    }
+}
+
+#[cfg(feature = "yew")]
+fn write_attributes_to_vtag(
+    attrs: HashMap<&'static str, String>,
+    vtag: &mut ::yew::virtual_dom::VTag,
+) {
+    for (key, value) in attrs.into_iter() {
+        vtag.add_attribute(key, value);
+    }
+}
+
+fn write_attributes(
+    attrs: &HashMap<&'static str, String>,
+    f: &mut std::fmt::Formatter<'_>,
+) -> std::fmt::Result {
+    for (key, value) in attrs {
+        f.write_str(key)?;
+        f.write_str("=\"")?;
+        f.write_str(&value)?;
+        f.write_str("\"")?;
+    }
+    Ok(())
+}
