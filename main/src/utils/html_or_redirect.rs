@@ -2,6 +2,7 @@ use malvolio::Html;
 use rocket::response::Redirect;
 use rocket::response::Responder;
 
+#[allow(clippy::large_enum_variant)]
 pub enum HtmlOrRedirect {
     Html(Html),
     Redirect(Redirect),

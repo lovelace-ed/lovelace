@@ -28,7 +28,7 @@ use super::get_user_role_in_class;
 #[get("/<id>/message")]
 pub fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
     use crate::schema::class::dsl as class;
-    if let Some(_) = get_user_role_in_class(auth.0, id, &*conn) {
+    if get_user_role_in_class(auth.0, id, &*conn).is_some() {
         let class =
             catch_database_error!(class::class.filter(class::id.eq(id)).first::<Class>(&*conn));
         let messages =
@@ -167,7 +167,7 @@ pub fn apply_create_new_class_message(
             contents: &form.contents,
             created_at: chrono::Utc::now().naive_utc(),
             user_id: auth.0,
-            class_id: class_id,
+            class_id,
             edited: false,
         })
         .returning(class_message::id)
