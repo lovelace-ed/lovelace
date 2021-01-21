@@ -4,6 +4,9 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::collections::HashMap;
 
+pub mod auto_database_error;
+pub mod error_messages;
+pub mod html_or_redirect;
 pub mod timezones;
 
 #[cfg(test)]
@@ -87,6 +90,20 @@ pub fn launch() -> Rocket {
                 crate::notifications::list_notifications,
                 crate::notifications::mark_notification_as_read,
                 crate::notifications::delete_notification_with_id
+            ],
+        )
+        .mount(
+            "/class",
+            routes![
+                crate::class::messages::list_all_messages,
+                crate::class::messages::create_new_class_message,
+                crate::class::messages::apply_create_new_class_message,
+                crate::class::messages::reply_to_teacher_message,
+                crate::class::messages::edit_message,
+                crate::class::messages::apply_message_edit,
+                crate::class::messages::edit_message_reply,
+                crate::class::messages::apply_message_reply_edit,
+                crate::class::messages::view_message
             ],
         )
 }

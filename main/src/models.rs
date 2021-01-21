@@ -4,10 +4,13 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use chrono::NaiveDateTime;
 
+use crate::schema::class_message;
+use crate::schema::class_message_reply;
 use crate::schema::class_teacher;
 use crate::schema::class_teacher_invite;
 use crate::schema::notifications;
 use crate::schema::users;
+
 use crate::{db::Database, schema::class};
 use crate::{notifications::NotificationPriority, schema::class_student};
 use diesel::prelude::*;
@@ -27,12 +30,12 @@ pub struct User {
 #[derive(Insertable, Debug, Clone)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
-    username: &'a str,
-    email: &'a str,
-    password: &'a str,
-    created: NaiveDateTime,
-    email_verified: bool,
-    timezone: &'a str,
+    pub username: &'a str,
+    pub email: &'a str,
+    pub password: &'a str,
+    pub created: NaiveDateTime,
+    pub email_verified: bool,
+    pub timezone: &'a str,
 }
 
 impl<'a> NewUser<'a> {
@@ -74,10 +77,10 @@ impl Class {
 #[derive(Insertable, Debug, Clone)]
 #[table_name = "class"]
 pub struct NewClass<'a> {
-    name: &'a str,
-    description: &'a str,
-    created: NaiveDateTime,
-    code: &'a str,
+    pub name: &'a str,
+    pub description: &'a str,
+    pub created: NaiveDateTime,
+    pub code: &'a str,
 }
 
 impl<'a> NewClass<'a> {
@@ -163,4 +166,53 @@ impl<'a> NewNotification<'a> {
             read,
         }
     }
+}
+
+#[derive(Queryable, Identifiable, Associations)]
+#[belongs_to(Class)]
+#[table_name = "class_message"]
+pub struct ClassMessage {
+    pub id: i32,
+    pub title: String,
+    pub contents: String,
+    pub created_at: NaiveDateTime,
+    pub user_id: i32,
+    pub class_id: i32,
+    pub edited: bool,
+}
+
+#[derive(Insertable)]
+#[table_name = "class_message"]
+pub struct NewClassMessage<'a> {
+    pub title: &'a str,
+    pub contents: &'a str,
+    pub created_at: NaiveDateTime,
+    pub user_id: i32,
+    pub class_id: i32,
+    pub edited: bool,
+}
+
+#[derive(Queryable, Identifiable, Associations)]
+#[table_name = "class_message_reply"]
+#[belongs_to(User)]
+#[belongs_to(ClassMessage)]
+pub struct ClassMessageReply {
+    pub id: i32,
+    pub contents: String,
+    pub created_at: NaiveDateTime,
+    pub edited: bool,
+    pub user_id: i32,
+    pub class_id: i32,
+    pub class_message_id: i32,
+}
+
+#[derive(Insertable)]
+#[table_name = "class_message_reply"]
+pub struct NewClassMessageReply<'a> {
+    pub contents: &'a str,
+    pub created_at: NaiveDateTime,
+    pub edited: bool,
+    pub user_id: i32,
+    pub class_id: i32,
+    pub class_message_id: i32,
 }

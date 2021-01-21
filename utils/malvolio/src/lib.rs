@@ -376,9 +376,10 @@ impl IntoVNode for Body {
 }
 
 impl Body {
-    pub fn children<C>(mut self, children: Vec<C>) -> Self
+    pub fn children<I, C>(mut self, children: I) -> Self
     where
         C: Into<BodyNode>,
+        I: IntoIterator<Item = C>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());

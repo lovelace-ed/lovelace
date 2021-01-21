@@ -13,7 +13,7 @@ Public License v2.0.
 included in comments inside source code files – is licensed under the terms of the GNU Free
 Documentation License.
 
-A copy of both of these licenses can be found in the `licences` directory (at the root of this
+A copy of all of these licenses can be found in the `licences` directory (at the root of this
 project).
 
 ## Licensing code

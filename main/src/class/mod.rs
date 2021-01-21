@@ -8,6 +8,8 @@ use malvolio::{Body, Div, Html, Input, A, H1, H3, P};
 use diesel::prelude::*;
 use rocket::request::Form;
 
+pub mod messages;
+
 use crate::{
     auth::AuthCookie,
     db::{Database, DatabaseConnection},
@@ -226,31 +228,36 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
 #[get("/class/<id>")]
 pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
     match get_user_role_in_class(auth_cookie.0 as i32, id as i32, &conn) {
-        ClassMemberRole::Student => {
-            let class = Class::with_id(id as i32, conn).unwrap();
-            Html::default()
-                .head(default_head(class.name.to_string()))
-                .body(
+        Some(role) => match role {
+            ClassMemberRole::Student => {
+                let class = Class::with_id(id as i32, conn).unwrap();
+                Html::default()
+                    .head(default_head(class.name.to_string()))
+                    .body(
+                        Body::default()
+                            .child(H1::new(format!("Class: {}", class.name)))
+                            .child(P::with_text(class.description)),
+                    )
+            }
+            ClassMemberRole::Teacher => {
+                let class = Class::with_id(id as i32, conn).unwrap();
+                Html::default().head(default_head(class.name.clone())).body(
                     Body::default()
                         .child(H1::new(format!("Class: {}", class.name)))
-                        .child(P::with_text(class.description)),
+                        .child(H3::new(format!(
+                            "Invite people to join with the code: {}",
+                            class.code
+                        )))
+                        .child(
+                            P::with_text(class.description).child(
+                                A::new(format!("/class/{}/settings", class.id))
+                                    .text(format!("Settings")),
+                            ),
+                        ),
                 )
-        }
-        ClassMemberRole::Teacher => {
-            let class = Class::with_id(id as i32, conn).unwrap();
-            Html::default().head(default_head(class.name.clone())).body(
-                Body::default()
-                    .child(H1::new(format!("Class: {}", class.name)))
-                    .child(H3::new(format!(
-                        "Invite people to join with the code: {}",
-                        class.code
-                    )))
-                    .child(P::with_text(class.description).child(
-                        A::new(format!("/class/{}/settings", class.id)).text(format!("Settings")),
-                    )),
-            )
-        }
-        ClassMemberRole::None => Html::default()
+            }
+        },
+        None => Html::default()
             .head(default_head("Invalid permission".to_string()))
             .body(
                 Body::default()
@@ -264,7 +271,9 @@ pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -
 
 #[get("/class/<id>/settings")]
 pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) -> Html {
-    if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn) == ClassMemberRole::Teacher {
+    if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn)
+        == Some(ClassMemberRole::Teacher)
+    {
         Html::default()
             .head(default_head("Settings".to_string()))
             .body(
@@ -282,13 +291,17 @@ pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) ->
 }
 
 #[derive(Debug, Eq, PartialEq)]
-enum ClassMemberRole {
+pub enum ClassMemberRole {
     Teacher,
     Student,
-    None,
 }
 
-fn get_user_role_in_class(user: i32, class: i32, conn: &DatabaseConnection) -> ClassMemberRole {
+/// Returns the role that a given user has in a given class.
+pub fn get_user_role_in_class(
+    user: i32,
+    class: i32,
+    conn: &DatabaseConnection,
+) -> Option<ClassMemberRole> {
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_teacher::dsl as class_teacher;
     if diesel::dsl::select(diesel::dsl::exists(
@@ -299,7 +312,7 @@ fn get_user_role_in_class(user: i32, class: i32, conn: &DatabaseConnection) -> C
     .get_result(conn)
     .unwrap()
     {
-        ClassMemberRole::Student
+        Some(ClassMemberRole::Student)
     } else if diesel::dsl::select(diesel::dsl::exists(
         class_teacher::class_teacher
             .filter(class_teacher::user_id.eq(user))
@@ -308,9 +321,9 @@ fn get_user_role_in_class(user: i32, class: i32, conn: &DatabaseConnection) -> C
     .get_result(conn)
     .unwrap()
     {
-        ClassMemberRole::Teacher
+        Some(ClassMemberRole::Teacher)
     } else {
-        ClassMemberRole::None
+        None
     }
 }
 
@@ -319,7 +332,7 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::users::dsl as users;
-    if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn) == ClassMemberRole::None {
+    if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn).is_none() {
         return error_message(
             format!("You don't have permission to view this class."),
             format!("You might need to ask your teacher for a code to join the class."),
