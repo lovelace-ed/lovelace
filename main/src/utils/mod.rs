@@ -11,7 +11,7 @@ pub mod timezones;
 
 #[cfg(test)]
 use crate::auth::LOGIN_COOKIE;
-use malvolio::{Body, Head, Html, Meta, Title, H1, P};
+use malvolio::prelude::{Body, Head, Html, Meta, Title, H1, P};
 use rocket::{
     config::{Environment, Value},
     fairing::AdHoc,

@@ -29,7 +29,7 @@ extern crate nanoid;
 #[macro_use]
 extern crate derive_builder;
 
-use malvolio::{Body, Head, Html, Meta, H1};
+use malvolio::prelude::{Body, Head, Html, Meta, H1};
 use utils::launch;
 
 mod auth;

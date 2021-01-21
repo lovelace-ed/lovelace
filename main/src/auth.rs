@@ -8,7 +8,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use malvolio::{Body, Br, Html, Input, H1, P};
+use malvolio::prelude::{Body, Br, Html, Input, H1, P};
 use regex::Regex;
 use rocket::{
     http::{Cookie, Cookies, Status},
@@ -71,8 +71,8 @@ impl FromRequest<'_, '_> for AuthCookie {
     }
 }
 
-fn login_form() -> malvolio::Form {
-    malvolio::Form::default()
+fn login_form() -> malvolio::prelude::Form {
+    malvolio::prelude::Form::default()
         .attribute("method", "post")
         .child(
             Input::default()
@@ -167,8 +167,8 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
     }
 }
 
-fn register_form() -> malvolio::Form {
-    malvolio::Form::default()
+fn register_form() -> malvolio::prelude::Form {
+    malvolio::prelude::Form::default()
         .attribute("method", "post")
         .child(
             Input::default()

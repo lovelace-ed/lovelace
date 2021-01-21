@@ -1,5 +1,6 @@
 #[cfg(feature = "with_yew")]
 mod test {
+    use malvolio::prelude::*;
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -32,7 +33,7 @@ mod test {
     fn test_links_render() {
         use yew::prelude::*;
 
-        component_named_app_with_html!(malvolio::A::new("https://example.com")
+        component_named_app_with_html!(A::new("https://example.com")
             .attribute("id", "link")
             .to_html());
         yew::initialize();
@@ -62,22 +63,22 @@ mod test {
     fn test_form_rendering() {
         use yew::prelude::*;
 
-        component_named_app_with_html!(malvolio::Form::default()
+        component_named_app_with_html!(Form::default()
             .attribute("method", "post")
             .child(
-                malvolio::Input::default()
+                Input::default()
                     .attribute("type", "text")
                     .attribute("id", "input1")
                     .attribute("placeholder", "Class name"),
             )
             .child(
-                malvolio::Input::default()
+                Input::default()
                     .attribute("id", "input2")
                     .attribute("type", "textarea")
                     .attribute("placeholder", "Add a description for this class here."),
             )
             .child(
-                malvolio::Input::default()
+                Input::default()
                     .attribute("id", "input3")
                     .attribute("type", "submit")
                     .attribute("value", "Create class"),
@@ -125,9 +126,9 @@ mod test {
     #[wasm_bindgen_test]
     fn test_heading_rendering() {
         use yew::prelude::*;
-        component_named_app_with_html!(malvolio::Div::default()
+        component_named_app_with_html!(Div::default()
             .child(
-                malvolio::H1::new("Heading 1")
+                H1::new("Heading 1")
                     .attribute("id", "heading1-1")
                     .attribute("class", "some-class")
             )

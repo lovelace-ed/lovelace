@@ -7,7 +7,7 @@
 
 use diesel::prelude::*;
 use diesel::BelongingToDsl;
-use malvolio::{Body, Div, Form, Html, Input, H1, H3, P};
+use malvolio::prelude::{Body, Div, Form, Html, Input, H1, H3, P};
 use rocket::{response::Redirect, FromForm};
 
 use crate::{

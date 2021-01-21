@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use malvolio::{Body, BodyNode, Div, Html, A, H1, H3, P};
+use malvolio::prelude::{Body, BodyNode, Div, Html, A, H1, H3, P};
 
 use crate::{
     auth::AuthCookie,

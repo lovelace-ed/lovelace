@@ -3,7 +3,7 @@ This source code file is distributed subject to the terms of the GNU Affero Gene
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 use chrono::Utc;
-use malvolio::{Body, Div, Html, Input, A, H1, H3, P};
+use malvolio::prelude::{Body, Div, Html, Input, A, H1, H3, P};
 
 use diesel::prelude::*;
 use rocket::request::Form;
@@ -20,8 +20,8 @@ use crate::{
     utils::{default_head, error_message},
 };
 
-fn create_class_form() -> malvolio::Form {
-    malvolio::Form::default()
+fn create_class_form() -> malvolio::prelude::Form {
+    malvolio::prelude::Form::default()
         .attribute("method", "post")
         .child(
             Input::default()
@@ -373,8 +373,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         )
 }
 
-fn invite_user_form() -> malvolio::Form {
-    malvolio::Form::default()
+fn invite_user_form() -> malvolio::prelude::Form {
+    malvolio::prelude::Form::default()
         .attribute("method", "post")
         .child(
             Input::default()
@@ -481,8 +481,8 @@ pub fn invite_teacher(
     }
 }
 
-fn delete_class_form(id: usize) -> malvolio::Form {
-    malvolio::Form::default()
+fn delete_class_form(id: usize) -> malvolio::prelude::Form {
+    malvolio::prelude::Form::default()
         .child(Input::default().attribute("type", "text"))
         .child(
             Input::default()

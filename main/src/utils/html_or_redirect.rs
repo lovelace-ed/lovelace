@@ -1,4 +1,4 @@
-use malvolio::Html;
+use malvolio::prelude::Html;
 use rocket::response::Redirect;
 use rocket::response::Responder;
 

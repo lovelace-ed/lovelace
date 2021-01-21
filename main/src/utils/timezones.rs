@@ -6,7 +6,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 //! Handles timezones
 
 use chrono_tz::TZ_VARIANTS;
-use malvolio::{Div, Label, Select, SelectOption};
+use malvolio::prelude::{Div, Label, Select, SelectOption};
 
 use crate::css_names::FORM_GROUP;
 
