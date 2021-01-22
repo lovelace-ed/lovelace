@@ -22,13 +22,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long (they're
         # blocking)
         run: |
           cargo +nightly tarpaulin --verbose --all --workspace --timeout 300 --out Xml
-
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
