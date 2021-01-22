@@ -23,16 +23,17 @@ where
         .filter(notifications::read.eq(false))
         .load::<Notification>(&*conn)
     {
-        Ok(data) => {
-            Html::default()
-                .head(default_head("Notifications".to_string()))
-                .body({
-                    let mut body = Body::default();
-                    if let Some(element) = custom_element {
-                        body = body.child(element);
-                    }
-                    body.child(Div::new().attribute(malvolio::prelude::Class::from(LIST)).children(
-                        data.into_iter().map(|notification| {
+        Ok(data) => Html::default()
+            .head(default_head("Notifications".to_string()))
+            .body({
+                let mut body = Body::default();
+                if let Some(element) = custom_element {
+                    body = body.child(element);
+                }
+                body.child(
+                    Div::new()
+                        .attribute(malvolio::prelude::Class::from(LIST))
+                        .children(data.into_iter().map(|notification| {
                             Div::new()
                                 .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                                 .child(H3::new(notification.title))
@@ -53,10 +54,9 @@ where
                                         )))
                                         .text("Delete this notification"),
                                 )
-                        }),
-                    ))
-                })
-        }
+                        })),
+                )
+            }),
         Err(e) => {
             error!("Error retrieving notifications: {:?}", e);
             Html::default()
