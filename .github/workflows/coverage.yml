@@ -20,9 +20,6 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    container:
-      image: xd009642/tarpaulin
-      options: --security-opt seccomp=unconfined
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -30,6 +27,8 @@ jobs:
         with:
           toolchain: nightly
           override: true
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long (they're
         # blocking)
