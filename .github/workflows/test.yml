@@ -5,7 +5,7 @@ on:
     branches:
       - staging
       - trying
-      - main
+    pull_request:
 
 jobs:
   lint:
