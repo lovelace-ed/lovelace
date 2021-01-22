@@ -6,7 +6,6 @@ on:
       - staging
       - trying
       - main
-    pull_request:
 
 jobs:
   lint:
@@ -47,7 +46,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
-        - 5432:5432
+          - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
@@ -62,12 +61,6 @@ jobs:
           args: --no-fail-fast --all
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
-      - uses: actions-rs/grcov@v0.1
-        with:
-          config: ./grcov.yml
-      - uses: codecov/codecov-action@v1
-        with:
-          file: ./coverage.txt
   test-malvolio-in-browser:
     runs-on: ubuntu-latest
     steps:
@@ -81,16 +74,16 @@ jobs:
   bors-report:
     if: ${{ always() && github.event_name == 'push' && contains('refs/heads/staging refs/heads/trying', github.ref) }}
     needs:
-    - lint
-    - test
-    # tested seperately from everything else
-    - test-malvolio-in-browser
+      - lint
+      - test
+      # tested seperately from everything else
+      - test-malvolio-in-browser
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check
-      run: |
-        [ ${{ needs.lint.result }} == success ] &&
-        [ ${{ needs.test.result }} == success ] &&
-        [ ${{ needs.test-malvolio-in-browser.result }} == success ] || exit 1
+      - name: Check
+        run: |
+          [ ${{ needs.lint.result }} == success ] &&
+          [ ${{ needs.test.result }} == success ] &&
+          [ ${{ needs.test-malvolio-in-browser.result }} == success ] || exit 1
