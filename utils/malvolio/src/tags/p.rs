@@ -61,3 +61,26 @@ impl P {
         self.child(BodyNode::Text(Text::new(text)))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::prelude::*;
+    #[test]
+    fn test_p() {
+        let document = P::with_text("Some text").to_string();
+        let document = scraper::Html::parse_document(&document);
+        let p = scraper::Selector::parse("p").unwrap();
+        let p = document.select(&p).next().unwrap();
+        assert_eq!(
+            p.children()
+                .next()
+                .unwrap()
+                .value()
+                .as_text()
+                .unwrap()
+                .to_string()
+                .as_str(),
+            "Some text"
+        );
+    }
+}

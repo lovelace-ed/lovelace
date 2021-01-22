@@ -80,3 +80,21 @@ impl Display for A {
     }
 }
 into_grouping_union!(A, BodyNode);
+
+#[cfg(test)]
+mod test {
+    use crate::prelude::*;
+    #[test]
+    fn test_a_with_attributes() {
+        let document = A::new("https://example.com")
+            .attribute("target", "_blank")
+            .attribute("download", "some-download")
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let a = scraper::Selector::parse("a").unwrap();
+        let a = document.select(&a).next().unwrap().value();
+        assert_eq!(a.attr("href").unwrap(), "https://example.com");
+        assert_eq!(a.attr("target").unwrap(), "_blank");
+        assert_eq!(a.attr("download").unwrap(), "some-download");
+    }
+}

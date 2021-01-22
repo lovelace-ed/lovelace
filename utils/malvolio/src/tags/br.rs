@@ -22,3 +22,15 @@ impl IntoVNode for Br {
 }
 
 into_grouping_union_without_lifetimes!(Br, BodyNode);
+
+#[cfg(test)]
+mod test {
+    use crate::prelude::*;
+    #[test]
+    fn test_br() {
+        let document = Br.to_string();
+        let document = scraper::Html::parse_document(&document);
+        let br = scraper::Selector::parse("br").unwrap();
+        document.select(&br).next().unwrap();
+    }
+}

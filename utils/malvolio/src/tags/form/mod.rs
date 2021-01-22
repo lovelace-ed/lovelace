@@ -65,3 +65,40 @@ impl Display for Form {
 }
 
 into_grouping_union!(Form, BodyNode);
+
+#[cfg(test)]
+mod form {
+    use crate::prelude::*;
+    #[test]
+    fn test_form_tag() {
+        let document = Form::default()
+            .attribute("method", "post")
+            .attribute("action", "/")
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let form = scraper::Selector::parse("form").unwrap();
+        let form = document.select(&form).next().unwrap().value();
+        assert_eq!(form.attr("method"), Some("post"));
+        assert_eq!(form.attr("action"), Some("/"));
+    }
+    #[test]
+    fn test_form_with_children() {
+        let document = Form::default()
+            .child(
+                Input::default()
+                    .attribute("type", "text")
+                    .attribute("name", "input1"),
+            )
+            .child(Input::default().attribute("type", "submit"))
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let input = scraper::Selector::parse("input").unwrap();
+        let inputs = document.select(&input).collect::<Vec<_>>();
+        assert_eq!(inputs.len(), 2);
+        let input1 = inputs[0].value();
+        assert_eq!(input1.attr("type"), Some("text"));
+        assert_eq!(input1.attr("name"), Some("input1"));
+        let input2 = inputs[1].value();
+        assert_eq!(input2.attr("type"), Some("submit"))
+    }
+}
