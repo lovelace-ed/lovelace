@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use malvolio::prelude::{Body, BodyNode, Div, Html, A, H1, H3, P};
+use malvolio::prelude::{Body, BodyNode, Div, Href, Html, A, H1, H3, P};
 
 use crate::{
     auth::AuthCookie,
@@ -31,18 +31,26 @@ where
                     if let Some(element) = custom_element {
                         body = body.child(element);
                     }
-                    body.child(Div::default().attribute("class", LIST).children(
+                    body.child(Div::new().attribute(malvolio::prelude::Class::from(LIST)).children(
                         data.into_iter().map(|notification| {
-                            Div::default()
-                                .attribute("class", LIST_ITEM)
+                            Div::new()
+                                .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                                 .child(H3::new(notification.title))
                                 .child(P::with_text(notification.contents))
                                 .child(
-                                    A::new(format!("/notifications/mark_read/{}", notification.id))
+                                    A::default()
+                                        .attribute(Href::new(format!(
+                                            "/notifications/mark_read/{}",
+                                            notification.id
+                                        )))
                                         .text("Mark as read"),
                                 )
                                 .child(
-                                    A::new(format!("/notifications/delete/{}", notification.id))
+                                    A::default()
+                                        .attribute(Href::new(format!(
+                                            "/notifications/delete/{}",
+                                            notification.id
+                                        )))
                                         .text("Delete this notification"),
                                 )
                         }),

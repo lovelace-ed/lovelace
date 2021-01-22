@@ -5,12 +5,17 @@ A copy of this license can be found in the `licenses` directory at the root of t
 //! A small set of data types for producing HTML code.
 #![allow(clippy::useless_format)]
 
+#[macro_use]
+extern crate derivative;
+
+pub mod attributes;
 #[cfg(feature = "with_yew")]
 pub mod into_vnode;
 pub mod prelude;
 pub mod tags;
 pub mod text;
-
 #[macro_use]
 mod macros;
 pub(crate) mod utils;
+#[macro_use]
+pub(crate) mod docs;

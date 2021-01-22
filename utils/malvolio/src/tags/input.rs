@@ -24,9 +24,9 @@ impl IntoVNode for Input {
             .clone()
             .iter()
             .find(|item| item.0 == "type")
-            .map(|(_, res)| vtag.set_kind(res.to_string()));
+            .map(|(_, res)| vtag.set_kind(&res.to_string()));
         for (a, b) in self.attrs {
-            vtag.add_attribute(a, b)
+            vtag.add_attribute(a, &b)
         }
         vtag.add_listeners(self.listeners.clone());
         vtag.into()

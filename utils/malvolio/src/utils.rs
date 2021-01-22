@@ -6,7 +6,7 @@ pub fn write_attributes_to_vtag(
     vtag: &mut ::yew::virtual_dom::VTag,
 ) {
     for (key, value) in attrs.into_iter() {
-        vtag.add_attribute(key, value);
+        vtag.add_attribute(key, &value);
     }
 }
 

@@ -1,9 +1,8 @@
 use std::fmt::Display;
 
+use self::head_node::HeadNode;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
-
-use self::head_node::HeadNode;
 
 pub mod head_node;
 

@@ -94,9 +94,9 @@ macro_rules! heading_of_vnode {
             fn into(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
                 for (k, v) in self.2.into_iter() {
-                    vtag.add_attribute(k, v);
+                    vtag.add_attribute(k, &v);
                 }
-                vtag.add_child(::yew::virtual_dom::VText::new(self.0).into());
+                vtag.add_child(::yew::virtual_dom::VText::new(self.0.to_string()).into());
                 vtag.into()
             }
         }
@@ -172,6 +172,22 @@ macro_rules! to_html {
         #[cfg(feature = "with_yew")]
         pub fn to_html(self) -> yew::virtual_dom::VNode {
             IntoVNode::into(self)
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! into_attribute_for_grouping_enum {
+    ($name:ident, $($variant:ident),*) => {
+        impl $crate::attributes::IntoAttribute for $name {
+            fn into_attribute(self) -> (&'static str, std::borrow::Cow<'static, str>) {
+                match self {
+                    $(
+                        Self::$variant(x) => {$crate::attributes::IntoAttribute::into_attribute(x)}
+                    ),*
+
+                }
+            }
         }
     };
 }

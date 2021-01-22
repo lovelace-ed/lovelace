@@ -1,5 +1,5 @@
 pub use crate::tags::{
-    a::A,
+    a::{Href, A},
     body::body_node::BodyNode,
     body::Body,
     br::Br,
@@ -16,3 +16,5 @@ pub use crate::tags::{
     select::Select,
     title::Title,
 };
+
+pub use crate::attributes::common::{Class, Id, Style};

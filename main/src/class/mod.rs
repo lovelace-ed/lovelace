@@ -3,7 +3,7 @@ This source code file is distributed subject to the terms of the GNU Affero Gene
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 use chrono::Utc;
-use malvolio::prelude::{Body, Div, Html, Input, A, H1, H3, P};
+use malvolio::prelude::{Body, Div, Href, Html, Input, A, H1, H3, P};
 
 use diesel::prelude::*;
 use rocket::request::Form;
@@ -12,6 +12,7 @@ pub mod messages;
 
 use crate::{
     auth::AuthCookie,
+    css_names::{LIST, LIST_ITEM},
     db::{Database, DatabaseConnection},
     models::{
         Class, ClassStudent, NewClass, NewClassStudent, NewClassTeacher, NewClassTeacherInvite,
@@ -84,7 +85,8 @@ pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Datab
                         Body::default()
                             .child(H1::new("This class has been sucessfully created"))
                             .child(
-                                A::new(format!("/class/{}", res.id))
+                                A::default()
+                                    .attribute(Href::new(format!("/class/{}", res.id)))
                                     .text(format!("Click me to the class description.")),
                             ),
                     ),
@@ -164,40 +166,44 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_teacher::dsl as class_teacher;
-    let student_classes = match class_student::class_student
-        .filter(class_student::user_id.eq(auth_cookie.0))
-        .inner_join(class::class)
-        .select(crate::schema::class::all_columns)
-        .load::<Class>(&*conn)
-    {
-        Ok(classes) => Div::default()
-            .attribute("class", "list")
-            .map(|item| {
-                if !classes.is_empty() {
-                    item.child(H1::new(format!("Classes I'm a student in")))
-                } else {
-                    item
-                }
-            })
-            .children(classes.iter().map(|class| {
-                Div::default()
-                    .attribute("class", "list-item")
-                    .child(H3::new(class.name.clone()))
-                    .child(P::with_text(class.description.clone()))
-                    .child(A::new(format!("/class/{}", class.id)))
-            })),
-        Err(_) => Div::default().child(P::with_text(
-            "There was a database error loading this content.",
-        )),
-    };
+    let student_classes =
+        match class_student::class_student
+            .filter(class_student::user_id.eq(auth_cookie.0))
+            .inner_join(class::class)
+            .select(crate::schema::class::all_columns)
+            .load::<Class>(&*conn)
+        {
+            Ok(classes) => Div::new()
+                .attribute(malvolio::prelude::Class::from(LIST))
+                .map(|item| {
+                    if !classes.is_empty() {
+                        item.child(H1::new(format!("Classes I'm a student in")))
+                    } else {
+                        item
+                    }
+                })
+                .children(classes.iter().map(|class| {
+                    Div::new()
+                        .attribute(malvolio::prelude::Class::from(LIST_ITEM))
+                        .child(H3::new(class.name.clone()))
+                        .child(P::with_text(class.description.clone()))
+                        .child(A::default().attribute(malvolio::prelude::Href::new(format!(
+                            "/class/{}",
+                            class.id
+                        ))))
+                })),
+            Err(_) => Div::new().child(P::with_text(
+                "There was a database error loading this content.",
+            )),
+        };
     let teacher_classes = match class_teacher::class_teacher
         .filter(class_teacher::user_id.eq(auth_cookie.0))
         .inner_join(class::class)
         .select(crate::schema::class::all_columns)
         .load::<Class>(&*conn)
     {
-        Ok(classes) => Div::default()
-            .attribute("class", "list")
+        Ok(classes) => Div::new()
+            .attribute(malvolio::prelude::Class::from(LIST))
             .map(|item| {
                 if !classes.is_empty() {
                     item.child(H1::new("Classes I teach"))
@@ -206,13 +212,17 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
                 }
             })
             .children(classes.iter().map(|class| {
-                Div::default()
-                    .attribute("class", "list-item")
+                Div::new()
+                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                     .child(H3::new(class.name.clone()))
                     .child(P::with_text(class.description.clone()))
-                    .child(A::new(format!("/class/{}", class.id)))
+                    .child(
+                        A::default()
+                            .attribute(Href::new(format!("/class/{}", class.id)))
+                            .text("View class"),
+                    )
             })),
-        Err(_) => Div::default().child(P::with_text(
+        Err(_) => Div::new().child(P::with_text(
             "There was a database error loading this content.",
         )),
     };
@@ -250,7 +260,8 @@ pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -
                         )))
                         .child(
                             P::with_text(class.description).child(
-                                A::new(format!("/class/{}/settings", class.id))
+                                A::default()
+                                    .attribute(Href::new(format!("/class/{}/settings", class.id)))
                                     .text(format!("Settings")),
                             ),
                         ),
@@ -278,8 +289,11 @@ pub fn get_class_settings(id: usize, auth_cookie: AuthCookie, conn: Database) ->
             .head(default_head("Settings".to_string()))
             .body(
                 Body::default().child(H1::new("Settings")).child(
-                    Div::default()
-                        .child(A::new(format!("/class/{}/delete", id)).text("Delete this class.")),
+                    Div::new().child(
+                        A::default()
+                            .attribute(Href::new(format!("/class/{}/delete", id)))
+                            .text("Delete this class."),
+                    ),
                 ),
             )
     } else {
@@ -345,8 +359,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         .load::<User>(&*conn)
         .map(|users| {
             users.into_iter().map(|user| {
-                Div::default()
-                    .attribute("class", "list-item")
+                Div::new()
+                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                     .child(H3::new(user.username))
             })
         })
@@ -358,8 +372,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         .load::<User>(&*conn)
         .map(|users| {
             users.into_iter().map(|user| {
-                Div::default()
-                    .attribute("class", "list-item")
+                Div::new()
+                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                     .child(H3::new(user.username))
             })
         })
@@ -368,8 +382,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
         .head(default_head("Class".to_string()))
         .body(
             Body::default()
-                .child(Div::default().child(H3::new("Teachers")).children(teachers))
-                .child(Div::default().child(H3::new("Students")).children(students)),
+                .child(Div::new().child(H3::new("Teachers")).children(teachers))
+                .child(Div::new().child(H3::new("Students")).children(students)),
         )
 }
 

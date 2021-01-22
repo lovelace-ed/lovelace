@@ -33,8 +33,9 @@ mod test {
     fn test_links_render() {
         use yew::prelude::*;
 
-        component_named_app_with_html!(A::new("https://example.com")
-            .attribute("id", "link")
+        component_named_app_with_html!(A::default()
+            .attribute(malvolio::prelude::Href::new("https://example.com"))
+            .attribute(malvolio::prelude::Id::new("link"))
             .to_html());
         yew::initialize();
 
@@ -126,7 +127,7 @@ mod test {
     #[wasm_bindgen_test]
     fn test_heading_rendering() {
         use yew::prelude::*;
-        component_named_app_with_html!(Div::default()
+        component_named_app_with_html!(Div::new()
             .child(
                 H1::new("Heading 1")
                     .attribute("id", "heading1-1")

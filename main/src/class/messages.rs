@@ -38,14 +38,16 @@ pub fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
             .body(
                 Body::default()
                     .child(H1::new(format!("Messages in class {}", class.name)))
-                    .child(Div::default().attribute("class", LIST).children(
-                        messages.into_iter().map(|message| {
-                            Div::default()
-                                .attribute("class", LIST_ITEM)
-                                .child(H3::new(message.title))
-                                .child(P::with_text(message.contents))
-                        }),
-                    )),
+                    .child(
+                        Div::new()
+                            .attribute(malvolio::prelude::Class::from(LIST))
+                            .children(messages.into_iter().map(|message| {
+                                Div::new()
+                                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
+                                    .child(H3::new(message.title))
+                                    .child(P::with_text(message.contents))
+                            })),
+                    ),
             )
     } else {
         Html::default()
@@ -421,16 +423,20 @@ pub fn view_message(class_id: i32, message_id: i32, auth: AuthCookie, conn: Data
                 .load::<(ClassMessageReply, String)>(&*conn)
             {
                 Ok(replies) => Html::default().head(default_head("".to_string())).body(
-                    Body::default().children(replies.into_iter().map(|(reply, username)| {
-                        Div::default()
-                            .attribute("class", LIST)
-                            .child(H3::new(format!("Reply from {}", username)))
-                            .child(P::with_text(format!(
-                                "This reply was posted at {}",
-                                reply.created_at.to_string()
-                            )))
-                            .child(P::with_text(reply.contents))
-                    })),
+                    Body::default().child(
+                        Div::new()
+                            .attribute(malvolio::prelude::Class::from(LIST))
+                            .children(replies.into_iter().map(|(reply, username)| {
+                                Div::new()
+                                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
+                                    .child(H3::new(format!("Reply from {}", username)))
+                                    .child(P::with_text(format!(
+                                        "This reply was posted at {}",
+                                        reply.created_at.to_string()
+                                    )))
+                                    .child(P::with_text(reply.contents))
+                            })),
+                    ),
                 ),
                 Err(e) => {
                     error!("Database error loading replies: {:#?}", e);

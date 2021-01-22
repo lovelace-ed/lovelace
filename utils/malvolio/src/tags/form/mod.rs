@@ -18,7 +18,7 @@ impl IntoVNode for Form {
         let mut vtag = yew::virtual_dom::VTag::new("form");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
         for (a, b) in self.attrs {
-            vtag.add_attribute(a, b.to_string())
+            vtag.add_attribute(a, &b.to_string())
         }
         vtag.into()
     }

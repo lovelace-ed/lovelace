@@ -1,15 +1,20 @@
-use std::fmt::Display;
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
+
+use crate::{attributes::{common::Class, IntoAttribute}, prelude::Style};
 
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
-use crate::{add_single_attribute, into_grouping_union, to_html};
+use crate::{
+    into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, to_html, utility_enum,
+};
 
 use super::body::body_node::BodyNode;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Derivative, Clone)]
+#[derivative(Default(new = "true"))]
 pub struct Div {
     children: Vec<BodyNode>,
-    attrs: Vec<(&'static str, &'static str)>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
 #[cfg(feature = "with_yew")]
@@ -18,7 +23,7 @@ impl IntoVNode for Div {
         let mut vtag = yew::virtual_dom::VTag::new("div");
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
         for (a, b) in self.attrs {
-            vtag.add_attribute(a, b.to_string())
+            vtag.add_attribute(a, &b.to_string())
         }
         vtag.into()
     }
@@ -48,7 +53,14 @@ impl Div {
         self = mapping(self);
         self
     }
-    add_single_attribute!('static);
+    pub fn attribute<A>(mut self, attribute: A) -> Self
+    where
+        A: IntoAttribute,
+    {
+        let (a, b) = attribute.into_attribute();
+        self.attrs.insert(a, b);
+        self
+    }
     to_html!();
 }
 
@@ -71,14 +83,30 @@ impl Display for Div {
 }
 into_grouping_union!(Div, BodyNode);
 
+utility_enum!(
+    pub enum DivAttr {
+        Id(Id),
+        Class(Class),
+        Style(Style)
+    }
+);
+
+into_attribute_for_grouping_enum!(DivAttr, Id, Class, Style);
+
+into_grouping_union!(Id, DivAttr);
+
+into_grouping_union!(Class, DivAttr);
+
+into_grouping_union!(Style, DivAttr);
+
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
     #[test]
     fn test_div_attributes() {
         let document = Div::default()
-            .attribute("class", "some-class")
-            .attribute("style", "font-family: Arial;")
+            .attribute(crate::prelude::Class::from("some-class"))
+            .attribute(crate::prelude::Style::new("font-family: Arial;"))
             .to_string();
         let document = scraper::Html::parse_document(&document);
         let div_selector = scraper::Selector::parse("div").unwrap();
