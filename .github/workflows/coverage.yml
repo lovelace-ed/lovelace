@@ -35,6 +35,8 @@ jobs:
         # blocking)
         run: |
           cargo +nightly tarpaulin --verbose --all --workspace --timeout 300 --out Xml
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost/postgres
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
