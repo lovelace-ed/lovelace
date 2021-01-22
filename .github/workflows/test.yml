@@ -70,7 +70,7 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./coverage.txt
-  test-utils-malvolio:
+  test-malvolio-in-browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -86,7 +86,7 @@ jobs:
     - lint
     - test
     # tested seperately from everything else
-    - test-utils-malvolio
+    - test-malvolio-in-browser
 
     runs-on: ubuntu-latest
 
@@ -95,4 +95,4 @@ jobs:
       run: |
         [ ${{ needs.lint.result }} == success ] &&
         [ ${{ needs.test.result }} == success ] &&
-        [ ${{ needs.test-utils-malvolio.result }} == success ] || exit 1
+        [ ${{ needs.test-malvolio-in-browser.result }} == success ] || exit 1

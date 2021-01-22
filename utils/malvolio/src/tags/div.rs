@@ -1,6 +1,9 @@
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
-use crate::{attributes::{common::Class, IntoAttribute}, prelude::Style};
+use crate::{
+    attributes::{common::Class, IntoAttribute},
+    prelude::Style,
+};
 
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
@@ -87,7 +90,7 @@ utility_enum!(
     pub enum DivAttr {
         Id(Id),
         Class(Class),
-        Style(Style)
+        Style(Style),
     }
 );
 
