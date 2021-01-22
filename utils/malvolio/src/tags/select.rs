@@ -6,10 +6,6 @@ use crate::{impl_of_data_struct_insert, into_grouping_union, utils::write_attrib
 use crate::into_vnode::IntoVNode;
 #[cfg(feature = "with_yew")]
 use crate::utils::write_attributes_to_vtag;
-#[cfg(feature = "with_yew")]
-use std::rc::Rc;
-#[cfg(feature = "with_yew")]
-use yew::virtual_dom::Listener;
 
 use super::{body::body_node::BodyNode, option::SelectOption};
 

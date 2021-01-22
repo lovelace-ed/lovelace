@@ -3,8 +3,6 @@ use std::fmt::Display;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 use crate::{add_single_attribute, into_grouping_union, to_html};
-#[cfg(feature = "with_yew")]
-use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
 

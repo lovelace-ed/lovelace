@@ -1,8 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
 #[cfg(feature = "with_yew")]
-use crate::into_vnode::IntoVNode;
-#[cfg(feature = "with_yew")]
 use std::rc::Rc;
 #[cfg(feature = "with_yew")]
 use yew::virtual_dom::Listener;

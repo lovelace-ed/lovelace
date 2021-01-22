@@ -4,11 +4,7 @@ use crate::into_vnode::IntoVNode;
 use crate::utils::write_attributes;
 #[cfg(feature = "with_yew")]
 use crate::utils::write_attributes_to_vtag;
-#[cfg(feature = "with_yew")]
-use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
-#[cfg(feature = "with_yew")]
-use yew::virtual_dom::Listener;
 #[derive(Default, Debug, Clone)]
 pub struct SelectOption {
     attrs: HashMap<&'static str, String>,

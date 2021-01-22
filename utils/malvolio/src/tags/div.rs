@@ -3,8 +3,6 @@ use std::fmt::Display;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 use crate::{add_single_attribute, into_grouping_union, to_html};
-#[cfg(feature = "with_yew")]
-use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
 
@@ -72,3 +70,71 @@ impl Display for Div {
     }
 }
 into_grouping_union!(Div, BodyNode);
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    #[test]
+    fn test_div_attributes() {
+        let document = Div::default()
+            .attribute("class", "some-class")
+            .attribute("style", "font-family: Arial;")
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let div_selector = scraper::Selector::parse("div").unwrap();
+        assert_eq!(document.select(&div_selector).collect::<Vec<_>>().len(), 1);
+        let div = document.select(&div_selector).next().unwrap();
+        assert_eq!(div.value().attr("class").unwrap(), "some-class");
+        assert_eq!(div.value().attr("style").unwrap(), "font-family: Arial;");
+    }
+    #[test]
+    fn test_div_children() {
+        let document = Div::default()
+            .children(
+                vec!["1", "2", "3"]
+                    .into_iter()
+                    .map(|string| P::with_text(string)),
+            )
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let div_selector = scraper::Selector::parse("div").unwrap();
+        let div = document.select(&div_selector).next().unwrap();
+        let children = div.children().collect::<Vec<_>>();
+        assert_eq!(
+            children[0]
+                .children()
+                .next()
+                .unwrap()
+                .value()
+                .as_text()
+                .unwrap()
+                .to_string()
+                .as_str(),
+            "1"
+        );
+        assert_eq!(
+            children[1]
+                .children()
+                .next()
+                .unwrap()
+                .value()
+                .as_text()
+                .unwrap()
+                .to_string()
+                .as_str(),
+            "2"
+        );
+        assert_eq!(
+            children[2]
+                .children()
+                .next()
+                .unwrap()
+                .value()
+                .as_text()
+                .unwrap()
+                .to_string()
+                .as_str(),
+            "3"
+        );
+    }
+}

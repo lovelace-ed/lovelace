@@ -1,6 +1,4 @@
 #[cfg(feature = "with_yew")]
-use crate::into_vnode::IntoVNode;
-#[cfg(feature = "with_yew")]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap};
 #[cfg(feature = "with_yew")]
