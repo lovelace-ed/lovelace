@@ -8,7 +8,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use malvolio::prelude::{Body, Br, Html, Input, H1, P};
+use malvolio::prelude::{Body, Br, Html, Input, Method, Name, Placeholder, Type, Value, H1, P};
 use regex::Regex;
 use rocket::{
     http::{Cookie, Cookies, Status},
@@ -73,25 +73,25 @@ impl FromRequest<'_, '_> for AuthCookie {
 
 fn login_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::default()
-        .attribute("method", "post")
+        .attribute(Method::Post)
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("placeholder", "Username")
-                .attribute("name", "identifier"),
+                .attribute(Type::Text)
+                .attribute(Placeholder::new("Username"))
+                .attribute(Name::new("identifier")),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "password")
-                .attribute("placeholder", "Password")
-                .attribute("name", "password"),
+                .attribute(Type::Password)
+                .attribute(Placeholder::new("Password"))
+                .attribute(Name::new("password")),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "submit")
-                .attribute("value", "Login!"),
+                .attribute(Type::Submit)
+                .attribute(Value::new("Login!")),
         )
 }
 
@@ -169,41 +169,41 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
 
 fn register_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::default()
-        .attribute("method", "post")
+        .attribute(Method::Post)
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("placeholder", "Username")
-                .attribute("name", "username"),
+                .attribute(Type::Text)
+                .attribute(Placeholder::new("Username"))
+                .attribute(Name::new("username")),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "email")
-                .attribute("placeholder", "Email")
-                .attribute("name", "email"),
+                .attribute(Type::Email)
+                .attribute(Placeholder::new("Email"))
+                .attribute(Name::new("email")),
         )
         .child(Br)
         .child(timezone_form("timezone", None))
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "password")
-                .attribute("placeholder", "Password")
-                .attribute("name", "password"),
+                .attribute(Type::Password)
+                .attribute(Placeholder::new("Password"))
+                .attribute(Name::new("password")),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "password")
-                .attribute("placeholder", "Password confirmation")
-                .attribute("name", "password_confirmation"),
+                .attribute(Type::Password)
+                .attribute(Placeholder::new("Password confirmation"))
+                .attribute(Name::new("password_confirmation")),
         )
         .child(Br)
         .child(
             Input::default()
-                .attribute("type", "submit")
-                .attribute("value", "Login!"),
+                .attribute(Type::Submit)
+                .attribute(Value::new("Login!")),
         )
 }
 

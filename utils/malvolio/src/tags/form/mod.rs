@@ -1,15 +1,18 @@
-use std::fmt::Display;
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
-use crate::{add_single_attribute, into_grouping_union, to_html};
+use crate::{
+    attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, to_html,
+    utility_enum,
+};
 
 use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone, Default)]
 pub struct Form {
     children: Vec<BodyNode>,
-    attrs: Vec<(&'static str, &'static str)>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
 #[cfg(feature = "with_yew")]
@@ -42,7 +45,14 @@ impl Form {
         self.children.push(child.into());
         self
     }
-    add_single_attribute!('static);
+    pub fn attribute<A>(mut self, attr: A) -> Self
+    where
+        A: Into<FormAttr>,
+    {
+        let res = attr.into().into_attribute();
+        self.attrs.insert(res.0, res.1);
+        self
+    }
     to_html!();
 }
 
@@ -66,14 +76,67 @@ impl Display for Form {
 
 into_grouping_union!(Form, BodyNode);
 
+utility_enum!(
+    pub enum FormAttr {
+        Method(Method),
+        Action(Action),
+    }
+);
+
+pub enum Method {
+    Post,
+    Get,
+}
+
+into_attribute_for_grouping_enum!(FormAttr, Method, Action);
+
+impl IntoAttribute for Method {
+    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+        (
+            "method",
+            match self {
+                Method::Post => "post",
+                Method::Get => "get",
+            }
+            .into(),
+        )
+    }
+}
+
+into_grouping_union!(Method, FormAttr);
+
+pub struct Action(Cow<'static, str>);
+
+impl Action {
+    pub fn new<S>(input: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
+        Self(input.into())
+    }
+}
+
+impl IntoAttribute for Action {
+    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+        ("action", self.0)
+    }
+}
+
+into_grouping_union!(Action, FormAttr);
+
 #[cfg(test)]
 mod form {
-    use crate::prelude::*;
+    use crate::{
+        prelude::*,
+        tags::input::{Name, Type},
+    };
+
+    use super::{Action, Method};
     #[test]
     fn test_form_tag() {
         let document = Form::default()
-            .attribute("method", "post")
-            .attribute("action", "/")
+            .attribute(Method::Post)
+            .attribute(Action::new("/"))
             .to_string();
         let document = scraper::Html::parse_document(&document);
         let form = scraper::Selector::parse("form").unwrap();
@@ -86,10 +149,10 @@ mod form {
         let document = Form::default()
             .child(
                 Input::default()
-                    .attribute("type", "text")
-                    .attribute("name", "input1"),
+                    .attribute(Type::Text)
+                    .attribute(Name::new("input1")),
             )
-            .child(Input::default().attribute("type", "submit"))
+            .child(Input::default().attribute(Type::Submit))
             .to_string();
         let document = scraper::Html::parse_document(&document);
         let input = scraper::Selector::parse("input").unwrap();

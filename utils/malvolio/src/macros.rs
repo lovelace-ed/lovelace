@@ -1,3 +1,10 @@
+//! Important: these are not intended for general consumption (only use them internally).
+//!
+//! A set of macros which are used to reduce the number of times one has to type out the same thing
+//! over and over again, which I assure you is very boring (repeated typing of the same thing over
+//! and over again tends to lead to asking existential questions as a way to pass the time – I'm
+//! rambling here, aren't I :)
+
 #[macro_export]
 #[cfg(feature = "with_yew")]
 macro_rules! heading_display {
@@ -190,4 +197,28 @@ macro_rules! into_attribute_for_grouping_enum {
             }
         }
     };
+}
+
+#[cfg(test)]
+#[macro_export]
+macro_rules! component_named_app_with_html {
+    ($($html:tt)*) => {
+        struct App {}
+        impl Component for App {
+            type Properties = ();
+            type Message = ();
+            fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
+                Self {}
+            }
+            fn update(&mut self, _msg: Self::Message) -> bool {
+                false
+            }
+            fn change(&mut self, _props: Self::Properties) -> bool {
+                false
+            }
+            fn view(&self) -> ::yew::virtual_dom::VNode {
+                $($html)*
+            }
+        }
+    }
 }

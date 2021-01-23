@@ -7,7 +7,7 @@
 
 use diesel::prelude::*;
 use diesel::BelongingToDsl;
-use malvolio::prelude::{Body, Div, Form, Html, Input, H1, H3, P};
+use malvolio::prelude::{Body, Div, Form, Html, Input, Method, Name, Type, Value, H1, H3, P};
 use rocket::{response::Redirect, FromForm};
 
 use crate::{
@@ -64,18 +64,18 @@ pub fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
 
 fn create_new_message_form() -> Form {
     Form::default()
-        .attribute("method", "post")
+        .attribute(Method::Post)
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("name", "title"),
+                .attribute(Type::Text)
+                .attribute(Name::new("title")),
         )
         .child(
             Input::default()
-                .attribute("type", "textarea")
-                .attribute("name", "contents"),
+                .attribute(Type::Textarea)
+                .attribute(Name::new("contents")),
         )
-        .child(Input::default().attribute("type", "submit"))
+        .child(Input::default().attribute(Type::Submit))
 }
 
 #[get("/<id>/message/new")]
@@ -231,17 +231,17 @@ fn edit_message_form(msg: &ClassMessage) -> Form {
     Form::default()
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("name", "title")
-                .attribute("value", msg.title.clone()),
+                .attribute(Type::Text)
+                .attribute(Name::new("title"))
+                .attribute(Value::new(msg.title.clone())),
         )
         .child(
             Input::default()
-                .attribute("type", "textarea")
-                .attribute("name", "contents")
-                .attribute("value", msg.contents.clone()),
+                .attribute(Type::Textarea)
+                .attribute(Name::new("contents"))
+                .attribute(Value::new(msg.contents.clone())),
         )
-        .child(Input::default().attribute("type", "submit"))
+        .child(Input::default().attribute(Type::Submit))
 }
 
 #[get("/<_class_id>/message/<message_id>/edit")]
@@ -312,10 +312,10 @@ fn edit_message_reply_form(msg: &ClassMessageReply) -> Form {
     Form::default()
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("value", msg.contents.clone()),
+                .attribute(Type::Text)
+                .attribute(Value::new(msg.contents.clone())),
         )
-        .child(Input::default().attribute("type", "submit"))
+        .child(Input::default().attribute(Type::Submit))
 }
 
 #[get("/<class_id>/message/<_message_id>/reply/<message_reply_id>/edit")]

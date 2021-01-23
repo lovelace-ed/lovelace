@@ -65,24 +65,24 @@ mod test {
         use yew::prelude::*;
 
         component_named_app_with_html!(Form::default()
-            .attribute("method", "post")
+            .attribute(Method::Post)
             .child(
                 Input::default()
-                    .attribute("type", "text")
-                    .attribute("id", "input1")
-                    .attribute("placeholder", "Class name"),
+                    .attribute(Type::Text)
+                    .attribute(Id::new("input1"))
+                    .attribute(Placeholder::new("Class name")),
             )
             .child(
                 Input::default()
-                    .attribute("id", "input2")
-                    .attribute("type", "textarea")
-                    .attribute("placeholder", "Add a description for this class here."),
+                    .attribute(Id::new("input2"))
+                    .attribute(Type::Textarea)
+                    .attribute(Placeholder::new("Add a description for this class here.")),
             )
             .child(
                 Input::default()
-                    .attribute("id", "input3")
-                    .attribute("type", "submit")
-                    .attribute("value", "Create class"),
+                    .attribute(Id::new("input3"))
+                    .attribute(Type::Submit)
+                    .attribute(Value::new("Create class")),
             )
             .to_html());
         yew::initialize();

@@ -3,7 +3,9 @@ This source code file is distributed subject to the terms of the GNU Affero Gene
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 use chrono::Utc;
-use malvolio::prelude::{Body, Div, Href, Html, Input, A, H1, H3, P};
+use malvolio::prelude::{
+    Body, Div, Href, Html, Input, Method, Name, Placeholder, Type, Value, A, H1, H3, P,
+};
 
 use diesel::prelude::*;
 use rocket::request::Form;
@@ -23,21 +25,21 @@ use crate::{
 
 fn create_class_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::default()
-        .attribute("method", "post")
+        .attribute(Method::Post)
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("placeholder", "Class name"),
+                .attribute(Type::Text)
+                .attribute(Placeholder::new("Class name")),
         )
         .child(
             Input::default()
-                .attribute("type", "textarea")
-                .attribute("placeholder", "Add a description for this class here."),
+                .attribute(Type::Textarea)
+                .attribute(Placeholder::new("Add a description for this class here.")),
         )
         .child(
             Input::default()
-                .attribute("type", "submit")
-                .attribute("value", "Create class"),
+                .attribute(Type::Submit)
+                .attribute(Value::new("Create class")),
         )
 }
 
@@ -389,16 +391,16 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
 
 fn invite_user_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::default()
-        .attribute("method", "post")
+        .attribute(Method::Post)
         .child(
             Input::default()
-                .attribute("type", "text")
-                .attribute("name", "invited-user-identifier"),
+                .attribute(Type::Text)
+                .attribute(Name::new("invited-user-identifier")),
         )
         .child(
             Input::default()
-                .attribute("type", "submit")
-                .attribute("value", "Invite teacher!"),
+                .attribute(Type::Submit)
+                .attribute(Value::new("Invite teacher!")),
         )
 }
 
@@ -497,17 +499,20 @@ pub fn invite_teacher(
 
 fn delete_class_form(id: usize) -> malvolio::prelude::Form {
     malvolio::prelude::Form::default()
-        .child(Input::default().attribute("type", "text"))
+        .child(Input::default().attribute(Type::Text))
         .child(
             Input::default()
-                .attribute("type", "hidden")
-                .attribute("name", "id")
-                .attribute("value", id.to_string()),
+                .attribute(Type::Hidden)
+                .attribute(Name::new("id"))
+                .attribute(Value::new(id.to_string())),
         )
-        .child(Input::default().attribute("type", "submit").attribute(
-            "value",
-            "Delete this class (which I will never be able to get back!)",
-        ))
+        .child(
+            Input::default()
+                .attribute(Type::Submit)
+                .attribute(Value::new(
+                    "Delete this class (which I will never be able to get back!)",
+                )),
+        )
 }
 
 #[get("/class/<id>/delete")]
