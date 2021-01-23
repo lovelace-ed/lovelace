@@ -1,5 +1,5 @@
-use std::{borrow::Cow, collections::HashMap, fmt::Display};
 use crate::to_html;
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 use crate::{
     into_attribute_for_grouping_enum, into_grouping_union,
