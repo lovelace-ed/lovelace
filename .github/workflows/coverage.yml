@@ -28,7 +28,7 @@ jobs:
           toolchain: nightly
           override: true
       - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin --version 0.17.0
+        run: cargo install cargo-tarpaulin --version 0.16.0
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long (they're
         # blocking)
