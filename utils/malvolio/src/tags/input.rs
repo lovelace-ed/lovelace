@@ -188,7 +188,7 @@ mod test_yew {
     use yew::prelude::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
-    
+
     #[wasm_bindgen_test]
     fn test_input_in_browser() {
         component_named_app_with_html!(Input::default()
