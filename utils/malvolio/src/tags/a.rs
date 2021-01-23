@@ -14,6 +14,17 @@ use yew::virtual_dom::Listener;
 use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone, Default)]
+/// A link (anchor).
+///
+/// ```
+/// # use malvolio::prelude::*;
+/// A::default()
+///     .attribute(Href::new("https://example.com/mark-read"))
+///     .text("Mark as read");
+/// ```
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
+/// for more info.
 pub struct A {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,
@@ -63,6 +74,8 @@ impl A {
         self.text = text.into();
         self
     }
+    /// Adds an attribute to this node. This method takes one argument which must implement
+    /// `Into<AAttr>`.
     pub fn attribute<I>(mut self, attribute: I) -> Self
     where
         I: Into<AAttr>,
@@ -71,12 +84,13 @@ impl A {
         self.attrs.insert(res.0, res.1);
         self
     }
-    to_html!();
     #[cfg(feature = "with_yew")]
+    /// Attaches a listener to this item. Only available if the `with_yew` feature is enabled.
     pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
         self.listeners.push(listener);
         self
     }
+    to_html!();
 }
 
 impl Display for A {
@@ -110,9 +124,17 @@ into_grouping_union!(Id, AAttr);
 
 into_attribute_for_grouping_enum!(AAttr, Href, Download, Target, Id);
 
+/// The "href" attribute (currently only usable with the `<a>` tags, but support for other tags is
+/// planned – if you need support now, feel free – and welcome/encouraged – to submit a pull
+/// request).
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href)
+/// for more info.
 pub struct Href(Cow<'static, str>);
 
 impl Href {
+    /// Create a new `Href` attribute. This method accepts any item that implements
+    /// `Into<Cow<'static, str>>` (which includes `String` and `&str`).
     pub fn new<C>(value: C) -> Self
     where
         C: Into<Cow<'static, str>>,
@@ -122,6 +144,10 @@ impl Href {
 }
 into_grouping_union!(Href, AAttr);
 
+/// The download attribute.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
+/// for more info.
 pub struct Download(Cow<'static, str>);
 
 impl Download {
@@ -147,6 +173,10 @@ impl IntoAttribute for Href {
     }
 }
 
+/// The "target" attribute for a link.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-target)
+/// for more info.
 pub enum Target {
     Blank,
 }

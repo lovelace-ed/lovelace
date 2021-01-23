@@ -7,9 +7,52 @@ use crate::{
     utility_enum,
 };
 
-use super::body::body_node::BodyNode;
+use crate::tags::body::body_node::BodyNode;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Derivative)]
+#[derivative(Default(new = "true"))]
+/// A HTML form. You can create a form with `Form::new()` or `Form::default()` (they are identical)
+/// and then use any of the provided methods to manipulate it (for example adding child elements or
+/// attributes).
+///
+/// ```
+/// # use malvolio::prelude::*;
+/// malvolio::prelude::Form::new()
+/// .attribute(Method::Post)
+/// .child(
+///     Input::default()
+///         .attribute(Type::Text)
+///         .attribute(Placeholder::new("Username"))
+///         .attribute(Name::new("username")),
+/// )
+/// .child(Br)
+/// .child(
+///     Input::new()
+///         .attribute(Type::Email)
+///         .attribute(Placeholder::new("Email"))
+///         .attribute(Name::new("email")),
+/// )
+/// .child(Br)
+/// .child(
+///     Input::new()
+///         .attribute(Type::Password)
+///         .attribute(Placeholder::new("Password"))
+///         .attribute(Name::new("password")),
+/// )
+/// .child(Br)
+/// .child(
+///     Input::new()
+///         .attribute(Type::Password)
+///         .attribute(Placeholder::new("Password confirmation"))
+///         .attribute(Name::new("password_confirmation")),
+/// )
+/// .child(Br)
+/// .child(
+///     Input::new()
+///         .attribute(Type::Submit)
+///         .attribute(Value::new("Login!")),
+/// );
+/// ```
 pub struct Form {
     children: Vec<BodyNode>,
     attrs: HashMap<&'static str, Cow<'static, str>>,
@@ -29,14 +72,34 @@ impl IntoVNode for Form {
 
 impl Form {
     #[inline(always)]
-    pub fn children<C>(mut self, children: Vec<C>) -> Self
+    /// Add a number of children to a form. This method accepts a single argument which must
+    /// implement `IntoIterator` (so for example a `Vec`) where the item of the iterator implements
+    /// `Into<BodyNode>` (any of the types in this crate which you would expect to go in the body of
+    /// an HTML document should implement this).
+    ///
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// Form::new().children(vec![1, 2, 3].into_iter().map(|item| {
+    ///     Label::new(format!("Item number: {}", item))
+    /// }));
+    /// ```
+    pub fn children<I, C>(mut self, children: I) -> Self
     where
+        I: IntoIterator<Item = C>,
         C: Into<BodyNode>,
     {
         self.children
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Add a single child to a form. This method accepts a single item implementing
+    /// `Into<BodyNode>`.
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// Form::new()
+    ///     .child(Label::new("Some input"))
+    ///     .child(Input::new().attribute(Name::new("some-input")));
+    /// ```
     #[inline(always)]
     pub fn child<C>(mut self, child: C) -> Self
     where
@@ -45,6 +108,15 @@ impl Form {
         self.children.push(child.into());
         self
     }
+    /// Add an attribute to the current form. This accepts any item implementing `Into<FormAttr>`
+    /// (which is all the members of the `FormAttr` enum).
+    ///
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// Form::new()
+    ///     .attribute(Method::Post)
+    ///     .attribute(Action::new("/"));
+    /// ```
     pub fn attribute<A>(mut self, attr: A) -> Self
     where
         A: Into<FormAttr>,
@@ -83,6 +155,9 @@ utility_enum!(
     }
 );
 
+/// The "method" attribute for a form. See the
+/// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method) for
+/// further details.
 pub enum Method {
     Post,
     Get,
@@ -105,6 +180,9 @@ impl IntoAttribute for Method {
 
 into_grouping_union!(Method, FormAttr);
 
+/// The "action" attribute for a form. See the
+/// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-action) for
+/// further details.
 pub struct Action(Cow<'static, str>);
 
 impl Action {
@@ -134,7 +212,7 @@ mod form {
     use super::{Action, Method};
     #[test]
     fn test_form_tag() {
-        let document = Form::default()
+        let document = Form::new()
             .attribute(Method::Post)
             .attribute(Action::new("/"))
             .to_string();
@@ -146,7 +224,7 @@ mod form {
     }
     #[test]
     fn test_form_with_children() {
-        let document = Form::default()
+        let document = Form::new()
             .child(
                 Input::default()
                     .attribute(Type::Text)

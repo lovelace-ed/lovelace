@@ -24,7 +24,7 @@ use crate::{
 };
 
 fn create_class_form() -> malvolio::prelude::Form {
-    malvolio::prelude::Form::default()
+    malvolio::prelude::Form::new()
         .attribute(Method::Post)
         .child(
             Input::default()
@@ -390,7 +390,7 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
 }
 
 fn invite_user_form() -> malvolio::prelude::Form {
-    malvolio::prelude::Form::default()
+    malvolio::prelude::Form::new()
         .attribute(Method::Post)
         .child(
             Input::default()
@@ -498,7 +498,7 @@ pub fn invite_teacher(
 }
 
 fn delete_class_form(id: usize) -> malvolio::prelude::Form {
-    malvolio::prelude::Form::default()
+    malvolio::prelude::Form::new()
         .child(Input::default().attribute(Type::Text))
         .child(
             Input::default()

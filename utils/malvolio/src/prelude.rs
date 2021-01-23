@@ -10,7 +10,7 @@ pub use crate::tags::{
     html::Html,
     input::{Input, Name, Placeholder, Type, Value},
     label::Label,
-    meta::Meta,
+    meta::{Content, Meta, MetaName},
     option::SelectOption,
     p::P,
     select::Select,

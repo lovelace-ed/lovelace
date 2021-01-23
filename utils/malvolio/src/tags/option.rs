@@ -8,6 +8,10 @@ use ammonia::clean;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 #[derive(Default, Debug, Clone)]
+/// The `option` tag.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for more
+/// info.
 pub struct SelectOption {
     attrs: HashMap<&'static str, String>,
     text: Cow<'static, str>,

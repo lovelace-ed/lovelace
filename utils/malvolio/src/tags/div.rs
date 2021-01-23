@@ -15,6 +15,11 @@ use super::body::body_node::BodyNode;
 
 #[derive(Debug, Derivative, Clone)]
 #[derivative(Default(new = "true"))]
+/// A div. These are useful for ensuring that your HTML pages are well-structured as well as for
+/// applying CSS styling.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div)
+/// for more info.
 pub struct Div {
     children: Vec<BodyNode>,
     attrs: HashMap<&'static str, Cow<'static, str>>,
@@ -33,6 +38,16 @@ impl IntoVNode for Div {
 }
 
 impl Div {
+    /// Attaches a number of children to a `Div`. This method accepts anything which can be turned
+    /// into an iterator of `BodyNode`'s (which should be any type in this crate that you would
+    /// expect to be able to use in the body of an HTML document).
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// Div::new()
+    ///     .children(vec![1, 2, 3, 4, 5].into_iter().map(|item| {
+    ///         H1::new(format!("Item {}", item))
+    ///     }));
+    /// ```
     pub fn children<C, D>(mut self, children: C) -> Self
     where
         C: IntoIterator<Item = D>,
@@ -42,6 +57,7 @@ impl Div {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Add a single child to the `Div` in question.
     pub fn child<C>(mut self, child: C) -> Self
     where
         C: Into<BodyNode>,
@@ -49,6 +65,26 @@ impl Div {
         self.children.push(child.into());
         self
     }
+    /// Allows you to apply a custom function to this `Div` this is useful, for example if you want
+    /// to conditionally add a node by capturing a variable from the environment.
+    ///
+    /// An example of a pattern this could be used for is given below:
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// let a_items: Vec<H1> = vec![];
+    /// let b_items = vec![H1::new("1"), H1::new("2"), H1::new("3")];
+    /// Div::new()
+    ///     .map(|div| if a_items.is_empty() {
+    ///         div
+    ///     } else {
+    ///         div.child(H1::new("Some heading for a items")).children(a_items.clone())
+    ///     })
+    ///     .map(|div| if b_items.is_empty() {
+    ///         div
+    ///     } else {
+    ///         div.child(H1::new("Some heading for b items")).children(b_items.clone())
+    ///     });
+    /// ```
     pub fn map<F>(mut self, mapping: F) -> Self
     where
         F: Fn(Self) -> Self,
@@ -56,11 +92,12 @@ impl Div {
         self = mapping(self);
         self
     }
+    /// Add a single attribute to a `Div`.
     pub fn attribute<A>(mut self, attribute: A) -> Self
     where
-        A: IntoAttribute,
+        A: Into<DivAttr>,
     {
-        let (a, b) = attribute.into_attribute();
+        let (a, b) = attribute.into().into_attribute();
         self.attrs.insert(a, b);
         self
     }

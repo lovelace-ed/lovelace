@@ -10,6 +10,10 @@ use crate::utils::write_attributes_to_vtag;
 use super::{body::body_node::BodyNode, option::SelectOption};
 
 #[derive(Default, Debug, Clone)]
+/// The `select` tag.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for more
+/// info.
 pub struct Select {
     attrs: HashMap<&'static str, String>,
     children: Vec<SelectOption>,

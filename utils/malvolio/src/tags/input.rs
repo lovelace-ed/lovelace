@@ -16,6 +16,10 @@ use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
+/// A form input.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
+/// for more info.
 pub struct Input {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
@@ -66,19 +70,28 @@ impl Input {
         self
     }
     #[cfg(feature = "with_yew")]
+    /// Attaches a listener to the input item. Note that this is only available if you have enabled
+    /// the `with_yew` feature.
     pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
         self.listeners.push(listener);
         self
     }
+    /// Attaches multiple listeners to the input item. Note that this is only available if you have
+    /// enabled the `with_yew` feature.
     #[cfg(feature = "with_yew")]
-    pub fn listeners(mut self, listeners: Vec<Rc<dyn Listener>>) -> Self {
-        self.listeners.extend(listeners);
+    pub fn listeners<I, T>(mut self, listeners: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<Rc<dyn Listener>>,
+    {
+        self.listeners.extend(listeners.into_iter().map(Into::into));
         self
     }
     to_html!();
 }
 
 utility_enum!(
+    /// The possible attributes which can be attached to an input item.
     pub enum InputAttr {
         Type(Type),
         Name(Name),
@@ -94,6 +107,10 @@ into_attribute_for_grouping_enum!(InputAttr, Type, Name, Placeholder, Id, Class,
 into_grouping_union!(Id, InputAttr);
 into_grouping_union!(Class, InputAttr);
 
+/// The `type` attribute for an input.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type)
+/// for more info.
 pub enum Type {
     Text,
     Email,
@@ -122,6 +139,10 @@ impl IntoAttribute for Type {
 
 into_grouping_union!(Type, InputAttr);
 
+/// The `name` attribute for an input.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-name)
+/// for more info.
 pub struct Name(Cow<'static, str>);
 
 impl IntoAttribute for Name {
@@ -141,6 +162,10 @@ impl Name {
 
 into_grouping_union!(Name, InputAttr);
 
+/// The "placeholder" attribute for an input field.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-placeholder)
+/// for more info.
 pub struct Placeholder(Cow<'static, str>);
 
 impl IntoAttribute for Placeholder {
@@ -160,6 +185,10 @@ impl Placeholder {
 
 into_grouping_union!(Placeholder, InputAttr);
 
+/// The "value" attribute for an input field.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-value)
+/// for more info.
 pub struct Value(Cow<'static, str>);
 
 impl Value {

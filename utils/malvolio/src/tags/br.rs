@@ -6,6 +6,15 @@ use crate::into_vnode::IntoVNode;
 
 use super::body::body_node::BodyNode;
 #[derive(Debug, Clone)]
+/// A new line.
+///
+/// ```
+/// # use malvolio::prelude::*;
+/// Div::new().child(Br);
+/// ```
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br) for more
+/// info.
 pub struct Br;
 
 impl Display for Br {

@@ -72,7 +72,7 @@ impl FromRequest<'_, '_> for AuthCookie {
 }
 
 fn login_form() -> malvolio::prelude::Form {
-    malvolio::prelude::Form::default()
+    malvolio::prelude::Form::new()
         .attribute(Method::Post)
         .child(
             Input::default()
@@ -168,7 +168,7 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
 }
 
 fn register_form() -> malvolio::prelude::Form {
-    malvolio::prelude::Form::default()
+    malvolio::prelude::Form::new()
         .attribute(Method::Post)
         .child(
             Input::default()

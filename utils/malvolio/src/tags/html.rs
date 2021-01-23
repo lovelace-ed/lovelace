@@ -13,6 +13,10 @@ use crate::to_html;
 use super::{body::Body, head::Head};
 
 #[derive(Clone, Debug)]
+/// Construct a HTML document. If you are trying to render to a string, this is what you want to use.
+///
+/// If you're using Yew (enable the `with_yew` feature in your `Cargo.toml` to do this) then you
+/// probably want to use the relevant tag which your component should return instead.
 pub struct Html {
     #[cfg(feature = "with_rocket")]
     status: u16,
@@ -76,11 +80,15 @@ impl Html {
         self
     }
     #[cfg(feature = "with_rocket")]
+    /// Add the corresponding status code to return this HTML document with. Note that this is only
+    /// available if you have enabled the `with_rocket` feature.
     pub fn status(mut self, code: u16) -> Self {
         self.status = code;
         self
     }
     #[cfg(feature = "with_rocket")]
+    /// Add a reason for to return alongside the status of this HTML document with. Note that this
+    /// is only available if you have enabled the `with_rocket` feature.
     pub fn status_reason(mut self, reason: &'static str) -> Self {
         self.reason = Some(reason);
         self

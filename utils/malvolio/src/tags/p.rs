@@ -6,6 +6,10 @@ use crate::into_vnode::IntoVNode;
 use crate::{into_grouping_union, text::Text};
 use ammonia::clean;
 
+/// The <p> tag.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p) for more
+/// info.
 #[derive(Default, Debug, Clone)]
 pub struct P {
     children: Vec<BodyNode>,
@@ -48,11 +52,13 @@ impl P {
         self.children.push(child.into());
         self
     }
+    /// A method to construct a paragraph containing the supplied text. This will sanitise the text
+    /// provided beforehand.
     pub fn with_text<S>(text: S) -> Self
     where
         S: Into<Cow<'static, str>>,
     {
-        P::default().child(BodyNode::Text(Text::new(text)))
+        P::default().child(BodyNode::Text(Text::new(clean(&text.into()))))
     }
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).

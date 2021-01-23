@@ -12,6 +12,10 @@ use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
 use super::head::head_node::HeadNode;
 
 #[derive(Debug, Clone)]
+/// The <title> tag.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title) for more
+/// info.
 pub struct Title(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,

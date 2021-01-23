@@ -64,7 +64,7 @@ mod test {
     fn test_form_rendering() {
         use yew::prelude::*;
 
-        component_named_app_with_html!(Form::default()
+        component_named_app_with_html!(Form::new()
             .attribute(Method::Post)
             .child(
                 Input::default()

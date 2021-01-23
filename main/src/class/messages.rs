@@ -63,7 +63,7 @@ pub fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
 }
 
 fn create_new_message_form() -> Form {
-    Form::default()
+    Form::new()
         .attribute(Method::Post)
         .child(
             Input::default()
@@ -228,7 +228,7 @@ pub fn reply_to_teacher_message(
 }
 
 fn edit_message_form(msg: &ClassMessage) -> Form {
-    Form::default()
+    Form::new()
         .child(
             Input::default()
                 .attribute(Type::Text)
@@ -309,7 +309,7 @@ pub fn apply_message_edit(
 }
 
 fn edit_message_reply_form(msg: &ClassMessageReply) -> Form {
-    Form::default()
+    Form::new()
         .child(
             Input::default()
                 .attribute(Type::Text)

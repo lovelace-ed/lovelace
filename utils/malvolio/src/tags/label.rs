@@ -12,6 +12,10 @@ use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
 use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone)]
+/// A label for a form.
+///
+/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
+/// for more info.
 pub struct Label(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,

@@ -11,6 +11,7 @@ use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
 use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H1` tag.
 pub struct H1(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
@@ -24,6 +25,7 @@ into_grouping_union!(H1, BodyNode);
 heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H2` tag.
 pub struct H2(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
@@ -37,6 +39,7 @@ into_grouping_union!(H2, BodyNode);
 heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H3` tag.
 pub struct H3(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
@@ -50,6 +53,7 @@ into_grouping_union!(H3, BodyNode);
 heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H4` tag.
 pub struct H4(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
@@ -63,6 +67,7 @@ into_grouping_union!(H4, BodyNode);
 heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H5` tag.
 pub struct H5(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
@@ -76,6 +81,7 @@ into_grouping_union!(H5, BodyNode);
 heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
+/// Construct a new `H6` tag.
 pub struct H6(
     Cow<'static, str>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
