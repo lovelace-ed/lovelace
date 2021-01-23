@@ -4,6 +4,7 @@ use crate::{
     attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, prelude::Id,
     to_html, utility_enum,
 };
+use ammonia::clean;
 #[cfg(feature = "with_yew")]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
@@ -33,7 +34,29 @@ impl IntoVNode for A {
 }
 
 impl A {
+    /// Adds the supplied text to this node, overwriting the previously existing text (if text has
+    /// already been added to the node).
+    ///
+    /// This method sanitises the input (i.e. it escapes HTML);
+    /// this might not be what you want – if you are *absolutely certain* that the text you are
+    /// providing does not come from a potentially malicious source (e.g. user-supplied text can
+    /// contain script tags which will execute unwanted code) you can use `text_unsanitized` which
+    /// is identical to this method, except for that it does not sanitise the inputted text (and is
+    /// thus slightly faster).
     pub fn text<S>(mut self, text: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
+        self.text = clean(&text.into()).into();
+        self
+    }
+    /// Adds the supplied text to this node, overwriting the previously existing text (if text has
+    /// already been added to the node).
+    ///
+    /// WARNING: Do not (under any circumstances) use this method with unescaped user-supplied text.
+    /// It will be rendered and poses a major security threat to your application. If in doubt, use
+    /// the `text` method instead of this one (the risk is much lower that way).
+    pub fn text_unsanitized<S>(mut self, text: S) -> Self
     where
         S: Into<Cow<'static, str>>,
     {
