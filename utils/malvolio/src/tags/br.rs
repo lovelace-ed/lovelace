@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::into_grouping_union_without_lifetimes;
+use crate::{into_grouping_union_without_lifetimes, to_html};
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 
@@ -16,6 +16,10 @@ use super::body::body_node::BodyNode;
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br) for more
 /// info.
 pub struct Br;
+
+impl Br {
+    to_html!();
+}
 
 impl Display for Br {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

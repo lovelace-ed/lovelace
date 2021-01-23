@@ -1,4 +1,5 @@
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
+use crate::to_html;
 
 use crate::{
     into_attribute_for_grouping_enum, into_grouping_union,
@@ -54,6 +55,7 @@ impl Select {
         self.attrs.insert(a, b);
         self
     }
+    to_html!();
 }
 
 into_grouping_union!(Select, BodyNode);

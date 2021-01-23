@@ -67,6 +67,9 @@ macro_rules! heading_of_vnode {
                 vtag.into()
             }
         }
+        impl $name {
+            $crate::to_html!();
+        }
     };
 }
 
@@ -138,7 +141,7 @@ macro_rules! to_html {
     () => {
         #[cfg(feature = "with_yew")]
         pub fn to_html(self) -> yew::virtual_dom::VNode {
-            IntoVNode::into(self)
+            $crate::into_vnode::IntoVNode::into(self)
         }
     };
 }
