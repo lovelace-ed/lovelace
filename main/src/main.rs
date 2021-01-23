@@ -29,7 +29,7 @@ extern crate nanoid;
 #[macro_use]
 extern crate derive_builder;
 
-use malvolio::prelude::{Body, Head, Html, Meta, H1};
+use malvolio::prelude::{Body, Content, Head, Html, Meta, MetaName, H1};
 use utils::launch;
 
 mod auth;
@@ -46,9 +46,11 @@ mod utils;
 fn index() -> Html {
     Html::default()
         .head(
-            Head::default()
-                .child(Meta::default().attribute("charset", "UTF-8"))
-                .child(Meta::default().attribute("lang", "en-GB")),
+            Head::default().child(
+                Meta::default()
+                    .attribute(MetaName::Charset)
+                    .attribute(Content::new("utf-8")),
+            ),
         )
         .body(Body::default().child(H1::new("Hello World!")))
 }

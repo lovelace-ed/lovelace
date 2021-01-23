@@ -13,8 +13,8 @@ use crate::heading_of_vnode;
 #[derive(Default, Debug, Clone)]
 pub struct Text(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(Text);

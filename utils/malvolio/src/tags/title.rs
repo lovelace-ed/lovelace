@@ -18,8 +18,8 @@ use super::head::head_node::HeadNode;
 /// info.
 pub struct Title(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 #[cfg(feature = "with_yew")]

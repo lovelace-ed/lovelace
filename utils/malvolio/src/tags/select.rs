@@ -1,13 +1,20 @@
-use std::{collections::HashMap, fmt::Display};
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
-use crate::{impl_of_data_struct_insert, into_grouping_union, utils::write_attributes};
+use crate::{
+    into_attribute_for_grouping_enum, into_grouping_union,
+    prelude::{Class, Id},
+    utility_enum,
+    utils::write_attributes,
+};
+
+use crate::attributes::IntoAttribute;
 
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 #[cfg(feature = "with_yew")]
 use crate::utils::write_attributes_to_vtag;
 
-use super::{body::body_node::BodyNode, option::SelectOption};
+use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
 
 #[derive(Default, Debug, Clone)]
 /// The `select` tag.
@@ -15,12 +22,12 @@ use super::{body::body_node::BodyNode, option::SelectOption};
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for more
 /// info.
 pub struct Select {
-    attrs: HashMap<&'static str, String>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     children: Vec<SelectOption>,
 }
 
 impl Select {
-    impl_of_data_struct_insert!();
+    /// Add a number of children to a <select> tag.
     pub fn children<I, C>(mut self, children: I) -> Self
     where
         C: Into<SelectOption>,
@@ -30,11 +37,21 @@ impl Select {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Add a single child to a <select> tag.
     pub fn child<C>(mut self, child: C) -> Self
     where
         C: Into<SelectOption>,
     {
         self.children.push(child.into());
+        self
+    }
+    /// Add an attribute to the select in question.
+    pub fn attribute<A>(mut self, attr: A) -> Self
+    where
+        A: Into<SelectAttr>,
+    {
+        let (a, b) = attr.into().into_attribute();
+        self.attrs.insert(a, b);
         self
     }
 }
@@ -57,8 +74,22 @@ impl Display for Select {
 impl IntoVNode for Select {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("select");
-        write_attributes_to_vtag(self.attrs, &mut vtag);
+        write_attributes_to_vtag(&self.attrs, &mut vtag);
         vtag.add_children(self.children.into_iter().map(IntoVNode::into));
         vtag.into()
     }
 }
+
+utility_enum!(
+    pub enum SelectAttr {
+        Name(Name),
+        Class(Class),
+        Id(Id),
+    }
+);
+
+into_attribute_for_grouping_enum!(SelectAttr, Name, Class, Id);
+
+into_grouping_union!(Name, SelectAttr);
+into_grouping_union!(Class, SelectAttr);
+into_grouping_union!(Id, SelectAttr);

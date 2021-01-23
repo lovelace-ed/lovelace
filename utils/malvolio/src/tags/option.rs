@@ -1,11 +1,17 @@
-use crate::impl_of_data_struct_insert;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
-use crate::utils::write_attributes;
 #[cfg(feature = "with_yew")]
 use crate::utils::write_attributes_to_vtag;
+use crate::{
+    into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, utility_enum,
+    utils::write_attributes,
+};
+
+use crate::attributes::IntoAttribute;
 use ammonia::clean;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
+
+use super::input::{Name, Value};
 
 #[derive(Default, Debug, Clone)]
 /// The `option` tag.
@@ -13,12 +19,11 @@ use std::{borrow::Cow, collections::HashMap, fmt::Display};
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for more
 /// info.
 pub struct SelectOption {
-    attrs: HashMap<&'static str, String>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,
 }
 
 impl SelectOption {
-    impl_of_data_struct_insert!();
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).
     ///
@@ -48,6 +53,14 @@ impl SelectOption {
         self.text = text.into();
         self
     }
+    pub fn attribute<A>(mut self, attr: A) -> Self
+    where
+        A: Into<SelectOptionAttr>,
+    {
+        let (a, b) = attr.into().into_attribute();
+        self.attrs.insert(a, b);
+        self
+    }
 }
 
 impl Display for SelectOption {
@@ -64,8 +77,22 @@ impl Display for SelectOption {
 impl IntoVNode for SelectOption {
     fn into(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("option");
-        write_attributes_to_vtag(self.attrs, &mut vtag);
+        write_attributes_to_vtag(&self.attrs, &mut vtag);
         vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
         vtag.into()
     }
 }
+
+utility_enum!(
+    pub enum SelectOptionAttr {
+        Value(Value),
+        Id(Id),
+        Name(Name),
+    }
+);
+
+into_attribute_for_grouping_enum!(SelectOptionAttr, Value, Id, Name);
+
+into_grouping_union!(Value, SelectOptionAttr);
+into_grouping_union!(Id, SelectOptionAttr);
+into_grouping_union!(Name, SelectOptionAttr);

@@ -6,7 +6,10 @@ use yew::virtual_dom::Listener;
 
 #[cfg(feature = "with_yew")]
 use crate::heading_of_vnode;
-use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
+use crate::{
+    heading_display, impl_of_heading_new_fn, into_attribute_for_grouping_enum, into_grouping_union,
+    prelude::{Class, Id},
+};
 
 use super::body::body_node::BodyNode;
 
@@ -14,8 +17,8 @@ use super::body::body_node::BodyNode;
 /// Construct a new `H1` tag.
 pub struct H1(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H1);
@@ -28,8 +31,8 @@ heading_display!(H1);
 /// Construct a new `H2` tag.
 pub struct H2(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H2);
@@ -42,8 +45,8 @@ heading_display!(H2);
 /// Construct a new `H3` tag.
 pub struct H3(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H3);
@@ -56,8 +59,8 @@ heading_display!(H3);
 /// Construct a new `H4` tag.
 pub struct H4(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H4);
@@ -70,8 +73,8 @@ heading_display!(H4);
 /// Construct a new `H5` tag.
 pub struct H5(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H5);
@@ -84,8 +87,8 @@ heading_display!(H5);
 /// Construct a new `H6` tag.
 pub struct H6(
     Cow<'static, str>,
+    HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
-    HashMap<&'static str, String>,
 );
 
 impl_of_heading_new_fn!(H6);
@@ -107,6 +110,17 @@ heading_of_vnode!(H5);
 #[cfg(feature = "with_yew")]
 heading_of_vnode!(H6);
 
+pub enum HeadingAttr {
+    Class(Class),
+    Id(Id),
+}
+
+into_attribute_for_grouping_enum!(HeadingAttr, Class, Id);
+
+into_grouping_union!(Class, HeadingAttr);
+
+into_grouping_union!(Id, HeadingAttr);
+
 #[test]
 fn test_headings() {
     use crate::prelude::*;
@@ -118,7 +132,8 @@ fn test_headings() {
                 .child(H6::new("Some other heading"))
                 .child(H5::new("Some other other heading"))
                 .child(
-                    H4::new("Some other other other heading").attribute("class", "heading-class"),
+                    H4::new("Some other other other heading")
+                        .attribute(Class::from("heading-class")),
                 ),
         )
         .to_string();

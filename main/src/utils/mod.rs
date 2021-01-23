@@ -11,7 +11,7 @@ pub mod timezones;
 
 #[cfg(test)]
 use crate::auth::LOGIN_COOKIE;
-use malvolio::prelude::{Body, Head, Html, Meta, Title, H1, P};
+use malvolio::prelude::{Body, Head, Html, Title, H1, P};
 use rocket::{
     config::{Environment, Value},
     fairing::AdHoc,
@@ -21,13 +21,7 @@ use rocket::{
 use rocket::{http::ContentType, local::Client};
 
 pub fn default_head(title: String) -> Head {
-    Head::default()
-        .child(Title::new(title + " | Lovelace"))
-        .child(
-            Meta::default()
-                .attribute("rel", "stylesheet")
-                .attribute("href", "/css/styles.css"),
-        )
+    Head::default().child(Title::new(title + " | Lovelace"))
 }
 
 pub fn retrieve_database_url() -> String {

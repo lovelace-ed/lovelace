@@ -5,14 +5,19 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 //! Handles timezones
 
+use std::borrow::Cow;
+
 use chrono_tz::TZ_VARIANTS;
-use malvolio::prelude::{Div, Label, Select, SelectOption};
+use malvolio::prelude::{Div, Label, Name, Select, SelectOption, Value};
 
 use crate::css_names::FORM_GROUP;
 
 /// Creates a field from which a timezone can be selected which should be added to an existing form
 /// (it is just an input field; not a free-standing form on its own).
-pub fn timezone_form(name: &str, message: Option<&'static str>) -> Div {
+pub fn timezone_form<T>(name: T, message: Option<&'static str>) -> Div
+where
+    T: Into<Cow<'static, str>>,
+{
     Div::new()
         .attribute(malvolio::prelude::Class::from(FORM_GROUP))
         .child(Label::new(
@@ -20,10 +25,10 @@ pub fn timezone_form(name: &str, message: Option<&'static str>) -> Div {
         ))
         .child(
             Select::default()
-                .attribute("name", name)
+                .attribute(Name::new(name))
                 .children(TZ_VARIANTS.iter().map(|timezone| {
                     SelectOption::default()
-                        .attribute("value", timezone.to_string())
+                        .attribute(Value::new(timezone.to_string()))
                         .text(timezone.to_string())
                 })),
         )

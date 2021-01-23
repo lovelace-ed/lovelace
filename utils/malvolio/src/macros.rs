@@ -6,27 +6,6 @@
 //! rambling here, aren't I :)
 
 #[macro_export]
-#[cfg(feature = "with_yew")]
-macro_rules! heading_display {
-    ($name:ident) => {
-        impl std::fmt::Display for $name {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                f.write_str("<")?;
-                f.write_str(stringify!($name))?;
-                f.write_str(" ")?;
-                crate::utils::write_attributes(&self.2, f)?;
-                f.write_str(">")?;
-                self.0.fmt(f)?;
-                f.write_str("</")?;
-                f.write_str(stringify!($name))?;
-                f.write_str(">")
-            }
-        }
-    };
-}
-
-#[macro_export]
-#[cfg(not(feature = "with_yew"))]
 macro_rules! heading_display {
     ($name:ident) => {
         impl std::fmt::Display for $name {
@@ -46,22 +25,6 @@ macro_rules! heading_display {
 }
 
 #[macro_export]
-macro_rules! impl_of_data_struct_insert {
-    () => {
-        #[inline(always)]
-        pub fn attribute<S1, S2>(mut self, k: S1, v: S2) -> Self
-        where
-            S1: Into<&'static str>,
-            S2: Into<String>,
-        {
-            // all these features are probably going to come back to bite :-)
-            self.attrs.insert(k.into(), v.into());
-            self
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! impl_of_heading_new_fn {
     ($name:ident) => {
         impl $name {
@@ -71,22 +34,19 @@ macro_rules! impl_of_heading_new_fn {
             {
                 Self(
                     from.into(),
+                    std::collections::HashMap::new(),
                     #[cfg(feature = "with_yew")]
                     vec![],
-                    std::collections::HashMap::new(),
                 )
             }
             #[inline(always)]
-            pub fn attribute<S1, S2>(mut self, k: S1, v: S2) -> Self
+            pub fn attribute<A>(mut self, a: A) -> Self
             where
-                S1: Into<&'static str>,
-                S2: Into<String>,
+                A: Into<$crate::tags::headings::HeadingAttr>,
             {
-                // all these features are probably going to come back to bite :-)
-                #[cfg(feature = "with_yew")]
-                self.2.insert(k.into(), v.into());
-                #[cfg(not(feature = "with_yew"))]
-                self.1.insert(k.into(), v.into());
+                use $crate::attributes::IntoAttribute;
+                let (a, b) = a.into().into_attribute();
+                self.1.insert(a, b);
                 self
             }
         }
@@ -100,7 +60,7 @@ macro_rules! heading_of_vnode {
         impl $crate::into_vnode::IntoVNode for $name {
             fn into(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
-                for (k, v) in self.2.into_iter() {
+                for (k, v) in self.1.into_iter() {
                     vtag.add_attribute(k, &v);
                 }
                 vtag.add_child(::yew::virtual_dom::VText::new(self.0.to_string()).into());

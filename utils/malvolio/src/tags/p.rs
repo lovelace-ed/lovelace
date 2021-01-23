@@ -37,6 +37,8 @@ impl Display for P {
 }
 
 impl P {
+    /// Adds multiple children to the current `P` node after the currently existing ones. This
+    /// method accepts any
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
         C: Into<BodyNode>,
