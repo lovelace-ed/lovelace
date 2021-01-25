@@ -30,7 +30,10 @@ pub struct Html {
 impl IntoVNode for Html {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("html");
-        tag.add_children(vec![IntoVNode::into_vnode(self.head), IntoVNode::into_vnode(self.body)]);
+        tag.add_children(vec![
+            IntoVNode::into_vnode(self.head),
+            IntoVNode::into_vnode(self.body),
+        ]);
         tag.into()
     }
 }
