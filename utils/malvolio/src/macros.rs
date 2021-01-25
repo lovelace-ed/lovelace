@@ -58,7 +58,7 @@ macro_rules! impl_of_heading_new_fn {
 macro_rules! heading_of_vnode {
     ($name:ident) => {
         impl $crate::into_vnode::IntoVNode for $name {
-            fn into(self) -> ::yew::virtual_dom::VNode {
+            fn into_vnode(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
                 for (k, v) in self.1.into_iter() {
                     vtag.add_attribute(k, &v);
@@ -113,10 +113,10 @@ macro_rules! into_grouping_union_without_lifetimes {
 macro_rules! into_vnode_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
         impl $crate::into_vnode::IntoVNode for $name {
-            fn into(self) -> yew::virtual_dom::VNode {
+            fn into_vnode(self) -> yew::virtual_dom::VNode {
                 match self {
                     $(
-                        Self::$variant(x) => {$crate::into_vnode::IntoVNode::into(x)}
+                        Self::$variant(x) => {$crate::into_vnode::IntoVNode::into_vnode(x)}
                     ),*
 
                 }
@@ -141,7 +141,7 @@ macro_rules! to_html {
     () => {
         #[cfg(feature = "with_yew")]
         pub fn to_html(self) -> yew::virtual_dom::VNode {
-            $crate::into_vnode::IntoVNode::into(self)
+            $crate::into_vnode::IntoVNode::into_vnode(self)
         }
     };
 }

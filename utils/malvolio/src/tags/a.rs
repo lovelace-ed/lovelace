@@ -34,7 +34,7 @@ pub struct A {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for A {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vnode = yew::virtual_dom::VTag::new("a");
         for (a, b) in self.attrs {
             vnode.add_attribute(a, &b.to_string())

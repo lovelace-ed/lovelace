@@ -28,7 +28,7 @@ pub struct Input {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for Input {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("input");
         self.attrs
             .clone()

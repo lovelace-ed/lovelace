@@ -75,7 +75,7 @@ impl Display for SelectOption {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for SelectOption {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("option");
         write_attributes_to_vtag(&self.attrs, &mut vtag);
         vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());

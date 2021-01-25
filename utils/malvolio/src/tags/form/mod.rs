@@ -60,9 +60,9 @@ pub struct Form {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for Form {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("form");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into));
+        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
         for (a, b) in self.attrs {
             vtag.add_attribute(a, &b.to_string())
         }

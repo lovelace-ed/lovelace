@@ -29,7 +29,7 @@ impl Display for Br {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for Br {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         yew::virtual_dom::VTag::new("br").into()
     }
 }

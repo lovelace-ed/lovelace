@@ -13,9 +13,9 @@ pub struct Body {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for Body {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("body");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into));
+        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
         vtag.into()
     }
 }

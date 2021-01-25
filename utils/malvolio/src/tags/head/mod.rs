@@ -13,9 +13,9 @@ pub struct Head {
 
 #[cfg(feature = "with_yew")]
 impl IntoVNode for Head {
-    fn into(self) -> yew::virtual_dom::VNode {
+    fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("head");
-        tag.add_children(self.children.into_iter().map(IntoVNode::into));
+        tag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
         tag.into()
     }
 }
