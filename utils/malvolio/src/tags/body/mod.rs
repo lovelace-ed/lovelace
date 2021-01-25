@@ -4,9 +4,11 @@ use self::body_node::BodyNode;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 
+/// Contains the `BodyNode` enum.
 pub mod body_node;
 
 #[derive(Default, Debug, Clone)]
+/// The <body> tag.
 pub struct Body {
     children: Vec<BodyNode>,
 }
@@ -21,6 +23,8 @@ impl IntoVNode for Body {
 }
 
 impl Body {
+    /// Attach multiple children to this tag, from an iterator of items implementing
+    /// `Into<BodyNode>`
     pub fn children<I, C>(mut self, children: I) -> Self
     where
         C: Into<BodyNode>,
@@ -30,6 +34,7 @@ impl Body {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Attach a single child to this tag.
     pub fn child<C>(mut self, child: C) -> Self
     where
         C: Into<BodyNode>,

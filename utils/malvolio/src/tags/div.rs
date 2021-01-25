@@ -124,6 +124,7 @@ impl Display for Div {
 into_grouping_union!(Div, BodyNode);
 
 utility_enum!(
+    #[allow(missing_docs)]
     pub enum DivAttr {
         Id(Id),
         Class(Class),

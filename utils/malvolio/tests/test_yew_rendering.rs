@@ -43,7 +43,6 @@ mod test {
         let root = document
             .create_element("div")
             .expect("failed to create element");
-        root.set_id("link");
         yew::App::<App>::new().mount(root.clone());
         let link = root
             .get_elements_by_tag_name("a")

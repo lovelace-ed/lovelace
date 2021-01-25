@@ -47,6 +47,7 @@ impl P {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Attach a child to this tag.
     pub fn child<C>(mut self, child: C) -> Self
     where
         C: Into<BodyNode>,

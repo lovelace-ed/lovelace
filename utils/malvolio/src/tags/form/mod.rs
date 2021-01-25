@@ -149,6 +149,8 @@ impl Display for Form {
 into_grouping_union!(Form, BodyNode);
 
 utility_enum!(
+    /// A form attribute.
+    #[allow(missing_docs)]
     pub enum FormAttr {
         Method(Method),
         Action(Action),
@@ -158,6 +160,8 @@ utility_enum!(
 /// The "method" attribute for a form. See the
 /// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method) for
 /// further details.
+#[allow(missing_docs)]
+#[derive(Debug, Clone)]
 pub enum Method {
     Post,
     Get,
@@ -183,9 +187,11 @@ into_grouping_union!(Method, FormAttr);
 /// The "action" attribute for a form. See the
 /// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-action) for
 /// further details.
+#[derive(Debug, Clone)]
 pub struct Action(Cow<'static, str>);
 
 impl Action {
+    /// Create a new "action" attribute.
     pub fn new<S>(input: S) -> Self
     where
         S: Into<Cow<'static, str>>,

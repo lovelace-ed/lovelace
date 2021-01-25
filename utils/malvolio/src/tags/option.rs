@@ -53,6 +53,8 @@ impl SelectOption {
         self.text = text.into();
         self
     }
+    /// Attach a new attribute to this type. Note that this will overwrite existing values for the
+    /// attribute, if one has been provided.
     pub fn attribute<A>(mut self, attr: A) -> Self
     where
         A: Into<SelectOptionAttr>,
@@ -84,6 +86,8 @@ impl IntoVNode for SelectOption {
 }
 
 utility_enum!(
+    /// An attribute for the <select> tag.
+    #[allow(missing_docs)]
     pub enum SelectOptionAttr {
         Value(Value),
         Id(Id),

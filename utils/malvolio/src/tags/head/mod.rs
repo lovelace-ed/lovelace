@@ -4,9 +4,11 @@ use self::head_node::HeadNode;
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 
+/// Items which can be mounted to head.
 pub mod head_node;
 
 #[derive(Default, Debug, Clone)]
+/// The <head> tag.
 pub struct Head {
     children: Vec<HeadNode>,
 }
@@ -21,6 +23,7 @@ impl IntoVNode for Head {
 }
 
 impl Head {
+    /// Add a number of children to this <head> tag from an iterator.
     pub fn children<C>(mut self, children: Vec<C>) -> Self
     where
         C: Into<HeadNode>,
@@ -29,6 +32,7 @@ impl Head {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+    /// Add a single child to this <head> tag.
     pub fn child<C>(mut self, child: C) -> Self
     where
         C: Into<HeadNode>,

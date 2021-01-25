@@ -112,6 +112,8 @@ impl Display for A {
 into_grouping_union!(A, BodyNode);
 
 utility_enum!(
+    /// An attribute for the A tag.
+    #[allow(missing_docs)]
     pub enum AAttr {
         Href(Href),
         Download(Download),
@@ -130,6 +132,7 @@ into_attribute_for_grouping_enum!(AAttr, Href, Download, Target, Id);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href)
 /// for more info.
+#[derive(Debug, Clone)]
 pub struct Href(Cow<'static, str>);
 
 impl Href {
@@ -148,9 +151,11 @@ into_grouping_union!(Href, AAttr);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
 /// for more info.
+#[derive(Debug, Clone)]
 pub struct Download(Cow<'static, str>);
 
 impl Download {
+    /// Create a new attribute from the provided value.
     pub fn new<C>(value: C) -> Self
     where
         C: Into<Cow<'static, str>>,
@@ -177,6 +182,8 @@ impl IntoAttribute for Href {
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-target)
 /// for more info.
+#[derive(Debug, Clone)]
+#[allow(missing_docs)]
 pub enum Target {
     Blank,
 }

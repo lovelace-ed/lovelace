@@ -19,7 +19,8 @@ use crate::{
 use crate::into_vnode_for_grouping_enum;
 
 utility_enum!(
-    #[derive(Clone, Debug)]
+    #[allow(missing_docs)]
+    /// A node which can be mounted to the <body> tag (or any of its children).
     pub enum BodyNode {
         H1(H1),
         H2(H2),
@@ -36,12 +37,14 @@ utility_enum!(
         Input(Input),
         Label(Label),
         Select(Select),
+        #[cfg(feature = "with_yew")]
+        VNode(yew::virtual_dom::VNode),
     }
 );
 
 #[cfg(feature = "with_yew")]
 into_vnode_for_grouping_enum!(
-    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select
+    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select, VNode
 );
 
 enum_display!(BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Select, Label);

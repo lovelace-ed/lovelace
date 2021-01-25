@@ -11,6 +11,7 @@ use crate::{impl_of_heading_new_fn, into_grouping_union, tags::body::body_node::
 use crate::heading_of_vnode;
 
 #[derive(Default, Debug, Clone)]
+/// A text node.
 pub struct Text(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,

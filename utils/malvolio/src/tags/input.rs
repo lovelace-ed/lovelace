@@ -61,6 +61,7 @@ into_grouping_union!(Input, BodyNode);
 
 impl Input {
     #[inline(always)]
+    /// Attach a new attribute to this type.
     pub fn attribute<C>(mut self, c: C) -> Self
     where
         C: Into<InputAttr>,
@@ -92,6 +93,7 @@ impl Input {
 
 utility_enum!(
     /// The possible attributes which can be attached to an input item.
+    #[allow(missing_docs)]
     pub enum InputAttr {
         Type(Type),
         Name(Name),
@@ -111,6 +113,8 @@ into_grouping_union!(Class, InputAttr);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type)
 /// for more info.
+#[derive(Debug, Clone)]
+#[allow(missing_docs)]
 pub enum Type {
     Text,
     Email,
@@ -143,6 +147,8 @@ into_grouping_union!(Type, InputAttr);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-name)
 /// for more info.
+#[derive(Debug, Clone)]
+
 pub struct Name(Cow<'static, str>);
 
 impl IntoAttribute for Name {
@@ -152,6 +158,7 @@ impl IntoAttribute for Name {
 }
 
 impl Name {
+    /// Create a new instance of this attribute with the specified value.
     pub fn new<S>(s: S) -> Self
     where
         S: Into<Cow<'static, str>>,
@@ -166,6 +173,7 @@ into_grouping_union!(Name, InputAttr);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-placeholder)
 /// for more info.
+#[derive(Debug, Clone)]
 pub struct Placeholder(Cow<'static, str>);
 
 impl IntoAttribute for Placeholder {
@@ -175,6 +183,7 @@ impl IntoAttribute for Placeholder {
 }
 
 impl Placeholder {
+    /// Create a new instance of this attribute with the specified value.
     pub fn new<S>(s: S) -> Self
     where
         S: Into<Cow<'static, str>>,
@@ -189,9 +198,11 @@ into_grouping_union!(Placeholder, InputAttr);
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-value)
 /// for more info.
+#[derive(Debug, Clone)]
 pub struct Value(Cow<'static, str>);
 
 impl Value {
+    /// Create a new instance of this attribute with the specified value.
     pub fn new<S>(s: S) -> Self
     where
         S: Into<Cow<'static, str>>,

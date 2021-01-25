@@ -59,6 +59,7 @@ impl Display for Meta {
 into_grouping_union!(Meta, HeadNode);
 
 utility_enum!(
+    #[allow(missing_docs)]
     pub enum MetaAttr {
         Content(Content),
         MetaName(MetaName),
@@ -69,7 +70,16 @@ into_attribute_for_grouping_enum!(MetaAttr, Content, MetaName);
 
 /// The "name" attribute for meta tags. This is called `MetaName` to disambiguate it from other
 /// tags.
+#[derive(Debug, Clone)]
 pub enum MetaName {
+    /// Specifies the charset of the HTML document. Note that for this to work, you also need to
+    /// specify the `content` attribute on the relevant meta tag.
+    /// ```
+    /// # use malvolio::prelude::*;
+    /// Meta::new()
+    ///     .attribute(MetaName::Charset)
+    ///     .attribute(Content::new("utf-8"))
+    /// ```
     Charset,
 }
 
@@ -87,6 +97,8 @@ impl IntoAttribute for MetaName {
 
 into_grouping_union!(MetaName, MetaAttr);
 
+#[derive(Debug, Clone)]
+/// The "content" attribute for a <meta> tag.
 pub struct Content(Cow<'static, str>);
 
 impl Content {

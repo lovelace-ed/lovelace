@@ -74,10 +74,12 @@ impl<'r> Responder<'r> for Html {
 }
 
 impl Html {
+    /// Set the `Head` tag of this `Html` node.
     pub fn head(mut self, head: Head) -> Self {
         self.head = head;
         self
     }
+    /// Set the body tag of this `Html` node.
     pub fn body(mut self, body: Body) -> Self {
         self.body = body;
         self

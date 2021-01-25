@@ -6,6 +6,7 @@
 //! rambling here, aren't I :)
 
 #[macro_export]
+/// For internal use only.
 macro_rules! heading_display {
     ($name:ident) => {
         impl std::fmt::Display for $name {
@@ -25,9 +26,14 @@ macro_rules! heading_display {
 }
 
 #[macro_export]
+/// For internal case only.
+///
+/// Generates new code to construct a heading.
 macro_rules! impl_of_heading_new_fn {
     ($name:ident) => {
         impl $name {
+            /// Create a new item of this type, given an item which can be converted into a
+            /// `Cow<'static, str>` (for example a `&str` or a `String`).
             pub fn new<S>(from: S) -> Self
             where
                 S: Into<std::borrow::Cow<'static, str>>,
@@ -40,6 +46,7 @@ macro_rules! impl_of_heading_new_fn {
                 )
             }
             #[inline(always)]
+            /// Attach a new attribute to this node.
             pub fn attribute<A>(mut self, a: A) -> Self
             where
                 A: Into<$crate::tags::headings::HeadingAttr>,
@@ -55,6 +62,7 @@ macro_rules! impl_of_heading_new_fn {
 
 #[cfg(feature = "with_yew")]
 #[macro_export]
+/// For internal use only.
 macro_rules! heading_of_vnode {
     ($name:ident) => {
         impl $crate::into_vnode::IntoVNode for $name {
@@ -74,12 +82,15 @@ macro_rules! heading_of_vnode {
 }
 
 #[macro_export]
+/// For internal use only.
 macro_rules! enum_display {
     ($on:ident, $($variant:ident),*) => {
         impl std::fmt::Display for $on {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 match self {
-                    $(Self::$variant(x) => <$variant as std::fmt::Display>::fmt(&x.clone(), f)),*
+                    $(Self::$variant(x) => <$variant as std::fmt::Display>::fmt(&x.clone(), f)),*,
+                    #[allow(unreachable_patterns)]
+                    _ => panic!("Virtual components are not supported.")
                 }
             }
         }
@@ -87,6 +98,7 @@ macro_rules! enum_display {
 }
 
 #[macro_export]
+/// For internal use only.
 macro_rules! into_grouping_union {
     ($name:ident, $enum_name:ident) => {
         impl From<$name> for $enum_name {
@@ -98,6 +110,7 @@ macro_rules! into_grouping_union {
 }
 
 #[macro_export]
+/// For intenal use only.
 macro_rules! into_grouping_union_without_lifetimes {
     ($name:ident, $enum_name:ident) => {
         impl From<$name> for $enum_name {
@@ -110,6 +123,7 @@ macro_rules! into_grouping_union_without_lifetimes {
 
 #[cfg(feature = "with_yew")]
 #[macro_export]
+/// For internal use only.
 macro_rules! into_vnode_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
         impl $crate::into_vnode::IntoVNode for $name {
@@ -126,6 +140,7 @@ macro_rules! into_vnode_for_grouping_enum {
 }
 
 #[macro_export]
+/// For internal use only.
 macro_rules! add_single_attribute {
     ($lifetime:tt) => {
         #[inline(always)]
@@ -137,9 +152,12 @@ macro_rules! add_single_attribute {
 }
 
 #[macro_export]
+/// Generates a function to call `into_vnode`
 macro_rules! to_html {
     () => {
         #[cfg(feature = "with_yew")]
+        /// Turn this item into a `VNode`. You only need to call this on the item that you
+        /// return in the `html` function.
         pub fn to_html(self) -> yew::virtual_dom::VNode {
             $crate::into_vnode::IntoVNode::into_vnode(self)
         }
@@ -147,6 +165,9 @@ macro_rules! to_html {
 }
 
 #[macro_export]
+/// Generates code to convert an attribute into a grouping enum.
+///
+/// For internal use only.
 macro_rules! into_attribute_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
         impl $crate::attributes::IntoAttribute for $name {
@@ -164,6 +185,7 @@ macro_rules! into_attribute_for_grouping_enum {
 
 #[cfg(test)]
 #[macro_export]
+/// For internal use only
 macro_rules! component_named_app_with_html {
     ($($html:tt)*) => {
         struct App {}

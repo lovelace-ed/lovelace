@@ -83,6 +83,7 @@ impl IntoVNode for Select {
 }
 
 utility_enum!(
+    #[allow(missing_docs)]
     pub enum SelectAttr {
         Name(Name),
         Class(Class),

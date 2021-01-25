@@ -8,7 +8,8 @@ use crate::{
 use crate::into_vnode_for_grouping_enum;
 
 utility_enum!(
-    #[derive(Debug, Clone)]
+    #[allow(missing_docs)]
+    /// A node which can be attached to the <head> tag.
     pub enum HeadNode {
         Title(Title),
         Meta(Meta),

@@ -9,6 +9,7 @@ use crate::heading_of_vnode;
 use crate::{
     heading_display, impl_of_heading_new_fn, into_attribute_for_grouping_enum, into_grouping_union,
     prelude::{Class, Id},
+    utility_enum,
 };
 
 use super::body::body_node::BodyNode;
@@ -110,11 +111,14 @@ heading_of_vnode!(H5);
 #[cfg(feature = "with_yew")]
 heading_of_vnode!(H6);
 
-pub enum HeadingAttr {
-    Class(Class),
-    Id(Id),
-}
-
+utility_enum!(
+    /// An attribute for a heading tag.
+    #[allow(missing_docs)]
+    pub enum HeadingAttr {
+        Class(Class),
+        Id(Id),
+    }
+);
 into_attribute_for_grouping_enum!(HeadingAttr, Class, Id);
 
 into_grouping_union!(Class, HeadingAttr);
