@@ -8,7 +8,8 @@ use crate::{
 
 use super::head::head_node::HeadNode;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Derivative, Debug, Clone)]
+#[derivative(Default(new="true"))]
 /// A metadata element. Useful for adding metadata which can not be represented through other HTML
 /// tags.
 ///
