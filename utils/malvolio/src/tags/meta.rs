@@ -9,7 +9,7 @@ use crate::{
 use super::head::head_node::HeadNode;
 
 #[derive(Derivative, Debug, Clone)]
-#[derivative(Default(new="true"))]
+#[derivative(Default(new = "true"))]
 /// A metadata element. Useful for adding metadata which can not be represented through other HTML
 /// tags.
 ///
@@ -79,7 +79,7 @@ pub enum MetaName {
     /// # use malvolio::prelude::*;
     /// Meta::new()
     ///     .attribute(MetaName::Charset)
-    ///     .attribute(Content::new("utf-8"))
+    ///     .attribute(Content::new("utf-8"));
     /// ```
     Charset,
 }
