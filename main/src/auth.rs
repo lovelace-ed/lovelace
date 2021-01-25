@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 /*
 This source code file is distributed subject to the terms of the GNU Affero General Public License.
 A copy of this license can be found in the `licenses` directory at the root of this project.
@@ -14,6 +12,7 @@ use rocket::{
     http::{Cookie, Cookies, Status},
     request::{Form, FromRequest},
 };
+use std::str::FromStr;
 use thiserror::Error as ThisError;
 
 use crate::{
@@ -354,7 +353,7 @@ pub fn logout(mut cookies: Cookies) -> Html {
     cookies.remove_private(Cookie::named(LOGIN_COOKIE));
     Html::default()
         .head(default_head("Logged out.".to_string()))
-        .body(Body::default().child(H1::new(format!("You are logged out."))))
+        .body(Body::default().child(H1::new("You are logged out.".to_string())))
 }
 
 #[get("/reset")]
@@ -434,8 +433,7 @@ mod test {
         login_res
             .cookies()
             .into_iter()
-            .filter(|c| c.name() == LOGIN_COOKIE)
-            .next()
+            .find(|c| c.name() == LOGIN_COOKIE)
             .unwrap();
         let page = login_res.body_string().expect("invalid body response");
         assert!(page.contains("now logged in"));

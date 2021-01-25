@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 use std::fmt::Display;
 
 #[cfg(feature = "with_rocket")]
@@ -74,12 +78,17 @@ impl<'r> Responder<'r> for Html {
 }
 
 impl Html {
-    /// Set the `Head` tag of this `Html` node.
+    /// Create a new `Html` tag. Note that this is exactly the same as `Html::default()`, but it is
+    /// a few characters shorter, so is provided as a convenience method.
+    pub fn new() -> Self {
+        Self::default()
+    }
+    /// Attach a <head> tag to this `Html` instance.
     pub fn head(mut self, head: Head) -> Self {
         self.head = head;
         self
     }
-    /// Set the body tag of this `Html` node.
+    /// Attach a new <body> tag to this `Html` instance.
     pub fn body(mut self, body: Body) -> Self {
         self.body = body;
         self

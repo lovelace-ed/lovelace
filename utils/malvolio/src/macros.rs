@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 //! Important: these are not intended for general consumption (only use them internally).
 //!
 //! A set of macros which are used to reduce the number of times one has to type out the same thing

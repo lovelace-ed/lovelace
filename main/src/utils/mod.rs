@@ -7,6 +7,7 @@ use std::collections::HashMap;
 pub mod auto_database_error;
 pub mod error_messages;
 pub mod html_or_redirect;
+pub mod permission_error;
 pub mod timezones;
 
 #[cfg(test)]
@@ -97,7 +98,21 @@ pub fn launch() -> Rocket {
                 crate::class::messages::apply_message_edit,
                 crate::class::messages::edit_message_reply,
                 crate::class::messages::apply_message_reply_edit,
-                crate::class::messages::view_message
+                crate::class::messages::view_message,
+                crate::class::tasks::asynchronous::view_all_async_tasks_in_class,
+                crate::class::tasks::asynchronous::create_new_async_task,
+                crate::class::tasks::asynchronous::get_create_new_async_task,
+                crate::class::tasks::asynchronous::view_specific_asynchronous_task,
+                crate::class::tasks::asynchronous::view_edit_task_page,
+                crate::class::tasks::asynchronous::apply_edit_task,
+                crate::class::tasks::asynchronous::delete_task,
+                crate::class::tasks::synchronous::view_all_sync_tasks_in_class,
+                crate::class::tasks::synchronous::create_new_sync_task,
+                crate::class::tasks::synchronous::get_create_new_sync_task,
+                crate::class::tasks::synchronous::view_specific_synchronous_task,
+                crate::class::tasks::synchronous::view_edit_task_page,
+                crate::class::tasks::synchronous::apply_edit_task,
+                crate::class::tasks::synchronous::delete_task
             ],
         )
 }
@@ -144,8 +159,7 @@ pub fn login_user(identifier: &str, password: &str, client: &Client) {
     login_res
         .cookies()
         .into_iter()
-        .filter(|c| c.name() == LOGIN_COOKIE)
-        .next()
+        .find(|c| c.name() == LOGIN_COOKIE)
         .unwrap();
 }
 

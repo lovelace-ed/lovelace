@@ -4,11 +4,16 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use chrono::NaiveDateTime;
 
+use crate::db::DatabaseConnection;
+use crate::schema::class_asynchronous_task;
 use crate::schema::class_message;
 use crate::schema::class_message_reply;
+use crate::schema::class_synchronous_task;
 use crate::schema::class_teacher;
 use crate::schema::class_teacher_invite;
 use crate::schema::notifications;
+use crate::schema::student_class_asynchronous_task;
+use crate::schema::student_class_synchronous_task;
 use crate::schema::users;
 
 use crate::{db::Database, schema::class};
@@ -71,6 +76,16 @@ impl Class {
     pub fn with_id(id: i32, conn: Database) -> Result<Self, diesel::result::Error> {
         use crate::schema::class::dsl as class;
         class::class.filter(class::id.eq(id)).first::<Self>(&*conn)
+    }
+    pub fn student_count(id: i32, conn: &DatabaseConnection) -> Result<i64, diesel::result::Error> {
+        use crate::schema::class::dsl as class;
+        use crate::schema::class_student::dsl as class_student;
+
+        class::class
+            .filter(class::id.eq(id))
+            .inner_join(class_student::class_student)
+            .select(diesel::dsl::count(class_student::id))
+            .get_result::<i64>(&*conn)
     }
 }
 
@@ -215,4 +230,108 @@ pub struct NewClassMessageReply<'a> {
     pub user_id: i32,
     pub class_id: i32,
     pub class_message_id: i32,
+}
+
+#[derive(Queryable, Identifiable, PartialEq, Debug, Clone)]
+#[table_name = "class_asynchronous_task"]
+pub struct ClassAsynchronousTask {
+    pub id: i32,
+    pub title: String,
+    pub description: String,
+    pub created: NaiveDateTime,
+    pub due_date: NaiveDateTime,
+    pub class_teacher_id: i32,
+    pub class_id: i32,
+}
+
+impl ClassAsynchronousTask {
+    pub fn render(&self) -> malvolio::prelude::Div {
+        use malvolio::prelude::*;
+        Div::new()
+            .child(H3::new(format!("Task: {}", self.title)))
+            .child(P::with_text(format!("Description: {}", self.description)))
+            .child(P::with_text(format!("Created at: {}", self.created)))
+    }
+}
+
+#[derive(Insertable)]
+#[table_name = "class_asynchronous_task"]
+pub struct NewClassAsynchronousTask<'a> {
+    pub title: &'a str,
+    pub description: &'a str,
+    pub created: NaiveDateTime,
+    pub due_date: NaiveDateTime,
+    pub class_teacher_id: i32,
+    pub class_id: i32,
+}
+
+#[derive(Insertable)]
+#[table_name = "student_class_asynchronous_task"]
+pub struct NewStudentClassAsynchronousTask {
+    pub class_student_id: i32,
+    pub class_asynchronous_task_id: i32,
+    pub completed: bool,
+}
+
+#[derive(Queryable, Identifiable, Associations)]
+#[table_name = "student_class_asynchronous_task"]
+#[belongs_to(ClassStudent)]
+#[belongs_to(ClassAsynchronousTask)]
+pub struct StudentClassAsynchronousTask {
+    pub id: i32,
+    pub class_student_id: i32,
+    pub class_asynchronous_task_id: i32,
+    pub completed: bool,
+}
+
+#[derive(Queryable, Identifiable, PartialEq, Debug, Clone)]
+#[table_name = "class_synchronous_task"]
+pub struct ClassSynchronousTask {
+    pub id: i32,
+    pub title: String,
+    pub description: String,
+    pub created: NaiveDateTime,
+    pub start_time: NaiveDateTime,
+    pub end_time: NaiveDateTime,
+    pub class_teacher_id: i32,
+    pub class_id: i32,
+}
+
+impl ClassSynchronousTask {
+    pub fn render(&self) -> malvolio::prelude::Div {
+        use malvolio::prelude::*;
+        Div::new()
+            .child(H3::new(format!("Task: {}", self.title)))
+            .child(P::with_text(format!("Description: {}", self.description)))
+            .child(P::with_text(format!("Created at: {}", self.created)))
+    }
+}
+
+#[derive(Insertable)]
+#[table_name = "class_synchronous_task"]
+pub struct NewClassSynchronousTask<'a> {
+    pub title: &'a str,
+    pub description: &'a str,
+    pub created: NaiveDateTime,
+    pub start_time: NaiveDateTime,
+    pub end_time: NaiveDateTime,
+    pub class_teacher_id: i32,
+    pub class_id: i32,
+}
+
+#[derive(Insertable)]
+#[table_name = "student_class_synchronous_task"]
+pub struct NewStudentClassSynchronousTask {
+    pub class_student_id: i32,
+    pub class_synchronous_task_id: i32,
+}
+
+#[derive(Queryable, Identifiable, Associations)]
+#[table_name = "student_class_synchronous_task"]
+#[belongs_to(ClassStudent)]
+#[belongs_to(ClassSynchronousTask)]
+pub struct StudentClassSynchronousTask {
+    pub id: i32,
+    pub class_student_id: i32,
+    pub class_synchronous_task_id: i32,
 }

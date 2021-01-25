@@ -3,7 +3,6 @@ This source code file is distributed subject to the terms of the GNU Affero Gene
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 #![feature(proc_macro_hygiene, decl_macro)]
-#![allow(clippy::useless_format)]
 
 #[macro_use]
 extern crate rocket;

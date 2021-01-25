@@ -11,6 +11,7 @@ use diesel::prelude::*;
 use rocket::request::Form;
 
 pub mod messages;
+pub mod tasks;
 
 use crate::{
     auth::AuthCookie,
@@ -89,7 +90,7 @@ pub fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn: Datab
                             .child(
                                 A::default()
                                     .attribute(Href::new(format!("/class/{}", res.id)))
-                                    .text(format!("Click me to the class description.")),
+                                    .text("Click me to the class description.".to_string()),
                             ),
                     ),
                 Err(e) => {
@@ -131,14 +132,14 @@ pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Htm
         Ok(t) => t,
         Err(diesel::result::Error::NotFound) => {
             return error_message(
-                format!("Class not found"),
-                format!("A class with that join code cannot be found."),
+                "Class not found".to_string(),
+                "A class with that join code cannot be found.".to_string(),
             )
         }
         Err(_) => {
             return error_message(
-                format!("Internal server errorr"),
-                format!("We've run into problems on our end, which we're fixing as we speak."),
+                "Internal server errorr".to_string(),
+                "We've run into problems on our end, which we're fixing as we speak.".to_string(),
             )
         }
     };
@@ -157,8 +158,8 @@ pub fn join_class(join_code: String, user_id: AuthCookie, conn: Database) -> Htm
                     .child(P::with_text("You have sucessfully joined this class.")),
             ),
         Err(_) => error_message(
-            format!("Internal server error"),
-            format!("Something's up with our database – fear not, we're fixing it."),
+            "Internal server error".to_string(),
+            "Something's up with our database – fear not, we're fixing it.".to_string(),
         ),
     }
 }
@@ -179,7 +180,7 @@ pub fn view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
                 .attribute(malvolio::prelude::Class::from(LIST))
                 .map(|item| {
                     if !classes.is_empty() {
-                        item.child(H1::new(format!("Classes I'm a student in")))
+                        item.child(H1::new("Classes I'm a student in".to_string()))
                     } else {
                         item
                     }
@@ -264,7 +265,7 @@ pub fn view_class_overview(id: usize, auth_cookie: AuthCookie, conn: Database) -
                             P::with_text(class.description).child(
                                 A::default()
                                     .attribute(Href::new(format!("/class/{}/settings", class.id)))
-                                    .text(format!("Settings")),
+                                    .text("Settings".to_string()),
                             ),
                         ),
                 )
@@ -350,8 +351,8 @@ pub fn view_class_members_page(id: usize, conn: Database, auth_cookie: AuthCooki
     use crate::schema::users::dsl as users;
     if get_user_role_in_class(auth_cookie.0 as i32, id as i32, &*conn).is_none() {
         return error_message(
-            format!("You don't have permission to view this class."),
-            format!("You might need to ask your teacher for a code to join the class."),
+            "You don't have permission to view this class.".to_string(),
+            "You might need to ask your teacher for a code to join the class.".to_string(),
         );
     };
     let students = class::class
@@ -471,9 +472,9 @@ pub fn invite_teacher(
                     .body(Body::default().child(H1::new("Successfully invited that user."))),
                 Err(e) => {
                     error!("{:#?}", e);
-                    error_message(format!("Database error :("),
-                    format!("We've run into some problems with our database. This error has been logged and
-                    we're working on fixing it."))
+                    error_message("Database error :(".to_string(),
+                    "We've run into some problems with our database. This error has been logged and
+                    we're working on fixing it.".to_string())
                 }
             }
         }
@@ -490,8 +491,8 @@ pub fn invite_teacher(
         Err(e) => {
             error!("{:?}", e);
             error_message(
-                format!("Database error"),
-                format!("Something's up with our database. We're working on fixing this."),
+                "Database error".to_string(),
+                "Something's up with our database. We're working on fixing this.".to_string(),
             )
         }
     }
@@ -603,8 +604,8 @@ pub fn delete_class(form: Form<DeleteClassForm>, auth_cookie: AuthCookie, conn: 
         Err(e) => {
             error!("{:#?}", e);
             error_message(
-                format!("Database error"),
-                format!("We ran into a database error when trying to delete this task."),
+                "Database error".to_string(),
+                "We ran into a database error when trying to delete this task.".to_string(),
             )
         }
     }
@@ -732,7 +733,7 @@ mod tests {
 
         // test joined classes show up on student class list
 
-        let mut student_class_list = client.get(format!("/class")).dispatch();
+        let mut student_class_list = client.get("/class".to_string()).dispatch();
         let string = student_class_list
             .body_string()
             .expect("invalid body response");
@@ -760,7 +761,7 @@ mod tests {
         // test can't delete class without correct name
 
         let mut invalid_delete_request = client
-            .post(format!("/class/delete"))
+            .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name=wrong", id))
             .dispatch();
@@ -772,7 +773,7 @@ mod tests {
         // test can't delete class without correct class id
 
         let mut invalid_delete_request = client
-            .post(format!("/class/delete"))
+            .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", 100000000, CLASS_NAME))
             .dispatch();
@@ -784,7 +785,7 @@ mod tests {
         // test teacher can delete class
 
         let mut invalid_delete_request = client
-            .post(format!("/class/delete"))
+            .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", id, CLASS_NAME))
             .dispatch();

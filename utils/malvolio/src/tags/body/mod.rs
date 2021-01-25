@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 use std::fmt::Display;
 
 use self::body_node::BodyNode;
@@ -42,6 +46,13 @@ impl Body {
     {
         self.children.push(child.into());
         self
+    }
+    /// Apply a function to this tag.
+    pub fn map<F>(self, mapping: F) -> Self
+    where
+        F: FnOnce(Self) -> Self,
+    {
+        mapping(self)
     }
 }
 

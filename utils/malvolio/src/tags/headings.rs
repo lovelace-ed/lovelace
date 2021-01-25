@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 #[cfg(feature = "with_yew")]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap};
@@ -15,7 +19,7 @@ use crate::{
 use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H1` tag.
+/// The <h1> tag.
 pub struct H1(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -29,7 +33,7 @@ into_grouping_union!(H1, BodyNode);
 heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H2` tag.
+/// The <h2> tag.
 pub struct H2(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -43,7 +47,7 @@ into_grouping_union!(H2, BodyNode);
 heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H3` tag.
+/// The <h3> tag.
 pub struct H3(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -57,7 +61,7 @@ into_grouping_union!(H3, BodyNode);
 heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H4` tag.
+/// The <h4> tag.
 pub struct H4(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -71,7 +75,7 @@ into_grouping_union!(H4, BodyNode);
 heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H5` tag.
+/// The <h5> tag.
 pub struct H5(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -85,7 +89,7 @@ into_grouping_union!(H5, BodyNode);
 heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
-/// Construct a new `H6` tag.
+/// The <h6> tag.
 pub struct H6(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,

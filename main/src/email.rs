@@ -1,3 +1,8 @@
+/*
+This source code file is distributed subject to the terms of the GNU Affero General Public License.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
+
 //! Utilities for sending emails.
 //!
 //! This acts as an abstraction over a number of ways of sending an email including SMTP and a

@@ -25,7 +25,7 @@ pub mod tags;
 /// A text node.
 pub mod text;
 #[macro_use]
-mod macros;
+pub(crate) mod macros;
 pub(crate) mod utils;
 #[macro_use]
 pub(crate) mod docs;

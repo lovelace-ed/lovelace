@@ -1,3 +1,7 @@
+/*
+This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
+A copy of this license can be found in the `licenses` directory at the root of this project.
+*/
 #[cfg(feature = "with_yew")]
 use crate::into_vnode::IntoVNode;
 use crate::{
@@ -88,6 +92,13 @@ impl Input {
         self.listeners.extend(listeners.into_iter().map(Into::into));
         self
     }
+    /// Apply a function to this tag.
+    pub fn map<F>(self, mapping: F) -> Self
+    where
+        F: FnOnce(Self) -> Self,
+    {
+        mapping(self)
+    }
     to_html!();
 }
 
@@ -122,6 +133,7 @@ pub enum Type {
     Textarea,
     Submit,
     Hidden,
+    DateTimeLocal,
 }
 
 impl IntoAttribute for Type {
@@ -135,6 +147,7 @@ impl IntoAttribute for Type {
                 Type::Submit => "submit",
                 Type::Textarea => "textarea",
                 Type::Hidden => "hidden",
+                Type::DateTimeLocal => "datetime-local",
             }
             .into(),
         )
