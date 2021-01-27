@@ -7,7 +7,8 @@ use crate::into_vnode::IntoVNode;
 /// Contains the `BodyNode` enum.
 pub mod body_node;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Derivative, Debug, Clone)]
+#[derivative(Default(new = "true"))]
 /// The <body> tag.
 pub struct Body {
     children: Vec<BodyNode>,
@@ -51,5 +52,56 @@ impl Display for Body {
             node.fmt(f)?;
         }
         f.write_str("</body>")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ops::Deref;
+
+    #[test]
+    fn test_children() {
+        use crate::prelude::*;
+        let document = Body::new()
+            .children(
+                vec!["1", "2", "3"]
+                    .into_iter()
+                    .map(|item| H1::new(item).attribute(Id::new(item))),
+            )
+            .to_string();
+        let document = scraper::Html::parse_document(&document);
+        let h1_selector = scraper::Selector::parse("h1").unwrap();
+        let h1s = document.select(&h1_selector).collect::<Vec<_>>();
+        assert_eq!(h1s.len(), 3);
+        assert_eq!(h1s[0].value().attr("id"), Some("1"));
+        assert_eq!(
+            h1s[0]
+                .first_child()
+                .unwrap()
+                .value()
+                .as_text()
+                .map(Deref::deref),
+            Some("1")
+        );
+        assert_eq!(h1s[1].value().attr("id"), Some("2"));
+        assert_eq!(
+            h1s[1]
+                .first_child()
+                .unwrap()
+                .value()
+                .as_text()
+                .map(Deref::deref),
+            Some("2")
+        );
+        assert_eq!(h1s[2].value().attr("id"), Some("3"));
+        assert_eq!(
+            h1s[2]
+                .first_child()
+                .unwrap()
+                .value()
+                .as_text()
+                .map(Deref::deref),
+            Some("3")
+        );
     }
 }
