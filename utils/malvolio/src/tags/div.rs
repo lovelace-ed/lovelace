@@ -81,17 +81,17 @@ impl Div {
     ///     .map(|div| if a_items.is_empty() {
     ///         div
     ///     } else {
-    ///         div.child(H1::new("Some heading for a items")).children(a_items.clone())
+    ///         div.child(H1::new("Some heading for a items")).children(a_items)
     ///     })
     ///     .map(|div| if b_items.is_empty() {
     ///         div
     ///     } else {
-    ///         div.child(H1::new("Some heading for b items")).children(b_items.clone())
+    ///         div.child(H1::new("Some heading for b items")).children(b_items)
     ///     });
     /// ```
     pub fn map<F>(mut self, mapping: F) -> Self
     where
-        F: Fn(Self) -> Self,
+        F: FnOnce(Self) -> Self,
     {
         self = mapping(self);
         self
