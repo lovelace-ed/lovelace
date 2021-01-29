@@ -183,7 +183,7 @@ impl<'a> NewNotification<'a> {
     }
 }
 
-#[derive(Queryable, Identifiable, Associations)]
+#[derive(Queryable, Identifiable, Associations, Debug)]
 #[belongs_to(Class)]
 #[table_name = "class_message"]
 pub struct ClassMessage {
@@ -196,7 +196,7 @@ pub struct ClassMessage {
     pub edited: bool,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name = "class_message"]
 pub struct NewClassMessage<'a> {
     pub title: &'a str,
@@ -207,7 +207,7 @@ pub struct NewClassMessage<'a> {
     pub edited: bool,
 }
 
-#[derive(Queryable, Identifiable, Associations)]
+#[derive(Queryable, Identifiable, Associations, Debug)]
 #[table_name = "class_message_reply"]
 #[belongs_to(User)]
 #[belongs_to(ClassMessage)]
@@ -221,7 +221,7 @@ pub struct ClassMessageReply {
     pub class_message_id: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name = "class_message_reply"]
 pub struct NewClassMessageReply<'a> {
     pub contents: &'a str,
