@@ -6,7 +6,6 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged
     steps:
       - uses: actions/checkout@v1
       - run: sudo pip install gigalixir --ignore-installed six
