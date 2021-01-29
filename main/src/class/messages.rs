@@ -125,7 +125,7 @@ pub fn create_new_class_message(id: i32, auth: AuthCookie, conn: Database) -> Ht
     }
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct CreateNewMessageForm {
     title: String,
     contents: String,
@@ -191,7 +191,7 @@ pub fn apply_create_new_class_message(
     }
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct ReplyToTeacherMessageForm {
     contents: String,
 }
@@ -279,7 +279,7 @@ pub fn edit_message(_class_id: i32, message_id: i32, conn: Database, auth: AuthC
     }
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct EditMessageForm {
     title: String,
     contents: String,
@@ -354,7 +354,7 @@ pub fn edit_message_reply(
     }
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct ApplyMessageReplyEditForm {
     contents: String,
 }

@@ -46,7 +46,7 @@ fn create_new_sync_task_form() -> Form {
         .child(Input::new().attribute(Type::Submit))
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 /// The name might give you the impression that this is designed to create a new task to run in a
 /// Rust synchronous runtime. It isn't! This is just the form data supplied to the route which is
 /// mounted at `class/<class_id>/task/sync/create`
@@ -442,7 +442,7 @@ pub fn view_edit_task_page(class_id: i32, task_id: i32, auth: AuthCookie, conn: 
     }
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct EditTaskForm {
     title: String,
     description: String,

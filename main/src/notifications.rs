@@ -165,7 +165,7 @@ impl From<i16> for NotificationPriority {
     }
 }
 
-#[derive(Builder, Clone)]
+#[derive(Builder, Clone, Debug)]
 /// A struct used to send notifications to a user. This struct can be created with the automagically
 /// generated `NotifyBuilder` and dispatched with the `create` method.
 pub struct Notify<'a> {

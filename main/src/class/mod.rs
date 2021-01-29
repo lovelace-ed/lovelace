@@ -55,7 +55,7 @@ pub fn create_class_page(_auth_cookie: AuthCookie) -> Html {
         )
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct CreateClassForm {
     name: String,
     description: String,
@@ -416,7 +416,7 @@ pub fn invite_teacher_page(_id: usize) -> Html {
         )
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct InviteTeacherForm {
     identifier: String,
 }
@@ -530,7 +530,7 @@ pub fn delete_class_page(id: usize, _auth_cookie: AuthCookie) -> Html {
         )
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct DeleteClassForm {
     id: i32,
     confirm_name: String,

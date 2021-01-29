@@ -8,6 +8,7 @@ use rocket::response::Redirect;
 use rocket::response::Responder;
 
 #[allow(clippy::large_enum_variant)]
+#[derive(Debug)]
 pub enum HtmlOrRedirect {
     Html(Html),
     Redirect(Redirect),

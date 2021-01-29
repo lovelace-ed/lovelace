@@ -32,6 +32,7 @@ pub enum AuthError {
     InvalidCookieIssued,
 }
 
+#[derive(Debug, Clone)]
 pub struct AuthCookie(pub i32);
 
 impl AuthCookie {
@@ -101,7 +102,7 @@ pub fn login_page() -> Html {
         .body(Body::default().child(H1::new("Login")).child(login_form()))
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct LoginData {
     identifier: String,
     password: String,
@@ -217,7 +218,7 @@ pub fn register_page() -> Html {
         )
 }
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug, Clone)]
 pub struct RegisterData {
     username: String,
     email: String,
