@@ -32,3 +32,7 @@ pub mod p;
 pub mod select;
 /// The <title> tag.
 pub mod title;
+
+/// The <noscript> tag – not very useful when working with Yew, but comes in handy for server-side
+/// rendering.
+pub mod noscript;
