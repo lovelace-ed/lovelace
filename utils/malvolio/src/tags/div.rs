@@ -10,6 +10,7 @@ use crate::{
 };
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
     into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, to_html, utility_enum,
@@ -30,6 +31,7 @@ pub struct Div {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Div {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("div");

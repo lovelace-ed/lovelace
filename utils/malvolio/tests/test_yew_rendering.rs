@@ -1,4 +1,5 @@
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 mod test {
     use malvolio::prelude::*;
     use wasm_bindgen_test::*;
@@ -29,6 +30,7 @@ mod test {
     }
 
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     #[wasm_bindgen_test]
     fn test_links_render() {
         use yew::prelude::*;
@@ -59,6 +61,7 @@ mod test {
     }
 
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     #[wasm_bindgen_test]
     fn test_form_rendering() {
         use yew::prelude::*;
@@ -123,6 +126,7 @@ mod test {
     }
 
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     #[wasm_bindgen_test]
     fn test_heading_rendering() {
         use yew::prelude::*;

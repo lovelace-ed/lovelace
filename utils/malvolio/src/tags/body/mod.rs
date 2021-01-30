@@ -6,6 +6,7 @@ use std::fmt::Display;
 
 use self::body_node::BodyNode;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 
 /// Contains the `BodyNode` enum.
@@ -19,6 +20,7 @@ pub struct Body {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Body {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("body");

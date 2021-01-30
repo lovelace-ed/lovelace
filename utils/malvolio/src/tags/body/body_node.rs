@@ -21,6 +21,7 @@ use crate::{
 };
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode_for_grouping_enum;
 
 utility_enum!(
@@ -44,11 +45,13 @@ utility_enum!(
         Select(Select),
         NoScript(NoScript),
         #[cfg(feature = "with_yew")]
+        #[cfg(not(tarpaulin))]
         VNode(yew::virtual_dom::VNode),
     }
 );
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 into_vnode_for_grouping_enum!(
     BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select, NoScript,
     VNode

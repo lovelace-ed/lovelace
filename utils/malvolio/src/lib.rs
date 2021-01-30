@@ -28,8 +28,10 @@ extern crate derivative;
 /// Attributes which can be attached to multiple nodes.
 pub mod attributes;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 pub mod comp;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 /// Contains a trait to allow you to convert items into `VNode`'s. You shouldn't need to use this,
 /// but it is helpful so for some niche use cases which is why it's public.
 pub mod into_vnode;

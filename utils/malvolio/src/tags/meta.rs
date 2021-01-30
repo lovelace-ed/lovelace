@@ -5,6 +5,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, utility_enum,
@@ -37,6 +38,7 @@ impl Meta {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Meta {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("meta");

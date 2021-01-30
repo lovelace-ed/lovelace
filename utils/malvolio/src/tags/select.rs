@@ -16,8 +16,10 @@ use crate::{
 use crate::attributes::IntoAttribute;
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::utils::write_attributes_to_vtag;
 
 use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
@@ -78,6 +80,7 @@ impl Display for Select {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Select {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("select");

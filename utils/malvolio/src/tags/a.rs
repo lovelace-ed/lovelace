@@ -3,6 +3,7 @@ This source code file is distributed subject to the terms of the Mozilla Public 
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, prelude::Id,
@@ -10,9 +11,11 @@ use crate::{
 };
 use ammonia::clean;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
@@ -34,10 +37,12 @@ pub struct A {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     listeners: Vec<Rc<dyn Listener>>,
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for A {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vnode = yew::virtual_dom::VTag::new("a");
@@ -90,6 +95,7 @@ impl A {
         self
     }
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     /// Attaches a listener to this item. Only available if the `with_yew` feature is enabled.
     pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
         self.listeners.push(listener);

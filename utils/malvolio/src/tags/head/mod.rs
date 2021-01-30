@@ -7,6 +7,7 @@ use std::fmt::Display;
 
 use self::head_node::HeadNode;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 
 /// Items which can be mounted to head.
@@ -20,6 +21,7 @@ pub struct Head {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Head {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("head");

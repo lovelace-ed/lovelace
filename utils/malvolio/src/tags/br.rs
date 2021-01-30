@@ -5,6 +5,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 use std::fmt::Display;
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{into_grouping_union_without_lifetimes, to_html};
 
@@ -32,6 +33,7 @@ impl Display for Br {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Br {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         yew::virtual_dom::VTag::new("br").into()

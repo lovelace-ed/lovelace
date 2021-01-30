@@ -3,6 +3,7 @@ use std::{borrow::Cow, fmt::Display};
 
 use crate::into_grouping_union;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 
 #[derive(Debug, Clone)]
@@ -30,6 +31,7 @@ impl Display for NoScript {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for NoScript {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = ::yew::virtual_dom::VTag::new("noscript");

@@ -9,6 +9,7 @@ use crate::{
 };
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode_for_grouping_enum;
 
 utility_enum!(
@@ -20,6 +21,7 @@ utility_enum!(
     }
 );
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 into_vnode_for_grouping_enum!(HeadNode, Title, Meta);
 
 enum_display!(HeadNode, Title, Meta);

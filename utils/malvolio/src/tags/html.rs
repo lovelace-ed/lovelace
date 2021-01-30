@@ -11,6 +11,7 @@ use std::io::Cursor;
 use rocket::{response::Responder, Response};
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::to_html;
 
@@ -31,6 +32,7 @@ pub struct Html {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Html {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut tag = yew::virtual_dom::VTag::new("html");

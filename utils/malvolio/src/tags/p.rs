@@ -6,6 +6,7 @@ use std::{borrow::Cow, fmt::Display};
 
 use super::body::body_node::BodyNode;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{into_grouping_union, text::Text};
 use ammonia::clean;
@@ -20,6 +21,7 @@ pub struct P {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for P {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("br");

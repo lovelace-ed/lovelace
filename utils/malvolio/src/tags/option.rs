@@ -3,8 +3,10 @@ This source code file is distributed subject to the terms of the Mozilla Public 
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::utils::write_attributes_to_vtag;
 use crate::{
     into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, utility_enum,
@@ -80,6 +82,7 @@ impl Display for SelectOption {
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for SelectOption {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("option");

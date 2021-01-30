@@ -3,6 +3,7 @@ This source code file is distributed subject to the terms of the Mozilla Public 
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute,
@@ -11,9 +12,11 @@ use crate::{
     to_html, utility_enum,
 };
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
@@ -27,10 +30,12 @@ use super::body::body_node::BodyNode;
 pub struct Input {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     listeners: Vec<Rc<dyn Listener>>,
 }
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 impl IntoVNode for Input {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("input");
@@ -75,6 +80,7 @@ impl Input {
         self
     }
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     /// Attaches a listener to the input item. Note that this is only available if you have enabled
     /// the `with_yew` feature.
     pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
@@ -84,6 +90,7 @@ impl Input {
     /// Attaches multiple listeners to the input item. Note that this is only available if you have
     /// enabled the `with_yew` feature.
     #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
     pub fn listeners<I, T>(mut self, listeners: I) -> Self
     where
         I: IntoIterator<Item = T>,
@@ -234,6 +241,7 @@ into_grouping_union!(Value, InputAttr);
 
 #[cfg(test)]
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 mod test_yew {
     use crate::component_named_app_with_html;
     use crate::prelude::*;

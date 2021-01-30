@@ -3,12 +3,15 @@ This source code file is distributed subject to the terms of the Mozilla Public 
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap};
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use yew::virtual_dom::Listener;
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 use crate::heading_of_vnode;
 use crate::{
     heading_display, impl_of_heading_new_fn, into_attribute_for_grouping_enum, into_grouping_union,
@@ -23,7 +26,8 @@ use super::body::body_node::BodyNode;
 pub struct H1(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H1);
@@ -37,7 +41,8 @@ heading_display!(H1);
 pub struct H2(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H2);
@@ -51,7 +56,8 @@ heading_display!(H2);
 pub struct H3(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H3);
@@ -65,7 +71,8 @@ heading_display!(H3);
 pub struct H4(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H4);
@@ -79,7 +86,8 @@ heading_display!(H4);
 pub struct H5(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H5);
@@ -93,7 +101,8 @@ heading_display!(H5);
 pub struct H6(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")] Vec<Rc<dyn Listener>>,
+    #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H6);
@@ -103,16 +112,22 @@ into_grouping_union!(H6, BodyNode);
 heading_display!(H6);
 
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H1);
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H2);
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H3);
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H4);
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H5);
 #[cfg(feature = "with_yew")]
+#[cfg(not(tarpaulin))]
 heading_of_vnode!(H6);
 
 utility_enum!(
