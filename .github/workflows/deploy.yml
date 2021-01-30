@@ -1,0 +1,16 @@
+name: "Weekly deploy"
+
+on:
+  schedule:
+    - cron: "0 5 */7 * *"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - env:
+          GIGALIXIR: ${{ secrets.GIGALIXIR }}
+      - run: |
+          git remote add gigalixir $GIGALIXIR
+          git push gigalixir master
