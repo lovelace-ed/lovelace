@@ -34,7 +34,7 @@ extern crate derive_builder;
 
 extern crate jsonwebtoken as jwt;
 
-use malvolio::prelude::{Body, Content, Head, Html, Meta, MetaName, H1};
+use malvolio::prelude::{Body, Content, Head, Href, Html, Meta, MetaName, A, H1, P};
 use utils::launch;
 
 mod auth;
@@ -57,7 +57,22 @@ fn index() -> Html {
                     .attribute(Content::new("utf-8")),
             ),
         )
-        .body(Body::default().child(H1::new("Hello World!")))
+        .body(
+            Body::default()
+                .child(H1::new("Welcome!"))
+                .child(P::with_text("IMPORTANT: This site is in beta. Please do not input any data
+                onto it yet (we have hidden all the buttons away for the meantime, until we can be
+                confident that they're safe to press :)"))
+                .child(P::with_text(
+                    "Lovelace is a digital platform for learning. It's also quite an
+                    incomplete one at the moment, but we're adding features relatively quickly. Updates
+                    to this site are rolled out on a weekly basis, so check back soon for more.",
+                ))
+                .child(
+                    A::default().attribute(Href::new("https://github.com/lovelace-ed/lovelace"))
+                    .text("Click me to view the source code.")
+                ),
+        )
 }
 
 fn main() {
