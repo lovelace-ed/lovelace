@@ -2,8 +2,24 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-//! A small set of data types for producing HTML code.
-
+//! Malvolio is a library for writing declarative, strongly-typed HTML. There are many excellent and
+//! thoughtful approaches people have developed for producing HTML code inside of Rust programs.
+//! Malvolio integrates well (we think) into the rest of the Rust language and allows you to produce
+//! strongly-typed HTML.
+//!
+//! Malvolio is "isomorphic," which is to say that you can use it both on servers and in browsers.
+//!
+//! Although in early stages, Malvolio works and is suitable (we think) for general use. We
+//! anticipate some (but not major) breaking API changes will come as we add support for CSS
+//! (defined in Rust, rather than externally).
+//!
+//! **Some self promotion:**
+//!
+//! We welcome contributions, issues, concerns and suggestions (if you just want to chat, join us in
+//! the #malvolio channel on the [Yew Discord server](https://discord.gg/VQck8X4))! Malvolio's
+//! source code is located in the `utils/malvolio` directory of the
+//! [Lovelace repository](https://github.com/lovelace-ed/lovelace). We're happy to mentor new
+//! contributors if they need help.
 #![deny(missing_docs, missing_debug_implementations)]
 
 #[macro_use]
