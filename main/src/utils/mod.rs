@@ -83,7 +83,8 @@ pub fn launch() -> Rocket {
                 crate::auth::login_page,
                 crate::auth::login,
                 crate::auth::register_page,
-                crate::auth::register
+                crate::auth::register,
+                crate::auth::verify_email
             ],
         )
         .mount(

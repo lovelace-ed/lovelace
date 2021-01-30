@@ -40,7 +40,7 @@ pub enum EmailSendError {
     NetworkError,
 }
 
-trait SendMail {
+pub trait SendMail {
     /// Sends an email
     ///
     /// After Rocket cuts a release with `async` support this method will be refactored to return a
@@ -49,7 +49,7 @@ trait SendMail {
 }
 
 #[derive(Debug, Default, Clone)]
-struct SendgridMailSender {}
+pub struct SendgridMailSender {}
 
 impl SendMail for SendgridMailSender {
     fn send(&self, email: &Email) -> Result<(), EmailSendError> {

@@ -17,7 +17,6 @@ use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
 
-#[derive(Debug, Clone, Default)]
 /// A link (anchor).
 ///
 /// ```
@@ -29,6 +28,8 @@ use super::body::body_node::BodyNode;
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
 /// for more info.
+#[derive(Debug, Clone, Derivative)]
+#[derivative(Default(new = "true"))]
 pub struct A {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,

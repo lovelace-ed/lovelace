@@ -1,15 +1,17 @@
 /*
 This source code file is distributed subject to the terms of the GNU Affero General Public License.
-A copy of this license can be found in the `licenses` directory at the root of this project.
+A copy of this exp: (), user_id: () exp: (), user_id: () exp: (), user_id: () exp: (), user_id: () license can be found in the `licenses` directory at the root of this project.
 */
 use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::insert_into;
 use diesel::prelude::*;
-use malvolio::prelude::{Body, Br, Html, Input, Method, Name, Placeholder, Type, Value, H1, P};
+use malvolio::prelude::{
+    Body, Br, Href, Html, Input, Method, Name, Placeholder, Type, Value, A, H1, P,
+};
 use regex::Regex;
 use rocket::{
-    http::{Cookie, Cookies, Status},
+    http::{Cookie, Cookies, RawStr, Status},
     request::{Form, FromRequest},
 };
 use std::str::FromStr;
@@ -17,9 +19,10 @@ use thiserror::Error as ThisError;
 
 use crate::{
     db::Database,
+    email::{EmailBuilder, RecipientBuilder, RecipientsBuilder, SendMail, SendgridMailSender},
     models::{NewUser, User},
     schema,
-    utils::{default_head, timezones::timezone_form},
+    utils::{default_head, error_messages::database_error, timezones::timezone_form},
 };
 
 pub const LOGIN_COOKIE: &str = "AUTHORISED";
@@ -301,15 +304,70 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
             Utc::now().naive_utc(),
             &chrono_timezone.to_string(),
         ))
+        .returning(crate::schema::users::all_columns)
         .get_result::<User>(&*conn)
     {
-        Ok(_) => Html::default()
-            .head(default_head("You have sucessfully registered!".to_string()))
-            .body(
-                Body::default()
-                    .child(H1::new("Registration successful!"))
-                    .child(P::with_text("We're so happy to have you on board.")),
-            ),
+        Ok(user) => {
+            let email_verification_link = format!(
+                "/auth/verify?code={}",
+                jwt::encode(
+                    &jwt::Header::default(),
+                    &EmailVerificationToken {
+                        exp: (chrono::Utc::now() + chrono::Duration::days(1)).timestamp() as usize,
+                        user_id: user.id
+                    },
+                    &jwt::EncodingKey::from_base64_secret(
+                        &std::env::var("SECRET_KEY").unwrap_or_else(|_| {
+                            "NNnXxqFeQ/1Sn8lh9MtlIW2uePR4TL/1O5dB2CPkTmg=".to_string()
+                        })
+                    )
+                    .unwrap(),
+                )
+                .unwrap()
+            );
+            let mail_sender = SendgridMailSender::default();
+            mail_sender
+                .send(
+                    &EmailBuilder::default()
+                        .subject("Verify your email".to_string())
+                        .plaintext(Some(format!(
+                            "Copy and paste this link into your browser: {}",
+                            email_verification_link
+                        )))
+                        .html_text(Some(
+                            Html::new()
+                                .head(default_head("Verify your email".to_string()))
+                                .body(
+                                    Body::new().child(P::with_text("Verify your email")).child(
+                                        A::new().attribute(Href::new(email_verification_link)),
+                                    ),
+                                )
+                                .to_string(),
+                        ))
+                        .recipients(
+                            RecipientsBuilder::default()
+                                .recipients(vec![RecipientBuilder::default()
+                                    .email(user.email)
+                                    .name(user.username)
+                                    .build()
+                                    .unwrap()])
+                                .build()
+                                .unwrap(),
+                        )
+                        .from(("Lovelace".to_string(), "no-reply@lovelace.ga".to_string()))
+                        .reply_to(("Lovelace".to_string(), "contact@lovelace.ga".to_string()))
+                        .build()
+                        .unwrap(),
+                )
+                .expect("fatal: failed to send verification email");
+            Html::default()
+                .head(default_head("You have sucessfully registered!".to_string()))
+                .body(
+                    Body::default()
+                        .child(H1::new("Registration successful!"))
+                        .child(P::with_text("We're so happy to have you on board.")),
+                )
+        }
         Err(problem) => match problem {
             diesel::result::Error::DatabaseError(
                 diesel::result::DatabaseErrorKind::UniqueViolation,
@@ -357,13 +415,46 @@ pub fn logout(mut cookies: Cookies) -> Html {
         .body(Body::default().child(H1::new("You are logged out.".to_string())))
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EmailVerificationToken {
+    pub exp: usize,
+    pub user_id: i32,
+}
+
+#[get("/verify?<code>")]
+pub fn verify_email(code: &RawStr, conn: Database) -> Html {
+    use crate::schema::users::dsl as users;
+    match jwt::decode::<EmailVerificationToken>(
+        code,
+        &jwt::DecodingKey::from_base64_secret(
+            &std::env::var("SECRET_KEY")
+                .unwrap_or_else(|_| "NNnXxqFeQ/1Sn8lh9MtlIW2uePR4TL/1O5dB2CPkTmg=".to_string()),
+        )
+        .unwrap(),
+        &jwt::Validation::default(),
+    ) {
+        Ok(code) => {
+            match diesel::update(users::users.filter(users::id.eq(code.claims.user_id)))
+                .set(users::email_verified.eq(true))
+                .execute(&*conn)
+            {
+                Ok(_) => Html::new()
+                    .head(default_head("Email verified".to_string()))
+                    .body(Body::new().child(H1::new("Your email has been verified."))),
+                Err(_) => database_error(),
+            }
+        }
+        Err(_) => Html::new(),
+    }
+}
+
 #[get("/reset")]
-fn reset() -> Html {
+pub fn reset() -> Html {
     todo!()
 }
 
 #[post("/reset")]
-fn reset_page() -> Html {
+pub fn reset_page() -> Html {
     todo!()
 }
 
@@ -375,9 +466,18 @@ mod test {
     /// This was chosen for no other reason than it is alphabetically first.
     const TIMEZONE: &str = "Africa/Abidjan";
 
+    use crate::{
+        db::Database,
+        models::{NewUser, User},
+    };
+    use diesel::prelude::*;
     use rocket::http::ContentType;
+    use wiremock::{
+        matchers::{method, path_regex},
+        Mock, MockServer, ResponseTemplate,
+    };
 
-    use super::LOGIN_COOKIE;
+    use super::{EmailVerificationToken, LOGIN_COOKIE};
 
     #[test]
     fn test_register_validation() {
@@ -398,8 +498,17 @@ mod test {
         assert!(response.contains("Invalid email"));
     }
 
-    #[test]
-    fn test_auth() {
+    #[tokio::test]
+    async fn test_auth() {
+        let mock_server = MockServer::start().await;
+        std::env::set_var("SENDGRID_API_KEY", "SomeRandomAPIKey");
+        std::env::set_var("SENDGRID_API_SERVER", mock_server.uri());
+        Mock::given(method("post"))
+            .and(path_regex("/v3/mail/send"))
+            .respond_with(ResponseTemplate::new(200))
+            .expect(1..)
+            .mount(&mock_server)
+            .await;
         let client = crate::utils::client();
         // check register page looks right
         let mut register_page = client.get("/auth/register").dispatch();
@@ -438,5 +547,53 @@ mod test {
             .unwrap();
         let page = login_res.body_string().expect("invalid body response");
         assert!(page.contains("now logged in"));
+    }
+    #[test]
+    fn test_email_verification() {
+        use crate::schema::users::dsl as users;
+        let client = crate::utils::client();
+        let user_id = diesel::insert_into(users::users)
+            .values(NewUser {
+                username: "some-username",
+                email: "email@example.com",
+                password: "123456@#rwefgGFD$TWe",
+                created: chrono::Utc::now().naive_utc(),
+                email_verified: false,
+                timezone: "Africa/Abidjan",
+            })
+            .returning(users::id)
+            .get_result::<i32>(&*Database::get_one(&client.rocket()).unwrap())
+            .unwrap();
+        let mut res = client
+            .get(format!(
+                "/auth/verify?code={}",
+                jwt::encode(
+                    &jwt::Header::default(),
+                    &EmailVerificationToken {
+                        exp: (chrono::Utc::now() + chrono::Duration::days(1)).timestamp() as usize,
+                        user_id
+                    },
+                    &jwt::EncodingKey::from_base64_secret(
+                        &std::env::var("SECRET_KEY").unwrap_or_else(|_| {
+                            "NNnXxqFeQ/1Sn8lh9MtlIW2uePR4TL/1O5dB2CPkTmg=".to_string()
+                        })
+                    )
+                    .unwrap(),
+                )
+                .unwrap()
+            ))
+            .dispatch();
+        let string = res.body_string().expect("invalid body response");
+        assert!(string.contains("verified"));
+        assert_eq!(
+            {
+                users::users
+                    .filter(users::id.eq(user_id))
+                    .first::<User>(&*Database::get_one(&client.rocket()).unwrap())
+                    .unwrap()
+                    .email_verified
+            },
+            true
+        )
     }
 }

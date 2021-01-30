@@ -6,6 +6,9 @@ A copy of this license can be found in the `licenses` directory at the root of t
 #![deny(missing_debug_implementations)]
 
 #[macro_use]
+extern crate serde;
+
+#[macro_use]
 extern crate rocket;
 
 #[macro_use]
@@ -28,6 +31,8 @@ extern crate nanoid;
 
 #[macro_use]
 extern crate derive_builder;
+
+extern crate jsonwebtoken as jwt;
 
 use malvolio::prelude::{Body, Content, Head, Html, Meta, MetaName, H1};
 use utils::launch;
