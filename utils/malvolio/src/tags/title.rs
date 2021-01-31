@@ -27,7 +27,8 @@ pub struct Title(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 #[cfg(feature = "with_yew")]

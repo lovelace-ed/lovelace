@@ -46,7 +46,7 @@ macro_rules! impl_of_heading_new_fn {
                     from.into(),
                     std::collections::HashMap::new(),
                     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
+                    #[cfg(not(tarpaulin))]
                     vec![],
                 )
             }
@@ -163,7 +163,7 @@ macro_rules! add_single_attribute {
 macro_rules! to_html {
     () => {
         #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
+        #[cfg(not(tarpaulin))]
         /// Turn this item into a `VNode`. You only need to call this on the item that you
         /// return in the `html` function.
         pub fn to_html(self) -> yew::virtual_dom::VNode {

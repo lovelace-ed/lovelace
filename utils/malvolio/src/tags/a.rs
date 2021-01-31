@@ -37,7 +37,7 @@ pub struct A {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
+    #[cfg(not(tarpaulin))]
     listeners: Vec<Rc<dyn Listener>>,
 }
 
@@ -95,7 +95,7 @@ impl A {
         self
     }
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
+    #[cfg(not(tarpaulin))]
     /// Attaches a listener to this item. Only available if the `with_yew` feature is enabled.
     pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
         self.listeners.push(listener);

@@ -23,7 +23,8 @@ pub struct Text(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(Text);

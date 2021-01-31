@@ -27,7 +27,8 @@ pub struct H1(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H1);
@@ -42,7 +43,8 @@ pub struct H2(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H2);
@@ -57,7 +59,8 @@ pub struct H3(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H3);
@@ -72,7 +75,8 @@ pub struct H4(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H4);
@@ -87,7 +91,8 @@ pub struct H5(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H5);
@@ -102,7 +107,8 @@ pub struct H6(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))] Vec<Rc<dyn Listener>>,
+    #[cfg(not(tarpaulin))]
+    Vec<Rc<dyn Listener>>,
 );
 
 impl_of_heading_new_fn!(H6);
