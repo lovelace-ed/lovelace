@@ -1,10 +1,11 @@
 //! A CalDAV client.
 //!
 //! Note: this crate is "asynchronous." If you're writing a synchronous application, then you should
-//! use something like `futures::block_on` (futures is a crates.io/crates/futures).
+//! use something like `futures::block_on` (futures is a [crate](crates.io/crates/futures)).
 
 // when you use too many macros (but `xml!` a nice DSL macro as far as DSL macros go)
 #![recursion_limit = "256"]
+#![deny(missing_debug_implementations)]
 
 #[macro_use]
 extern crate thiserror;
@@ -17,3 +18,5 @@ pub mod calendar;
 pub mod client;
 pub mod error;
 pub mod event;
+
+pub use icalendar;

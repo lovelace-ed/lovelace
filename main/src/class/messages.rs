@@ -31,13 +31,21 @@ use crate::{
 use super::get_user_role_in_class;
 
 #[get("/<id>/message")]
-pub fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
+pub async fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Html {
     use crate::schema::class::dsl as class;
-    if get_user_role_in_class(auth.0, id, &*conn).is_some() {
-        let class =
-            catch_database_error!(class::class.filter(class::id.eq(id)).first::<Class>(&*conn));
-        let messages =
-            catch_database_error!(ClassMessage::belonging_to(&class).load::<ClassMessage>(&*conn));
+    if get_user_role_in_class(auth.0, id, &conn).await.is_some() {
+        let class_id = id;
+        let class = catch_database_error!(
+            conn.run(move |c| class::class
+                .filter(class::id.eq(class_id))
+                .first::<Class>(c))
+                .await
+        );
+        let class_clone = class.clone();
+        let messages = catch_database_error!(
+            conn.run(move |c| ClassMessage::belonging_to(&class_clone).load::<ClassMessage>(c))
+                .await
+        );
         Html::default()
             .head(default_head(format!("Messages in class {}", class.name)))
             .body(
@@ -86,15 +94,19 @@ fn create_new_message_form() -> Form {
 #[get("/<id>/message/new")]
 /// Returns the form which needs to be filled in and submitted in order to create a new user in a
 /// class.
-pub fn create_new_class_message(id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn create_new_class_message(id: i32, auth: AuthCookie, conn: Database) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_teacher::dsl as class_teacher;
-    match class_teacher::class_teacher
-        .filter(class_teacher::user_id.eq(auth.0))
-        .filter(class_teacher::class_id.eq(id))
-        .inner_join(class::class)
-        .select(crate::schema::class::all_columns)
-        .get_result::<Class>(&*conn)
+    match conn
+        .run(move |c| {
+            class_teacher::class_teacher
+                .filter(class_teacher::user_id.eq(auth.0))
+                .filter(class_teacher::class_id.eq(id))
+                .inner_join(class::class)
+                .select(crate::schema::class::all_columns)
+                .get_result::<Class>(c)
+        })
+        .await
     {
         Ok(class) => Html::default()
             .head(default_head(
@@ -132,7 +144,7 @@ pub struct CreateNewMessageForm {
 }
 
 #[post("/<class_id>/message/new", data = "<form>")]
-pub fn apply_create_new_class_message(
+pub async fn apply_create_new_class_message(
     class_id: i32,
     auth: AuthCookie,
     conn: Database,
@@ -141,12 +153,16 @@ pub fn apply_create_new_class_message(
     use crate::schema::class::dsl as class;
     use crate::schema::class_message::dsl as class_message;
     use crate::schema::class_teacher::dsl as class_teacher;
-    match class_teacher::class_teacher
-        .filter(class_teacher::user_id.eq(auth.0))
-        .filter(class_teacher::class_id.eq(class_id))
-        .inner_join(class::class)
-        .select(crate::schema::class::all_columns)
-        .get_result::<Class>(&*conn)
+    match conn
+        .run(move |c| {
+            class_teacher::class_teacher
+                .filter(class_teacher::user_id.eq(auth.0))
+                .filter(class_teacher::class_id.eq(class_id))
+                .inner_join(class::class)
+                .select(crate::schema::class::all_columns)
+                .get_result::<Class>(c)
+        })
+        .await
     {
         Ok(class) => class,
         Err(diesel::result::Error::NotFound) => {
@@ -168,17 +184,21 @@ pub fn apply_create_new_class_message(
             return HtmlOrRedirect::Html(database_error());
         }
     };
-    match diesel::insert_into(class_message::class_message)
-        .values(NewClassMessage {
-            title: &form.title,
-            contents: &form.contents,
-            created_at: chrono::Utc::now().naive_utc(),
-            user_id: auth.0,
-            class_id,
-            edited: false,
+    match conn
+        .run(move |c| {
+            diesel::insert_into(class_message::class_message)
+                .values(NewClassMessage {
+                    title: &form.title,
+                    contents: &form.contents,
+                    created_at: chrono::Utc::now().naive_utc(),
+                    user_id: auth.0,
+                    class_id,
+                    edited: false,
+                })
+                .returning(class_message::id)
+                .get_result::<i32>(c)
         })
-        .returning(class_message::id)
-        .get_result::<i32>(&*conn)
+        .await
     {
         Ok(returned_id) => HtmlOrRedirect::Redirect(Redirect::to(format!(
             "/class/{}/message/{}/view",
@@ -197,7 +217,7 @@ pub struct ReplyToTeacherMessageForm {
 }
 
 #[post("/<class_id>/message/<message_id>/reply", data = "<form>")]
-pub fn reply_to_teacher_message(
+pub async fn reply_to_teacher_message(
     class_id: i32,
     message_id: i32,
     auth: AuthCookie,
@@ -206,20 +226,27 @@ pub fn reply_to_teacher_message(
 ) -> HtmlOrRedirect {
     use crate::schema::class_message_reply::dsl as class_message_reply;
 
-    if get_user_role_in_class(auth.0, class_id, &*conn).is_none() {
+    if get_user_role_in_class(auth.0, class_id, &conn)
+        .await
+        .is_none()
+    {
         return HtmlOrRedirect::Html(Html::default());
     }
 
-    match diesel::insert_into(class_message_reply::class_message_reply)
-        .values(NewClassMessageReply {
-            contents: &form.contents,
-            created_at: chrono::Utc::now().naive_utc(),
-            edited: false,
-            user_id: auth.0,
-            class_id,
-            class_message_id: message_id,
+    match conn
+        .run(move |c| {
+            diesel::insert_into(class_message_reply::class_message_reply)
+                .values(NewClassMessageReply {
+                    contents: &form.contents,
+                    created_at: chrono::Utc::now().naive_utc(),
+                    edited: false,
+                    user_id: auth.0,
+                    class_id,
+                    class_message_id: message_id,
+                })
+                .execute(c)
         })
-        .execute(&*conn)
+        .await
     {
         Ok(_) => HtmlOrRedirect::Redirect(Redirect::to(format!(
             "/class/{}/message/{}/view",
@@ -250,12 +277,21 @@ fn edit_message_form(msg: &ClassMessage) -> Form {
 }
 
 #[get("/<_class_id>/message/<message_id>/edit")]
-pub fn edit_message(_class_id: i32, message_id: i32, conn: Database, auth: AuthCookie) -> Html {
+pub async fn edit_message(
+    _class_id: i32,
+    message_id: i32,
+    conn: Database,
+    auth: AuthCookie,
+) -> Html {
     use crate::schema::class_message::dsl as class_message;
-    match class_message::class_message
-        .filter(class_message::id.eq(message_id))
-        .filter(class_message::user_id.eq(auth.0))
-        .first::<ClassMessage>(&*conn)
+    match conn
+        .run(move |c| {
+            class_message::class_message
+                .filter(class_message::id.eq(message_id))
+                .filter(class_message::user_id.eq(auth.0))
+                .first::<ClassMessage>(c)
+        })
+        .await
     {
         Ok(msg) => Html::default()
             .head(default_head("Insufficient permissions".to_string()))
@@ -286,7 +322,7 @@ pub struct EditMessageForm {
 }
 
 #[post("/<class_id>/message/<message_id>/edit", data = "<form>")]
-pub fn apply_message_edit(
+pub async fn apply_message_edit(
     class_id: i32,
     message_id: i32,
     conn: Database,
@@ -294,16 +330,20 @@ pub fn apply_message_edit(
     form: rocket::request::Form<EditMessageForm>,
 ) -> HtmlOrRedirect {
     use crate::schema::class_message::dsl as class_message;
-    match diesel::update(
-        class_message::class_message
-            .filter(class_message::id.eq(message_id))
-            .filter(class_message::user_id.eq(auth.0)),
-    )
-    .set((
-        class_message::title.eq(&form.title),
-        class_message::contents.eq(&form.contents),
-    ))
-    .execute(&*conn)
+    match conn
+        .run(move |c| {
+            diesel::update(
+                class_message::class_message
+                    .filter(class_message::id.eq(message_id))
+                    .filter(class_message::user_id.eq(auth.0)),
+            )
+            .set((
+                class_message::title.eq(&form.title),
+                class_message::contents.eq(&form.contents),
+            ))
+            .execute(c)
+        })
+        .await
     {
         Ok(_) => HtmlOrRedirect::Redirect(Redirect::to(format!(
             "/class/{}/message/{}/view",
@@ -326,7 +366,7 @@ fn edit_message_reply_form(msg: &ClassMessageReply) -> Form {
 #[get("/<class_id>/message/<_message_id>/reply/<message_reply_id>/edit")]
 /// This _message_id is here as a placeholder (it is later used when returning a redirect after POST
 /// request to the same location)
-pub fn edit_message_reply(
+pub async fn edit_message_reply(
     class_id: i32,
     message_reply_id: i32,
     _message_id: i32,
@@ -334,11 +374,15 @@ pub fn edit_message_reply(
     auth: AuthCookie,
 ) -> Html {
     use crate::schema::class_message_reply::dsl as class_message_reply;
-    match class_message_reply::class_message_reply
-        .filter(class_message_reply::user_id.eq(auth.0))
-        .filter(class_message_reply::class_id.eq(class_id))
-        .filter(class_message_reply::id.eq(message_reply_id))
-        .first::<ClassMessageReply>(&*conn)
+    match conn
+        .run(move |c| {
+            class_message_reply::class_message_reply
+                .filter(class_message_reply::user_id.eq(auth.0))
+                .filter(class_message_reply::class_id.eq(class_id))
+                .filter(class_message_reply::id.eq(message_reply_id))
+                .first::<ClassMessageReply>(c)
+        })
+        .await
     {
         Ok(msg) => Html::default()
             .head(default_head("Edit message".to_string()))
@@ -363,7 +407,7 @@ pub struct ApplyMessageReplyEditForm {
     "/<class_id>/message/<message_id>/reply/<message_reply_id>/edit",
     data = "<form>"
 )]
-pub fn apply_message_reply_edit(
+pub async fn apply_message_reply_edit(
     class_id: i32,
     message_reply_id: i32,
     message_id: i32,
@@ -372,14 +416,18 @@ pub fn apply_message_reply_edit(
     form: rocket::request::Form<ApplyMessageReplyEditForm>,
 ) -> HtmlOrRedirect {
     use crate::schema::class_message_reply::dsl as class_message_reply;
-    match diesel::update(
-        class_message_reply::class_message_reply
-            .filter(class_message_reply::id.eq(message_reply_id))
-            .filter(class_message_reply::class_id.eq(class_id))
-            .filter(class_message_reply::user_id.eq(auth.0)),
-    )
-    .set(class_message_reply::contents.eq(&form.contents))
-    .execute(&*conn)
+    match conn
+        .run(move |c| {
+            diesel::update(
+                class_message_reply::class_message_reply
+                    .filter(class_message_reply::id.eq(message_reply_id))
+                    .filter(class_message_reply::class_id.eq(class_id))
+                    .filter(class_message_reply::user_id.eq(auth.0)),
+            )
+            .set(class_message_reply::contents.eq(&form.contents))
+            .execute(c)
+        })
+        .await
     {
         Ok(_) => HtmlOrRedirect::Redirect(Redirect::to(format!(
             "/class/{}/message/{}/view",
@@ -393,11 +441,16 @@ pub fn apply_message_reply_edit(
 }
 
 #[get("/<class_id>/message/<message_id>/view")]
-pub fn view_message(class_id: i32, message_id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn view_message(
+    class_id: i32,
+    message_id: i32,
+    auth: AuthCookie,
+    conn: Database,
+) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_message::dsl as class_message;
     use crate::schema::users::dsl as users;
-    let role = get_user_role_in_class(auth.0, class_id, &*conn);
+    let role = get_user_role_in_class(auth.0, class_id, &conn).await;
     if role == None {
         return Html::default()
             .head(default_head(
@@ -411,21 +464,29 @@ pub fn view_message(class_id: i32, message_id: i32, auth: AuthCookie, conn: Data
                     )),
             );
     }
-    match class_message::class_message
-        .filter(class_message::id.eq(message_id))
-        .inner_join(class::class)
-        .filter(class::id.eq(class_id))
-        .select(crate::schema::class_message::all_columns)
-        .first::<ClassMessage>(&*conn)
+    match conn
+        .run(move |c| {
+            class_message::class_message
+                .filter(class_message::id.eq(message_id))
+                .inner_join(class::class)
+                .filter(class::id.eq(class_id))
+                .select(crate::schema::class_message::all_columns)
+                .first::<ClassMessage>(c)
+        })
+        .await
     {
         Ok(msg) => {
-            match ClassMessageReply::belonging_to(&msg)
-                .inner_join(crate::schema::users::table)
-                .select((
-                    crate::schema::class_message_reply::all_columns,
-                    users::username,
-                ))
-                .load::<(ClassMessageReply, String)>(&*conn)
+            match conn
+                .run(move |c| {
+                    ClassMessageReply::belonging_to(&msg)
+                        .inner_join(crate::schema::users::table)
+                        .select((
+                            crate::schema::class_message_reply::all_columns,
+                            users::username,
+                        ))
+                        .load::<(ClassMessageReply, String)>(c)
+                })
+                .await
             {
                 Ok(replies) => Html::default().head(default_head("".to_string())).body(
                     Body::default().child(
@@ -602,12 +663,16 @@ mod tests {
         msg_reply.id
     }
 
-    #[test]
-    fn test_can_create_class_message() {
+    #[tokio::test]
+    async fn test_can_create_class_message() {
         const MESSAGE_TITLE: &str = "sometitleofatitle";
         const MESSAGE_BODY: &str = "somebodyof a message";
         let client = client();
-        let (class_id, _, _, _) = setup_test_env(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_test_env(c))
+            .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
         let create_message_res = client
             .post(format!("/class/{}/message/new", class_id))
@@ -617,31 +682,37 @@ mod tests {
         assert_eq!(create_message_res.status().code, 303);
         {
             use crate::schema::class_message::dsl as class_message;
-            let res = class_message::class_message
-                .filter(class_message::title.eq(MESSAGE_TITLE))
-                .filter(class_message::contents.eq(MESSAGE_BODY))
-                .first::<ClassMessage>(&*Database::get_one(&client.rocket()).unwrap())
-                .expect("could not find");
+            let res = Database::get_one(&client.rocket())
+                .await
+                .unwrap()
+                .run(|c| {
+                    class_message::class_message
+                        .filter(class_message::title.eq(MESSAGE_TITLE))
+                        .filter(class_message::contents.eq(MESSAGE_BODY))
+                        .first::<ClassMessage>(c)
+                        .expect("could not find")
+                })
+                .await;
             assert_eq!(res.title, MESSAGE_TITLE);
             assert_eq!(res.contents, MESSAGE_BODY);
         }
     }
-    #[test]
-    fn test_can_edit_class_message() {
+    #[tokio::test]
+    async fn test_can_edit_class_message() {
         const NEW_TITLE: &str = "new-title";
         const NEW_CONTENTS: &str = "new-contents-here-we-come";
 
         let client = client();
-        let (class_id, message_ids, _, _) =
-            setup_test_env(&*Database::get_one(&client.rocket()).unwrap());
-
+        let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_test_env(c))
+            .await;
+        let message_id_0 = message_ids[0];
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
 
         let edit_class_message_res = client
-            .post(format!(
-                "/class/{}/message/{}/edit",
-                class_id, message_ids[0]
-            ))
+            .post(format!("/class/{}/message/{}/edit", class_id, message_id_0))
             .header(ContentType::Form)
             .body(format!("title={}&contents={}", NEW_TITLE, NEW_CONTENTS))
             .dispatch();
@@ -649,24 +720,34 @@ mod tests {
 
         {
             use crate::schema::class_message::dsl as class_message;
-            let msg = class_message::class_message
-                .filter(class_message::id.eq(message_ids[0]))
-                .first::<ClassMessage>(&*Database::get_one(client.rocket()).unwrap())
+            let msg = Database::get_one(client.rocket())
+                .await
+                .unwrap()
+                .run(move |c| {
+                    class_message::class_message
+                        .filter(class_message::id.eq(message_id_0))
+                        .first::<ClassMessage>(c)
+                })
+                .await
                 .expect("error loading results");
             assert_eq!(msg.title, NEW_TITLE);
             assert_eq!(msg.contents, NEW_CONTENTS);
         }
     }
-    #[test]
-    fn test_can_view_messages() {
+    #[tokio::test]
+    async fn test_can_view_messages() {
         let client = client();
-        let (class_id, _, _, _) = setup_test_env(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_test_env(c))
+            .await;
         login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
         let mut view_message_res = client
             .get(format!("/class/{}/message", class_id))
             .dispatch();
         let string = view_message_res
-            .body_string()
+            .into_string()
             .expect("invalid body response");
 
         assert!(string.contains(CLASS_MESSAGE_1_TITLE));
@@ -675,12 +756,15 @@ mod tests {
         assert!(string.contains(CLASS_MESSAGE_2_TITLE));
         assert!(string.contains(CLASS_MESSAGE_2_CONTENTS));
     }
-    #[test]
-    fn test_reply_to_class_message() {
+    #[tokio::test]
+    async fn test_reply_to_class_message() {
         const REPLY_CONTENTS: &str = "somereplycontents235";
         let client = client();
-        let (class_id, message_ids, _, _) =
-            setup_test_env(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_test_env(c))
+            .await;
         login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
         let reply_res = client
             .post(format!(
@@ -697,39 +781,39 @@ mod tests {
                 class_id, message_ids[0]
             ))
             .dispatch();
-        let string = message_page.body_string().expect("invalid body response");
+        let string = message_page.into_string().expect("invalid body response");
         assert!(string.contains(REPLY_CONTENTS));
     }
-    #[test]
-    fn test_can_edit_reply_to_class_message() {
+    #[tokio::test]
+    async fn test_can_edit_reply_to_class_message() {
         const NEW_MESSAGE_CONTENTS: &str = "somecontents that is new";
         let client = client();
-        let (class_id, message_ids, student_id, _) =
-            setup_test_env(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, message_ids, student_id, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_test_env(c))
+            .await;
         login_user(STUDENT_USERNAME, STUDENT_PASSWORD, &client);
-        let message_reply_id = add_message_reply(
-            message_ids[0],
-            student_id,
-            class_id,
-            &*Database::get_one(&client.rocket()).unwrap(),
-        );
+        let message_id_1 = message_ids[0];
+        let message_reply_id = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(move |c| add_message_reply(message_id_1, student_id, class_id, c))
+            .await;
         let edit_message_res = client
             .post(format!(
                 "/class/{}/message/{}/reply/{}/edit",
-                class_id, message_ids[0], message_reply_id
+                class_id, message_id_1, message_reply_id
             ))
             .header(ContentType::Form)
             .body(format!("contents={}", NEW_MESSAGE_CONTENTS))
             .dispatch();
         assert_eq!(edit_message_res.status().code, 303);
         let mut view_message_replies = client
-            .get(format!(
-                "/class/{}/message/{}/view",
-                class_id, message_ids[0]
-            ))
+            .get(format!("/class/{}/message/{}/view", class_id, message_id_1))
             .dispatch();
         let string = view_message_replies
-            .body_string()
+            .into_string()
             .expect("invalid body response");
         println!("{}", string);
         assert!(string.contains(NEW_MESSAGE_CONTENTS));

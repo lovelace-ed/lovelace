@@ -7,17 +7,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+atomic_refcell = "0.1.6"
 chrono = "0.4.19"
 derivative = "2.2.0"
 digest_auth = "0.2.4"
 format_xml = "0.2.0"
 http = "0.2.3"
+ical = "0.7.0"
+icalendar = "0.9.0"
 reqwest = "0.11.0"
 roxmltree = "0.14.0"
 thiserror = "1.0.23"
 uuid = { version = "0.8.2", features = ["v4"] }
 
 [features]
+concurrent = []
 caldav_test = []
 
 [dev-dependencies]

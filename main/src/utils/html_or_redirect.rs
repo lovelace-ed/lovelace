@@ -14,8 +14,8 @@ pub enum HtmlOrRedirect {
     Redirect(Redirect),
 }
 
-impl<'r> Responder<'r> for HtmlOrRedirect {
-    fn respond_to(self, request: &rocket::Request) -> rocket::response::Result<'r> {
+impl<'r, 'o: 'r> Responder<'r, 'o> for HtmlOrRedirect {
+    fn respond_to(self, request: &'r rocket::Request<'_>) -> rocket::response::Result<'o> {
         match self {
             HtmlOrRedirect::Html(h) => h.respond_to(request),
             HtmlOrRedirect::Redirect(r) => r.respond_to(request),

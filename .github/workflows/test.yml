@@ -54,11 +54,17 @@ jobs:
         with:
           toolchain: nightly
           override: true
-      - run: sudo apt install postgresql postgresql-contrib
-      - uses: actions-rs/cargo@v1
+      - uses: actions/setup-python@v2
         with:
-          command: test
-          args: --no-fail-fast --all
+          python-version: '3.7'
+      - name: Install CalDAV server
+        run: |
+          sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
+          python -m pip install --upgrade xandikos
+      - run: sudo apt install postgresql postgresql-contrib
+      - run: (xandikos --defaults -d .dav) & sleep 3 ; kill $!
+      - run: (cd dav/user/calendars && cp -r calendar lovelace)
+      - run: (xandikos --defaults -d .dav) & (cargo test --no-fail-fast --all)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
   test-malvolio-in-browser:
@@ -88,7 +94,6 @@ jobs:
           python -m pip install --upgrade xandikos
       - name: Test prospero
         run: (xandikos --defaults -d .) & (cd utils/prospero && cargo test --all-features)
-
 
   bors-report:
     if: ${{ always() && github.event_name == 'push' && contains('refs/heads/staging refs/heads/trying', github.ref) }}

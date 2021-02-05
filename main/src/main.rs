@@ -7,37 +7,31 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 #[macro_use]
 extern crate serde;
-
 #[macro_use]
 extern crate rocket;
-
 #[macro_use]
 extern crate diesel;
-
 #[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate diesel_migrations;
-
 #[macro_use]
 extern crate rocket_contrib;
-
 #[macro_use]
 extern crate lazy_static;
-
 #[macro_use]
 extern crate nanoid;
-
 #[macro_use]
 extern crate derive_builder;
-
+#[macro_use]
+extern crate cfg_if;
 extern crate jsonwebtoken as jwt;
 
 use malvolio::prelude::{Body, Content, Head, Href, Html, Meta, MetaName, A, H1, P};
 use utils::launch;
 
 mod auth;
+mod calendar;
 mod class;
 mod css_names;
 mod db;

@@ -9,7 +9,7 @@ use crate::{
     catch_database_error,
     class::{get_user_role_in_class, user_is_teacher, ClassMemberRole},
     css_names::{LIST, LIST_ITEM},
-    db::{Database, DatabaseConnection},
+    db::Database,
     models::{
         ClassSynchronousTask, NewClassSynchronousTask, NewStudentClassSynchronousTask,
         StudentClassSynchronousTask, User,
@@ -58,8 +58,11 @@ pub struct CreateNewSyncTask {
 }
 
 #[get("/<class_id>/task/sync/create")]
-pub fn get_create_new_sync_task(class_id: i32, auth: AuthCookie, conn: Database) -> Html {
-    if user_is_teacher(auth.0, class_id, &*conn) {
+pub async fn get_create_new_sync_task(class_id: i32, auth: AuthCookie, conn: Database) -> Html {
+    if conn
+        .run(move |c| user_is_teacher(auth.0, class_id, c))
+        .await
+    {
         Html::new().body(
             Body::new()
                 .child(H1::new("Create a new synchronous task."))
@@ -71,56 +74,69 @@ pub fn get_create_new_sync_task(class_id: i32, auth: AuthCookie, conn: Database)
 }
 
 #[post("/<class_id>/task/sync/create", data = "<form>")]
-pub fn create_new_sync_task(
+pub async fn create_new_sync_task(
     conn: Database,
     class_id: i32,
     auth: AuthCookie,
     form: rocket::request::Form<CreateNewSyncTask>,
 ) -> Html {
     use crate::schema::class_teacher::dsl as class_teacher;
-    match get_user_role_in_class(auth.0, class_id, &*conn) {
+    match get_user_role_in_class(auth.0, class_id, &conn).await {
         Some(crate::class::ClassMemberRole::Teacher) => {}
         None | Some(crate::class::ClassMemberRole::Student) => return permission_error(),
     }
-    match diesel::insert_into(crate::schema::class_synchronous_task::table)
-        .values(NewClassSynchronousTask {
-            title: &form.title,
-            description: &form.description,
-            created: chrono::Utc::now().naive_utc(),
-            start_time: match NaiveDateTime::parse_from_str(&form.start_time, "%Y-%m-%dT%H:%M") {
-                Ok(date) => date,
-                Err(_) => return invalid_date(Some(create_new_sync_task_form())),
-            },
-            end_time: match NaiveDateTime::parse_from_str(&form.end_time, "%Y-%m-%dT%H:%M") {
-                Ok(date) => date,
-                Err(_) => return invalid_date(Some(create_new_sync_task_form())),
-            },
-            class_teacher_id: class_teacher::class_teacher
-                .filter(class_teacher::user_id.eq(auth.0))
-                .select(class_teacher::id)
-                .first::<i32>(&*conn)
-                .unwrap(),
-            class_id,
+    let start_time = match NaiveDateTime::parse_from_str(&form.start_time, "%Y-%m-%dT%H:%M") {
+        Ok(date) => date,
+        Err(_) => return invalid_date(Some(create_new_sync_task_form())),
+    };
+    let end_time = match NaiveDateTime::parse_from_str(&form.end_time, "%Y-%m-%dT%H:%M") {
+        Ok(date) => date,
+        Err(_) => return invalid_date(Some(create_new_sync_task_form())),
+    };
+    match conn
+        .run(move |c| {
+            diesel::insert_into(crate::schema::class_synchronous_task::table)
+                .values(NewClassSynchronousTask {
+                    title: &form.title,
+                    description: &form.description,
+                    created: chrono::Utc::now().naive_utc(),
+                    start_time,
+                    end_time,
+                    class_teacher_id: class_teacher::class_teacher
+                        .filter(class_teacher::user_id.eq(auth.0))
+                        .select(class_teacher::id)
+                        .first::<i32>(c)
+                        .unwrap(),
+                    class_id,
+                })
+                .returning(crate::schema::class_synchronous_task::id)
+                .get_result::<i32>(c)
         })
-        .returning(crate::schema::class_synchronous_task::id)
-        .get_result::<i32>(&*conn)
+        .await
     {
         Ok(sync_task_id) => {
-            let student_list = catch_database_error!(crate::schema::class_student::table
-                .filter(crate::schema::class_student::class_id.eq(class_id))
-                .select(crate::schema::class_student::id)
-                .get_results::<i32>(&*conn));
-            match diesel::insert_into(crate::schema::student_class_synchronous_task::table)
-                .values(
-                    student_list
-                        .into_iter()
-                        .map(|class_student_id| NewStudentClassSynchronousTask {
-                            class_student_id,
-                            class_synchronous_task_id: sync_task_id,
-                        })
-                        .collect::<Vec<NewStudentClassSynchronousTask>>(),
-                )
-                .execute(&*conn)
+            let student_list = catch_database_error!(
+                conn.run(move |c| crate::schema::class_student::table
+                    .filter(crate::schema::class_student::class_id.eq(class_id))
+                    .select(crate::schema::class_student::id)
+                    .get_results::<i32>(c))
+                    .await
+            );
+            match conn
+                .run(move |c| {
+                    diesel::insert_into(crate::schema::student_class_synchronous_task::table)
+                        .values(
+                            student_list
+                                .into_iter()
+                                .map(|class_student_id| NewStudentClassSynchronousTask {
+                                    class_student_id,
+                                    class_synchronous_task_id: sync_task_id,
+                                })
+                                .collect::<Vec<NewStudentClassSynchronousTask>>(),
+                        )
+                        .execute(c)
+                })
+                .await
             {
                 Ok(_) => Html::new()
                     .head(default_head("Created that task".to_string()))
@@ -143,21 +159,25 @@ pub fn create_new_sync_task(
 }
 
 /// Show a list of all the tasks in a class that a student has been assigned.
-fn show_student_sync_tasks_summary(class_id: i32, user_id: i32, conn: &DatabaseConnection) -> Html {
+async fn show_student_sync_tasks_summary(class_id: i32, user_id: i32, conn: &Database) -> Html {
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
     use crate::schema::student_class_synchronous_task::dsl as STUDENT_1_class_synchronous_task;
 
-    match STUDENT_1_class_synchronous_task::student_class_synchronous_task
-        .inner_join(class_student::class_student)
-        .filter(class_student::user_id.eq(user_id))
-        .inner_join(class_synchronous_task::class_synchronous_task)
-        .filter(class_synchronous_task::class_id.eq(class_id))
-        .select((
-            crate::schema::student_class_synchronous_task::all_columns,
-            crate::schema::class_synchronous_task::all_columns,
-        ))
-        .load::<(StudentClassSynchronousTask, ClassSynchronousTask)>(&*conn)
+    match conn
+        .run(move |c| {
+            STUDENT_1_class_synchronous_task::student_class_synchronous_task
+                .inner_join(class_student::class_student)
+                .filter(class_student::user_id.eq(user_id))
+                .inner_join(class_synchronous_task::class_synchronous_task)
+                .filter(class_synchronous_task::class_id.eq(class_id))
+                .select((
+                    crate::schema::student_class_synchronous_task::all_columns,
+                    crate::schema::class_synchronous_task::all_columns,
+                ))
+                .load::<(StudentClassSynchronousTask, ClassSynchronousTask)>(c)
+        })
+        .await
     {
         Ok(tasks) => {
             if tasks.is_empty() {
@@ -193,7 +213,7 @@ fn show_student_sync_tasks_summary(class_id: i32, user_id: i32, conn: &DatabaseC
 ///
 /// MAKE SURE YOU HAVE CHECKED THAT THE USER IS A TEACHER IN THE CLASS BEFORE YOU CALL THIS
 /// FUNCTION. (sorry for the all caps, I (@teymour-aldridge) kept forgetting to do so :-)
-fn show_teacher_sync_tasks_summary(class_id: i32, conn: &DatabaseConnection) -> Html {
+async fn show_teacher_sync_tasks_summary(class_id: i32, conn: &Database) -> Html {
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
     use crate::schema::class_teacher::dsl as class_teacher;
     use crate::schema::student_class_synchronous_task::dsl as student_class_synchronous_task;
@@ -201,13 +221,16 @@ fn show_teacher_sync_tasks_summary(class_id: i32, conn: &DatabaseConnection) -> 
         .filter(class_synchronous_task::class_id.eq(class_id))
         .order_by(class_synchronous_task::start_time.desc())
         .inner_join(student_class_synchronous_task::student_class_synchronous_task);
-    let tasks = catch_database_error!(query
-        .inner_join(class_teacher::class_teacher.inner_join(crate::schema::users::dsl::users))
-        .select((
-            crate::schema::class_synchronous_task::all_columns,
-            crate::schema::users::all_columns,
-        ))
-        .load::<(ClassSynchronousTask, User)>(&*conn));
+    let tasks = catch_database_error!(
+        conn.run(move |c| query
+            .inner_join(class_teacher::class_teacher.inner_join(crate::schema::users::dsl::users))
+            .select((
+                crate::schema::class_synchronous_task::all_columns,
+                crate::schema::users::all_columns,
+            ))
+            .load::<(ClassSynchronousTask, User)>(c))
+            .await
+    );
     Html::new().head(default_head("Tasks".to_string())).body(
         Body::new().child(
             Div::new()
@@ -225,14 +248,14 @@ fn show_teacher_sync_tasks_summary(class_id: i32, conn: &DatabaseConnection) -> 
 #[get("/<class_id>/task/sync/all")]
 /// Show a list of all the synchronous tasks have been set in a class, either to a teacher or a
 /// student (this is retrieved from the database).
-pub fn view_all_sync_tasks_in_class(class_id: i32, auth: AuthCookie, conn: Database) -> Html {
-    if let Some(role) = get_user_role_in_class(auth.0, class_id, &*conn) {
+pub async fn view_all_sync_tasks_in_class(class_id: i32, auth: AuthCookie, conn: Database) -> Html {
+    if let Some(role) = get_user_role_in_class(auth.0, class_id, &conn).await {
         match role {
             crate::class::ClassMemberRole::Teacher => {
-                show_teacher_sync_tasks_summary(class_id, &*conn)
+                show_teacher_sync_tasks_summary(class_id, &conn).await
             }
             crate::class::ClassMemberRole::Student => {
-                show_student_sync_tasks_summary(class_id, auth.0, &*conn)
+                show_student_sync_tasks_summary(class_id, auth.0, &conn).await
             }
         }
     } else {
@@ -240,26 +263,30 @@ pub fn view_all_sync_tasks_in_class(class_id: i32, auth: AuthCookie, conn: Datab
     }
 }
 
-fn show_student_sync_task_summary(
+async fn show_student_sync_task_summary(
     task_id: i32,
     class_id: i32,
     user_id: i32,
-    conn: &DatabaseConnection,
+    conn: &Database,
 ) -> Html {
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
-    match crate::schema::student_class_synchronous_task::table
-        .inner_join(class_synchronous_task::class_synchronous_task)
-        .filter(class_synchronous_task::id.eq(task_id))
-        .filter(class_synchronous_task::class_id.eq(class_id))
-        .inner_join(class_student::class_student)
-        .filter(class_student::user_id.eq(user_id))
-        .filter(class_student::class_id.eq(class_id))
-        .select((
-            crate::schema::class_synchronous_task::all_columns,
-            crate::schema::student_class_synchronous_task::all_columns,
-        ))
-        .first::<(ClassSynchronousTask, StudentClassSynchronousTask)>(&*conn)
+    match conn
+        .run(move |c| {
+            crate::schema::student_class_synchronous_task::table
+                .inner_join(class_synchronous_task::class_synchronous_task)
+                .filter(class_synchronous_task::id.eq(task_id))
+                .filter(class_synchronous_task::class_id.eq(class_id))
+                .inner_join(class_student::class_student)
+                .filter(class_student::user_id.eq(user_id))
+                .filter(class_student::class_id.eq(class_id))
+                .select((
+                    crate::schema::class_synchronous_task::all_columns,
+                    crate::schema::student_class_synchronous_task::all_columns,
+                ))
+                .first::<(ClassSynchronousTask, StudentClassSynchronousTask)>(c)
+        })
+        .await
     {
         Ok((class_task, _)) => Html::new().head(default_head("Task".to_string())).body(
             Body::new()
@@ -276,11 +303,11 @@ fn show_student_sync_task_summary(
     }
 }
 
-fn show_teacher_sync_task_summary(
+async fn show_teacher_sync_task_summary(
     task_id: i32,
     class_id: i32,
     user_id: i32,
-    conn: &DatabaseConnection,
+    conn: &Database,
 ) -> Html {
     use crate::schema::class::dsl as class;
     use crate::schema::class_student::dsl as class_student;
@@ -288,22 +315,33 @@ fn show_teacher_sync_task_summary(
     use crate::schema::class_teacher::dsl as class_teacher;
     use crate::schema::users::dsl as users;
 
-    match class_synchronous_task::class_synchronous_task
-        .inner_join(class::class.inner_join(class_teacher::class_teacher.inner_join(users::users)))
-        .filter(users::id.eq(user_id))
-        .filter(class::id.eq(class_id))
-        .filter(class_synchronous_task::id.eq(task_id))
-        .select(crate::schema::class_synchronous_task::all_columns)
-        .first::<ClassSynchronousTask>(&*conn)
+    match conn
+        .run(move |c| {
+            class_synchronous_task::class_synchronous_task
+                .inner_join(
+                    class::class.inner_join(class_teacher::class_teacher.inner_join(users::users)),
+                )
+                .filter(users::id.eq(user_id))
+                .filter(class::id.eq(class_id))
+                .filter(class_synchronous_task::id.eq(task_id))
+                .select(crate::schema::class_synchronous_task::all_columns)
+                .first::<ClassSynchronousTask>(c)
+        })
+        .await
     {
         Ok(class_task) => {
-            match StudentClassSynchronousTask::belonging_to(&class_task)
-                .inner_join(class_student::class_student.inner_join(users::users))
-                .select((
-                    crate::schema::users::all_columns,
-                    crate::schema::student_class_synchronous_task::all_columns,
-                ))
-                .load::<(User, StudentClassSynchronousTask)>(&*conn)
+            let class_task_cloned = class_task.clone();
+            match conn
+                .run(move |c| {
+                    StudentClassSynchronousTask::belonging_to(&class_task_cloned)
+                        .inner_join(class_student::class_student.inner_join(users::users))
+                        .select((
+                            crate::schema::users::all_columns,
+                            crate::schema::student_class_synchronous_task::all_columns,
+                        ))
+                        .load::<(User, StudentClassSynchronousTask)>(c)
+                })
+                .await
             {
                 Ok(tasks) => Html::new()
                     .head(default_head(format!("Task {}", class_task.title)))
@@ -337,23 +375,23 @@ fn show_teacher_sync_task_summary(
 
 #[get("/<class_id>/task/sync/<task_id>/view")]
 /// Retrieve information about a specific synchronous task.
-pub fn view_specific_synchronous_task(
+pub async fn view_specific_synchronous_task(
     class_id: i32,
     task_id: i32,
     auth: AuthCookie,
     conn: Database,
 ) -> Html {
-    let role = if let Some(role) = get_user_role_in_class(auth.0, class_id, &*conn) {
+    let role = if let Some(role) = get_user_role_in_class(auth.0, class_id, &conn).await {
         role
     } else {
         return permission_error();
     };
     match role {
         crate::class::ClassMemberRole::Teacher => {
-            show_teacher_sync_task_summary(task_id, class_id, auth.0, &*conn)
+            show_teacher_sync_task_summary(task_id, class_id, auth.0, &conn).await
         }
         crate::class::ClassMemberRole::Student => {
-            show_student_sync_task_summary(task_id, class_id, auth.0, &*conn)
+            show_student_sync_task_summary(task_id, class_id, auth.0, &conn).await
         }
     }
 }
@@ -416,15 +454,23 @@ fn edit_task_form(
 }
 
 #[get("/<class_id>/task/sync/<task_id>/edit")]
-pub fn view_edit_task_page(class_id: i32, task_id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn view_edit_task_page(
+    class_id: i32,
+    task_id: i32,
+    auth: AuthCookie,
+    conn: Database,
+) -> Html {
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
-    if let Some(role) = get_user_role_in_class(auth.0, class_id, &*conn) {
+    if let Some(role) = get_user_role_in_class(auth.0, class_id, &conn).await {
         if role != ClassMemberRole::Teacher {
             return permission_error();
         }
-        let res = catch_database_error!(class_synchronous_task::class_synchronous_task
-            .filter(class_synchronous_task::id.eq(task_id))
-            .first::<ClassSynchronousTask>(&*conn));
+        let res = catch_database_error!(
+            conn.run(move |c| class_synchronous_task::class_synchronous_task
+                .filter(class_synchronous_task::id.eq(task_id))
+                .first::<ClassSynchronousTask>(c))
+                .await
+        );
         Html::new()
             .head(default_head("Edit a task".to_string()))
             .body(
@@ -451,7 +497,7 @@ pub struct EditTaskForm {
 }
 
 #[post("/<class_id>/task/sync/<task_id>/edit", data = "<form>")]
-pub fn apply_edit_task(
+pub async fn apply_edit_task(
     class_id: i32,
     task_id: i32,
     auth: AuthCookie,
@@ -459,46 +505,48 @@ pub fn apply_edit_task(
     form: rocket::request::Form<EditTaskForm>,
 ) -> Html {
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
-    if let Some(role) = get_user_role_in_class(auth.0, class_id, &*conn) {
+    if let Some(role) = get_user_role_in_class(auth.0, class_id, &conn).await {
         if role != ClassMemberRole::Teacher {
             return permission_error();
         }
-        match diesel::update(
-            class_synchronous_task::class_synchronous_task
-                .filter(class_synchronous_task::id.eq(task_id))
-                .filter(class_synchronous_task::class_id.eq(class_id)),
-        )
-        .set((
-            class_synchronous_task::title.eq(&form.title),
-            class_synchronous_task::description.eq(&form.description),
-            class_synchronous_task::start_time.eq(
-                match NaiveDateTime::parse_from_str(&form.start_time, "%Y-%m-%dT%H:%M") {
-                    Ok(date) => date,
-                    Err(_) => {
-                        return invalid_date(Some(edit_task_form(
-                            Some(form.title.clone()),
-                            Some(form.description.clone()),
-                            Some(form.start_time.clone()),
-                            Some(form.end_time.clone()),
-                        )))
-                    }
-                },
-            ),
-            class_synchronous_task::end_time.eq(
-                match NaiveDateTime::parse_from_str(&form.end_time, "%Y-%m-%dT%H:%M") {
-                    Ok(date) => date,
-                    Err(_) => {
-                        return invalid_date(Some(edit_task_form(
-                            Some(form.title.clone()),
-                            Some(form.description.clone()),
-                            Some(form.start_time.clone()),
-                            Some(form.end_time.clone()),
-                        )))
-                    }
-                },
-            ),
-        ))
-        .execute(&*conn)
+        let end_time = match NaiveDateTime::parse_from_str(&form.end_time, "%Y-%m-%dT%H:%M") {
+            Ok(date) => date,
+            Err(_) => {
+                return invalid_date(Some(edit_task_form(
+                    Some(form.title.clone()),
+                    Some(form.description.clone()),
+                    Some(form.start_time.clone()),
+                    Some(form.end_time.clone()),
+                )))
+            }
+        };
+        let start_time = match NaiveDateTime::parse_from_str(&form.start_time, "%Y-%m-%dT%H:%M") {
+            Ok(date) => date,
+            Err(_) => {
+                return invalid_date(Some(edit_task_form(
+                    Some(form.title.clone()),
+                    Some(form.description.clone()),
+                    Some(form.start_time.clone()),
+                    Some(form.end_time.clone()),
+                )))
+            }
+        };
+        match conn
+            .run(move |c| {
+                diesel::update(
+                    class_synchronous_task::class_synchronous_task
+                        .filter(class_synchronous_task::id.eq(task_id))
+                        .filter(class_synchronous_task::class_id.eq(class_id)),
+                )
+                .set((
+                    class_synchronous_task::title.eq(&form.title),
+                    class_synchronous_task::description.eq(&form.description),
+                    class_synchronous_task::start_time.eq(start_time),
+                    class_synchronous_task::end_time.eq(end_time),
+                ))
+                .execute(c)
+            })
+            .await
         {
             Ok(_) => Html::new()
                 .head(default_head("Successfully updated".to_string()))
@@ -511,15 +559,18 @@ pub fn apply_edit_task(
 }
 
 #[get("/<class_id>/task/sync/<task_id>/delete")]
-pub fn delete_task(class_id: i32, task_id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn delete_task(class_id: i32, task_id: i32, auth: AuthCookie, conn: Database) -> Html {
     use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
-    if let Some(ClassMemberRole::Teacher) = get_user_role_in_class(auth.0, class_id, &*conn) {
-        catch_database_error!(diesel::delete(
-            class_synchronous_task::class_synchronous_task
-                .filter(class_synchronous_task::id.eq(task_id))
-                .filter(class_synchronous_task::class_id.eq(class_id)),
-        )
-        .execute(&*conn));
+    if let Some(ClassMemberRole::Teacher) = get_user_role_in_class(auth.0, class_id, &conn).await {
+        catch_database_error!(
+            conn.run(move |c| diesel::delete(
+                class_synchronous_task::class_synchronous_task
+                    .filter(class_synchronous_task::id.eq(task_id))
+                    .filter(class_synchronous_task::class_id.eq(class_id)),
+            )
+            .execute(c))
+                .await
+        );
         Html::new()
             .head(default_head("Successfully deleted that task".to_string()))
             .body(Body::new().child(H1::new("Successfully deleted that task.")))
@@ -708,30 +759,36 @@ mod synchronous_task_tests {
             vec![task_1_id, task_2_id],
         )
     }
-    #[test]
-    fn test_teacher_can_view_specific_synchronous_task() {
+    #[tokio::test]
+    async fn test_teacher_can_view_specific_synchronous_task() {
         let client = client();
-        let (class_id, _, _, tasks) =
-            populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
         let mut view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
-        let string = view_task_res.body_string().expect("invalid body response");
+        let string = view_task_res.into_string().expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
     }
-    #[test]
-    fn test_student_can_view_specific_synchronous_task() {
+    #[tokio::test]
+    async fn test_student_can_view_specific_synchronous_task() {
         let client = client();
-        let (class_id, _, _, tasks) =
-            populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
 
         login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
         let mut view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
-        let string = view_task_res.body_string().expect("invalid body response");
+        let string = view_task_res.into_string().expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
 
@@ -739,16 +796,20 @@ mod synchronous_task_tests {
         let mut view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
-        let string = view_task_res.body_string().expect("invalid body response");
+        let string = view_task_res.into_string().expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
     }
-    #[test]
-    fn test_teacher_can_create_synchronous_task() {
+    #[tokio::test]
+    async fn test_teacher_can_create_synchronous_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client();
-        let (class_id, _, _, _) = populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
         login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client);
 
         let mut res = client
@@ -768,32 +829,39 @@ mod synchronous_task_tests {
                     .to_string()
             ))
             .dispatch();
-        let string = res.body_string().expect("invalid body response");
+        let string = res.into_string().expect("invalid body response");
         println!("{}", string);
         assert!(string.contains("Created that task"));
         {
             use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
             use crate::schema::student_class_synchronous_task::dsl as student_class_synchronous_task;
 
-            let results = class_synchronous_task::class_synchronous_task
-                .filter(class_synchronous_task::description.eq(NEW_TASK_DESCRIPTION))
-                .filter(class_synchronous_task::title.eq(NEW_TASK_TITLE))
-                .inner_join(student_class_synchronous_task::student_class_synchronous_task)
-                .load::<(ClassSynchronousTask, StudentClassSynchronousTask)>(
-                    &*Database::get_one(&client.rocket()).unwrap(),
-                )
+            let results = Database::get_one(&client.rocket())
+                .await
+                .unwrap()
+                .run(|c| {
+                    class_synchronous_task::class_synchronous_task
+                        .filter(class_synchronous_task::description.eq(NEW_TASK_DESCRIPTION))
+                        .filter(class_synchronous_task::title.eq(NEW_TASK_TITLE))
+                        .inner_join(student_class_synchronous_task::student_class_synchronous_task)
+                        .load::<(ClassSynchronousTask, StudentClassSynchronousTask)>(c)
+                })
+                .await
                 .unwrap();
             assert_eq!(results.len(), 2);
             assert_eq!(results[0].0, results[1].0);
         }
     }
-    #[test]
-    fn test_teacher_can_edit_synchronous_task() {
+    #[tokio::test]
+    async fn test_teacher_can_edit_synchronous_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client();
-        let (class_id, _, _, tasks) =
-            populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
         let mut res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
@@ -812,17 +880,19 @@ mod synchronous_task_tests {
                     .to_string()
             ))
             .dispatch();
-        let string = res.body_string().expect("invalid body response");
-        println!("{}", string);
+        let string = res.into_string().expect("invalid body response");
         assert!(string.contains("updated that task"));
     }
-    #[test]
-    fn test_student_cannot_edit_asynchronus_task() {
+    #[tokio::test]
+    async fn test_student_cannot_edit_asynchronus_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client();
-        let (class_id, _, _, tasks) =
-            populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
         login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
         let mut res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
@@ -841,20 +911,22 @@ mod synchronous_task_tests {
                     .to_string()
             ))
             .dispatch();
-        let string = res.body_string().expect("invalid body response");
-        println!("{}", string);
+        let string = res.into_string().expect("invalid body response");
         assert!(!string.contains("updated that task"));
     }
-    #[test]
-    fn test_teacher_can_delete_synchronous_task() {
+    #[tokio::test]
+    async fn test_teacher_can_delete_synchronous_task() {
         let client = client();
-        let (class_id, _, _, tasks) =
-            populate_database(&*Database::get_one(&client.rocket()).unwrap());
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
         let mut res = client
             .get(format!("/class/{}/task/sync/{}/delete", class_id, tasks[1]))
             .dispatch();
-        let string = res.body_string().expect("invalid body response");
+        let string = res.into_string().expect("invalid body response");
         assert!(string.contains("deleted that task"));
     }
 }

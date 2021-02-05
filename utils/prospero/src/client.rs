@@ -1,4 +1,6 @@
-use std::cell::RefCell;
+use std::sync::Arc;
+
+use atomic_refcell::AtomicRefCell;
 
 use digest_auth::AuthContext;
 use reqwest::{Client, Method, RequestBuilder};
@@ -12,13 +14,15 @@ use crate::{
     error::{CalDAVError, CalDAVResult},
 };
 
-/// The CalDAV client. You should start with this method and then use it
+/// The CalDAV client. This is the entry point to the application, and you will need one of these
+/// to use all other methods.
+#[derive(Debug, Clone)]
 pub struct DAVClient {
     auth_scheme: AuthScheme,
     url: String,
     client: Client,
     /// This is not neat but it makes the API nicer.
-    auth_header: RefCell<Option<String>>,
+    auth_header: AtomicRefCell<Option<String>>,
 }
 
 impl DAVClient {
@@ -69,7 +73,7 @@ impl DAVClient {
             auth_scheme: AuthScheme::None,
             url: s.into(),
             client: Client::new(),
-            auth_header: RefCell::new(None),
+            auth_header: AtomicRefCell::new(None),
         }
     }
     /// Construct a new CalDAV client which uses username/password authentication.
@@ -83,45 +87,44 @@ impl DAVClient {
             auth_scheme: AuthScheme::new_username_password(username.into(), password.into()),
             url: url.into(),
             client: Client::new(),
-            auth_header: RefCell::new(None),
+            auth_header: AtomicRefCell::new(None),
         }
     }
     /// Construct a new CalDAV client which uses OAuth authentication.
-    pub fn new_oauth() -> Self {
+    pub fn new_oauth(url: String, access_token: String, refresh_token: String) -> Self {
         todo!()
     }
     /// Returns a list of calendars.
     ///
     /// I think the spec discourages using this.
-    pub async fn calendars(&'_ self) -> CalDAVResult<Vec<Calendar<'_>>> {
+    pub async fn calendars(&'_ self) -> CalDAVResult<Vec<Calendar>> {
+        let body_string = xml! {
+            <?xml version="1.0" encoding="utf-8" ?>
+            <D:principal-match xmlns:D="DAV:">
+                <D:self/>
+                <D:prop>
+                    <C:calendar-home-set
+                    xmlns:C="urn:ietf:params:xml:ns:caldav"/>
+                </D:prop>
+            </D:principal-match>
+        }
+        .to_string();
         self.client
             .request(Method::from_bytes(REPORT).unwrap(), &self.url)
-            .body(
-                xml! {
-                    <?xml version="1.0" encoding="utf-8" ?>
-                    <D:principal-match xmlns:D="DAV:">
-                        <D:self/>
-                        <D:prop>
-                            <C:calendar-home-set
-                            xmlns:C="urn:ietf:params:xml:ns:caldav"/>
-                        </D:prop>
-                    </D:principal-match>
-                }
-                .to_string(),
-            )
+            .body(body_string)
             .send()
             .await?;
         todo!()
     }
-    pub fn calendar(&'_ self) -> Calendar<'_> {
+    pub fn calendar(&'_ self) -> Calendar {
         Calendar {
-            client: &self,
-            url: &self.url,
+            client: Arc::new(self.clone()),
+            url: Arc::new(self.url.to_string()),
         }
     }
     /// Creates a new calendar from the provided `MakeCalendar` struct. If any of the fields on the
     /// `MkCalendar` struct are `None` a uuid will be used in their place.
-    pub async fn make_calendar(&'_ self, cal: MakeCalendar) -> CalDAVResult<Calendar<'_>> {
+    pub async fn make_calendar(&'_ self, cal: MakeCalendar) -> CalDAVResult<Calendar> {
         let url = format!(
             "{}/{}",
             self.url,
@@ -132,27 +135,26 @@ impl DAVClient {
         } else {
             Uuid::new_v4().to_string()
         };
+        let body_string = xml! {
+            <?xml version="1.0" encoding="utf-8" ?>
+            <C:mkcalendar xmlns:D="DAV"
+                          xmlns:C="url:ietf:params:xml:ns:caldav">
+                <D:set>
+                    <D:prop>
+                        <D:displayname>{name}</D:displayname>
+                    </D:prop>
+                </D:set>
+            </C:mkcalendar>
+        }
+        .to_string();
         self.client
             .request(Method::from_bytes(MKCALENDAR).unwrap(), &url)
-            .body(
-                xml! {
-                    <?xml version="1.0" encoding="utf-8" ?>
-                    <C:mkcalendar xmlns:D="DAV"
-                                  xmlns:C="url:ietf:params:xml:ns:caldav">
-                        <D:set>
-                            <D:prop>
-                                <D:displayname>{name}</D:displayname>
-                            </D:prop>
-                        </D:set>
-                    </C:mkcalendar>
-                }
-                .to_string(),
-            )
+            .body(body_string)
             .send()
             .await
             .map(|_| Calendar {
-                client: &self,
-                url: &self.url,
+                client: Arc::new(self.clone()),
+                url: Arc::new(self.url.to_string()),
             })
             .map_err(CalDAVError::RequestError)
     }
@@ -184,6 +186,7 @@ impl MakeCalendar {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum AuthScheme {
     UsernamePassword(String, String),
     None,

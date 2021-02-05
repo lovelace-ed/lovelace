@@ -11,7 +11,7 @@ use diesel::r2d2::CustomizeConnection;
 use diesel::sql_types::HasSqlType;
 use diesel::{Connection, ConnectionResult, PgConnection, QueryResult, Queryable};
 use rocket::Rocket;
-use rocket_contrib::databases::{diesel, DatabaseConfig, Poolable};
+use rocket_contrib::databases::{diesel, Config, PoolResult, Poolable};
 
 embed_migrations!("../migrations/");
 
@@ -92,12 +92,13 @@ impl Poolable for TestPgConnection {
     type Manager = diesel::r2d2::ConnectionManager<TestPgConnection>;
     type Error = rocket_contrib::databases::r2d2::Error;
 
-    fn pool(config: DatabaseConfig<'_>) -> Result<diesel::r2d2::Pool<Self::Manager>, Self::Error> {
+    fn pool(name: &str, rocket: &Rocket) -> PoolResult<Self> {
+        let config = Config::from(name, rocket)?;
         let manager = diesel::r2d2::ConnectionManager::new(config.url);
-        diesel::r2d2::Pool::builder()
+        Ok(diesel::r2d2::Pool::builder()
             .connection_customizer(Box::new(TestTransaction))
             .max_size(config.pool_size)
-            .build(manager)
+            .build(manager)?)
     }
 }
 
@@ -105,13 +106,16 @@ impl Poolable for TestPgConnection {
 #[database("postgres")]
 pub struct Database(TestPgConnection);
 
-pub fn run_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
-    let conn = Database::get_one(&rocket).expect("Couldn't create a database connection.");
-    match embedded_migrations::run(&*conn) {
+pub async fn run_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
+    let conn = Database::get_one(&rocket)
+        .await
+        .expect("Couldn't create a database connection.");
+    conn.run(|c| match embedded_migrations::run(c) {
         Ok(()) => Ok(rocket),
         Err(e) => {
             error!("Failed to run database migrations: {:?}", e);
             Err(rocket)
         }
-    }
+    })
+    .await
 }

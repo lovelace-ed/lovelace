@@ -5,7 +5,7 @@ authors = ["Teymour Aldridge <teymour.aldridge@icloud.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = "0.4.7"
+rocket = { version = "0.5.0-dev", git = "https://github.com/SergioBenitez/Rocket", features = ["secrets"] }
 malvolio = { path = "../utils/malvolio", features = ["with_rocket"] }
 thiserror = "1.0.23"
 chrono = "0.4"
@@ -23,10 +23,15 @@ ureq = { version = "2.0.1", features = ["json"] }
 chrono-tz = { version = "0.5.3", features = ["serde"] }
 jsonwebtoken = "7.2.0"
 serde = { version = "1.0.123", features = ["derive"] }
-
+uuid = { version = "0.8.2", features = ["v4"] }
+reqwest = { version = "0.11.0", features = ["blocking", "json"] }
+prospero = { path = "../utils/prospero" }
+futures = { version = "0.3.12", features = ["executor"] }
+cfg-if = "1.0.0"
 
 [dependencies.rocket_contrib]
-version = "0.4.7"
+version = "0.5.0-dev"
+git = "https://github.com/SergioBenitez/Rocket"
 default-features = false
 features = ["diesel_postgres_pool"]
 
@@ -34,5 +39,7 @@ features = ["diesel_postgres_pool"]
 tokio = { version = "1.2.0", features = ["macros", "rt"] }
 wiremock = "0.4.9"
 
-[profile.release]
-lto = true
+[features]
+# tests which need a caldav server to run sit behind this feature
+# note that some tests spawn their own caldav server
+caldav_server = []

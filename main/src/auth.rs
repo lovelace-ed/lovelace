@@ -11,7 +11,8 @@ use malvolio::prelude::{
 };
 use regex::Regex;
 use rocket::{
-    http::{Cookie, Cookies, RawStr, Status},
+    http::{Cookie, CookieJar, RawStr, Status},
+    outcome::IntoOutcome,
     request::{Form, FromRequest},
 };
 use std::str::FromStr;
@@ -35,7 +36,7 @@ pub enum AuthError {
     InvalidCookieIssued,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct AuthCookie(pub i32);
 
 impl AuthCookie {
@@ -48,29 +49,19 @@ impl AuthCookie {
     }
 }
 
-impl FromRequest<'_, '_> for AuthCookie {
+#[rocket::async_trait]
+impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
     type Error = AuthError;
 
-    fn from_request(
-        request: &'_ rocket::Request<'_>,
+    async fn from_request(
+        request: &'a rocket::Request<'r>,
     ) -> rocket::request::Outcome<Self, Self::Error> {
-        match request
+        request
             .cookies()
             .get_private(LOGIN_COOKIE)
-            .map(AuthCookie::parse)
-        {
-            Some(e) => match e {
-                Ok(item) => rocket::request::Outcome::Success(item),
-                Err(e) => rocket::request::Outcome::Failure((
-                    Status::new(500, "Internal server error."),
-                    e,
-                )),
-            },
-            None => rocket::request::Outcome::Failure((
-                Status::new(400, "Not logged in."),
-                AuthError::NotLoggedIn,
-            )),
-        }
+            .and_then(|cookie| cookie.value().parse().ok())
+            .and_then(|id| Some(AuthCookie(id)))
+            .or_forward(())
     }
 }
 
@@ -112,12 +103,17 @@ pub struct LoginData {
 }
 
 #[post("/login", data = "<data>")]
-pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Html {
+pub async fn login(cookies: &CookieJar<'_>, data: Form<LoginData>, conn: Database) -> Html {
     use schema::users::dsl::{email, username, users};
-    match users
-        .filter(username.eq(&data.identifier))
-        .or_filter(email.eq(&data.identifier))
-        .first::<User>(&*conn)
+    let closure_data = data.clone();
+    match conn
+        .run(move |c| {
+            users
+                .filter(username.eq(&closure_data.identifier))
+                .or_filter(email.eq(&closure_data.identifier))
+                .first::<User>(c)
+        })
+        .await
     {
         Ok(user) => {
             if verify(&data.password, &user.password)
@@ -161,8 +157,7 @@ pub fn login(mut cookies: Cookies, data: Form<LoginData>, conn: Database) -> Htm
                     Body::default()
                         .child(H1::new("Database error"))
                         .child(P::with_text(
-                            "Something's up on our end. We're working to fix it as fast as
-                            we can!",
+                            "Something's up on our end. We're working to fix it as fast as we can!",
                         ))
                         .child(login_form()),
                 ),
@@ -236,7 +231,7 @@ lazy_static! {
 }
 
 #[post("/register", data = "<data>")]
-pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> Html {
+pub async fn register(data: Form<RegisterData>, conn: Database, cookies: &CookieJar<'_>) -> Html {
     use crate::schema::users::dsl::*;
     if cookies.get(LOGIN_COOKIE).is_some() {
         return Html::default()
@@ -296,16 +291,20 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
                 );
         }
     };
-    match insert_into(users)
-        .values(NewUser::new(
-            &data.username,
-            &data.email,
-            &hashed_password,
-            Utc::now().naive_utc(),
-            &chrono_timezone.to_string(),
-        ))
-        .returning(crate::schema::users::all_columns)
-        .get_result::<User>(&*conn)
+    match conn
+        .run(move |c| {
+            insert_into(users)
+                .values(NewUser::new(
+                    &data.username,
+                    &data.email,
+                    &hashed_password,
+                    Utc::now().naive_utc(),
+                    &chrono_timezone.to_string(),
+                ))
+                .returning(crate::schema::users::all_columns)
+                .get_result::<User>(c)
+        })
+        .await
     {
         Ok(user) => {
             let email_verification_link = format!(
@@ -401,7 +400,7 @@ pub fn register(data: Form<RegisterData>, conn: Database, cookies: Cookies) -> H
 }
 
 #[get("/logout")]
-pub fn logout(mut cookies: Cookies) -> Html {
+pub fn logout(mut cookies: &CookieJar<'_>) -> Html {
     if cookies.get_private(LOGIN_COOKIE).is_none() {
         return Html::default()
             .head(default_head("Cannot log you out.".to_string()))
@@ -422,7 +421,7 @@ pub struct EmailVerificationToken {
 }
 
 #[get("/verify?<code>")]
-pub fn verify_email(code: &RawStr, conn: Database) -> Html {
+pub async fn verify_email(code: &RawStr, conn: Database) -> Html {
     use crate::schema::users::dsl as users;
     match jwt::decode::<EmailVerificationToken>(
         code,
@@ -434,9 +433,13 @@ pub fn verify_email(code: &RawStr, conn: Database) -> Html {
         &jwt::Validation::default(),
     ) {
         Ok(code) => {
-            match diesel::update(users::users.filter(users::id.eq(code.claims.user_id)))
-                .set(users::email_verified.eq(true))
-                .execute(&*conn)
+            match conn
+                .run(move |c| {
+                    diesel::update(users::users.filter(users::id.eq(code.claims.user_id)))
+                        .set(users::email_verified.eq(true))
+                        .execute(c)
+                })
+                .await
             {
                 Ok(_) => Html::new()
                     .head(default_head("Email verified".to_string()))
@@ -494,7 +497,7 @@ mod test {
                 timezone = TIMEZONE
             ))
             .dispatch();
-        let response = register_res.body_string().expect("invalid body response");
+        let response = register_res.into_string().expect("invalid body response");
         assert!(response.contains("Invalid email"));
     }
 
@@ -512,7 +515,7 @@ mod test {
         let client = crate::utils::client();
         // check register page looks right
         let mut register_page = client.get("/auth/register").dispatch();
-        let page = register_page.body_string().expect("invalid body response");
+        let page = register_page.into_string().expect("invalid body response");
         assert!(page.contains("Register"));
         // test can register
         let mut register_res = client
@@ -527,11 +530,11 @@ mod test {
                 timezone = TIMEZONE
             ))
             .dispatch();
-        let response = register_res.body_string().expect("invalid body response");
+        let response = register_res.into_string().expect("invalid body response");
         assert!(response.contains("sucessfully registered"));
         // test login page looks right
         let mut login_page = client.get("/auth/login").dispatch();
-        let page = login_page.body_string().expect("invalid body response");
+        let page = login_page.into_string().expect("invalid body response");
         assert!(page.contains("Login"));
         // test can login
         let mut login_res = client
@@ -542,28 +545,34 @@ mod test {
         // check cookie set
         login_res
             .cookies()
-            .into_iter()
+            .iter()
             .find(|c| c.name() == LOGIN_COOKIE)
             .unwrap();
-        let page = login_res.body_string().expect("invalid body response");
+        let page = login_res.into_string().expect("invalid body response");
         assert!(page.contains("now logged in"));
     }
-    #[test]
-    fn test_email_verification() {
+    #[tokio::test]
+    async fn test_email_verification() {
         use crate::schema::users::dsl as users;
         let client = crate::utils::client();
-        let user_id = diesel::insert_into(users::users)
-            .values(NewUser {
-                username: "some-username",
-                email: "email@example.com",
-                password: "123456@#rwefgGFD$TWe",
-                created: chrono::Utc::now().naive_utc(),
-                email_verified: false,
-                timezone: "Africa/Abidjan",
+        let user_id = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| {
+                diesel::insert_into(users::users)
+                    .values(NewUser {
+                        username: "some-username",
+                        email: "email@example.com",
+                        password: "123456@#rwefgGFD$TWe",
+                        created: chrono::Utc::now().naive_utc(),
+                        email_verified: false,
+                        timezone: "Africa/Abidjan",
+                    })
+                    .returning(users::id)
+                    .get_result::<i32>(c)
+                    .unwrap()
             })
-            .returning(users::id)
-            .get_result::<i32>(&*Database::get_one(&client.rocket()).unwrap())
-            .unwrap();
+            .await;
         let mut res = client
             .get(format!(
                 "/auth/verify?code={}",
@@ -583,15 +592,21 @@ mod test {
                 .unwrap()
             ))
             .dispatch();
-        let string = res.body_string().expect("invalid body response");
+        let string = res.into_string().expect("invalid body response");
         assert!(string.contains("verified"));
         assert_eq!(
             {
-                users::users
-                    .filter(users::id.eq(user_id))
-                    .first::<User>(&*Database::get_one(&client.rocket()).unwrap())
+                Database::get_one(&client.rocket())
+                    .await
                     .unwrap()
-                    .email_verified
+                    .run(move |c| {
+                        users::users
+                            .filter(users::id.eq(user_id))
+                            .first::<User>(c)
+                            .unwrap()
+                            .email_verified
+                    })
+                    .await
             },
             true
         )

@@ -14,20 +14,28 @@ use crate::{
     utils::default_head,
 };
 
-fn get_all_notifications<B>(
+async fn retrieve_notifications(
     user_id: i32,
-    conn: &DatabaseConnection,
+    conn: &Database,
+) -> Result<Vec<Notification>, diesel::result::Error> {
+    use crate::schema::notifications::dsl as notifications;
+    conn.run(move |c| {
+        notifications::notifications
+            .filter(notifications::user_id.eq(user_id))
+            .filter(notifications::read.eq(false))
+            .load::<Notification>(c)
+    })
+    .await
+}
+
+fn render_notifications<B>(
+    data: Result<Vec<Notification>, diesel::result::Error>,
     custom_element: Option<B>,
 ) -> Html
 where
     B: Into<BodyNode>,
 {
-    use crate::schema::notifications::dsl as notifications;
-    match notifications::notifications
-        .filter(notifications::user_id.eq(user_id))
-        .filter(notifications::read.eq(false))
-        .load::<Notification>(&*conn)
-    {
+    match data {
         Ok(data) => Html::default()
             .head(default_head("Notifications".to_string()))
             .body({
@@ -71,7 +79,7 @@ where
                         .child(H1::new("Error retrieving notifications."))
                         .child(P::with_text(
                             "We encountered a database error trying to retrieve your
-                notifications from the database.",
+                    notifications from the database.",
                         )),
                 )
         }
@@ -79,54 +87,71 @@ where
 }
 
 #[get("/")]
-pub fn list_notifications(auth: AuthCookie, conn: Database) -> Html {
-    get_all_notifications::<P>(auth.0, &*conn, None)
+pub async fn list_notifications(auth: AuthCookie, conn: Database) -> Html {
+    let data = retrieve_notifications(auth.0, &conn).await;
+    render_notifications::<P>(data, None)
 }
 
 #[get("/mark_read/<id>")]
-pub fn mark_notification_as_read(id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn mark_notification_as_read(id: i32, auth: AuthCookie, conn: Database) -> Html {
     use crate::schema::notifications::dsl as notifications;
-    match diesel::update(notifications::notifications)
-        .set(notifications::read.eq(true))
-        .filter(notifications::id.eq(id))
-        .filter(notifications::user_id.eq(auth.0))
-        .execute(&*conn)
+    match conn
+        .run(move |c| {
+            diesel::update(notifications::notifications)
+                .set(notifications::read.eq(true))
+                .filter(notifications::id.eq(id))
+                .filter(notifications::user_id.eq(auth.0))
+                .execute(c)
+        })
+        .await
     {
-        Ok(_) => get_all_notifications(
-            auth.0,
-            &*conn,
-            Some(P::with_text("Marked that notification as read.")),
-        ),
-        Err(_) => get_all_notifications(
-            auth.0,
-            &*conn,
-            Some(P::with_text(
-                "We encountered a database error trying to mark that notification as read.",
-            )),
-        ),
+        Ok(_) => {
+            let data = retrieve_notifications(auth.0, &conn).await;
+            render_notifications(
+                data,
+                Some(P::with_text("Marked that notification as read.")),
+            )
+        }
+        Err(_) => {
+            let data = retrieve_notifications(auth.0, &conn).await;
+            render_notifications(
+                data,
+                Some(P::with_text(
+                    "We encountered a database error trying to mark that notification as read.",
+                )),
+            )
+        }
     }
 }
 
 #[get("/delete/<id>")]
-pub fn delete_notification_with_id(id: i32, auth: AuthCookie, conn: Database) -> Html {
+pub async fn delete_notification_with_id(id: i32, auth: AuthCookie, conn: Database) -> Html {
     use crate::schema::notifications::dsl as notifications;
-    match diesel::delete(
-        notifications::notifications
-            .filter(notifications::id.eq(id))
-            .filter(notifications::user_id.eq(auth.0)),
-    )
-    .execute(&*conn)
+    match conn
+        .run(move |c| {
+            diesel::delete(
+                notifications::notifications
+                    .filter(notifications::id.eq(id))
+                    .filter(notifications::user_id.eq(auth.0)),
+            )
+            .execute(c)
+        })
+        .await
     {
-        Ok(_) => get_all_notifications(
-            auth.0,
-            &*conn,
-            Some(P::with_text("Successfully deleted that notification.")),
-        ),
-        Err(_) => get_all_notifications(
-            auth.0,
-            &*conn,
-            Some(P::with_text("Successfully deleted that notification.")),
-        ),
+        Ok(_) => {
+            let data = retrieve_notifications(auth.0, &conn).await;
+            render_notifications(
+                data,
+                Some(P::with_text("Successfully deleted that notification.")),
+            )
+        }
+        Err(_) => {
+            let data = retrieve_notifications(auth.0, &conn).await;
+            render_notifications(
+                data,
+                Some(P::with_text("Successfully deleted that notification.")),
+            )
+        }
     }
 }
 
@@ -197,7 +222,7 @@ impl<'a> Notify<'a> {
 mod test {
     use bcrypt::DEFAULT_COST;
     use diesel::prelude::*;
-    use rocket::local::Client;
+    use rocket::local::blocking::Client;
 
     use crate::{
         db::{Database, TestPgConnection},
@@ -257,25 +282,33 @@ mod test {
             .get_results(conn)
             .expect("failed to add notifications")
     }
-    #[test]
-    fn test_can_view_notifications() {
+    #[tokio::test]
+    async fn test_can_view_notifications() {
         let rocket = launch();
-        create_dummy_setup(&*Database::get_one(&rocket).unwrap());
+        Database::get_one(&rocket)
+            .await
+            .unwrap()
+            .run(|c| create_dummy_setup(c))
+            .await;
         let client = Client::new(rocket).expect("needs a valid rocket instance");
         login_user(EMAIL, PASSWORD, &client);
         let mut notification_list_res = client.get("/notifications/").dispatch();
         let string = notification_list_res
-            .body_string()
+            .into_string()
             .expect("invalid body response");
         assert!(string.contains(NOTIFICATION_1_TITLE));
         assert!(string.contains(NOTIFICATION_1_CONTENTS));
         assert!(string.contains(NOTIFICATION_2_TITLE));
         assert!(string.contains(NOTIFICATION_1_CONTENTS));
     }
-    #[test]
-    fn test_can_mark_notifications_as_read() {
+    #[tokio::test]
+    async fn test_can_mark_notifications_as_read() {
         let rocket = launch();
-        let ids = create_dummy_setup(&*Database::get_one(&rocket).unwrap());
+        let ids = Database::get_one(&rocket)
+            .await
+            .unwrap()
+            .run(|c| create_dummy_setup(c))
+            .await;
         let client = Client::new(rocket).expect("needs a valid rocket instance");
 
         login_user(EMAIL, PASSWORD, &client);
@@ -283,38 +316,54 @@ mod test {
             .get(format!("/notifications/mark_read/{}", ids[0]))
             .dispatch();
         assert!(marked_as_read
-            .body_string()
+            .into_string()
             .expect("invalid body response")
             .contains("notification as read"));
         assert!({
             use crate::schema::notifications::dsl as notifications;
-            match notifications::notifications
-                .filter(notifications::id.eq(ids[0]))
-                .first::<Notification>(&*Database::get_one(client.rocket()).unwrap())
+            match Database::get_one(client.rocket())
+                .await
+                .unwrap()
+                .run(move |c| {
+                    notifications::notifications
+                        .filter(notifications::id.eq(ids[0]))
+                        .first::<Notification>(c)
+                })
+                .await
             {
                 Ok(t) => t.read,
                 Err(_) => false,
             }
         })
     }
-    #[test]
-    fn test_can_delete_notifications() {
+    #[tokio::test]
+    async fn test_can_delete_notifications() {
         let rocket = launch();
-        let ids = create_dummy_setup(&*Database::get_one(&rocket).unwrap());
+        let ids = Database::get_one(&rocket)
+            .await
+            .unwrap()
+            .run(move |c| create_dummy_setup(c))
+            .await;
         let client = Client::new(rocket).expect("needs a valid rocket instance");
         login_user(EMAIL, PASSWORD, &client);
         let mut deleted = client
             .get(format!("/notifications/delete/{}", ids[0]))
             .dispatch();
         assert!(deleted
-            .body_string()
+            .into_string()
             .expect("invalid body response")
             .contains("deleted that notification"));
         assert!({
             use crate::schema::notifications::dsl as notifications;
-            match notifications::notifications
-                .filter(notifications::id.eq(ids[0]))
-                .first::<Notification>(&*Database::get_one(client.rocket()).unwrap())
+            match Database::get_one(client.rocket())
+                .await
+                .unwrap()
+                .run(move |c| {
+                    notifications::notifications
+                        .filter(notifications::id.eq(ids[0]))
+                        .first::<Notification>(c)
+                })
+                .await
             {
                 Err(diesel::result::Error::NotFound) => true,
                 Ok(_) | Err(_) => false,

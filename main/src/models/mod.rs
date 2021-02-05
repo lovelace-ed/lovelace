@@ -20,6 +20,8 @@ use crate::{db::Database, schema::class};
 use crate::{notifications::NotificationPriority, schema::class_student};
 use diesel::prelude::*;
 
+pub mod calendar;
+
 #[derive(Queryable, Identifiable, Debug, Clone)]
 #[table_name = "users"]
 pub struct User {
@@ -73,19 +75,23 @@ pub struct Class {
 }
 
 impl Class {
-    pub fn with_id(id: i32, conn: Database) -> Result<Self, diesel::result::Error> {
+    pub async fn with_id(id: i32, conn: &Database) -> Result<Self, diesel::result::Error> {
         use crate::schema::class::dsl as class;
-        class::class.filter(class::id.eq(id)).first::<Self>(&*conn)
+        conn.run(move |c| class::class.filter(class::id.eq(id)).first::<Self>(c))
+            .await
     }
-    pub fn student_count(id: i32, conn: &DatabaseConnection) -> Result<i64, diesel::result::Error> {
+    pub async fn student_count(id: i32, conn: &Database) -> Result<i64, diesel::result::Error> {
         use crate::schema::class::dsl as class;
         use crate::schema::class_student::dsl as class_student;
 
-        class::class
-            .filter(class::id.eq(id))
-            .inner_join(class_student::class_student)
-            .select(diesel::dsl::count(class_student::id))
-            .get_result::<i64>(&*conn)
+        conn.run(move |c| {
+            class::class
+                .filter(class::id.eq(id))
+                .inner_join(class_student::class_student)
+                .select(diesel::dsl::count(class_student::id))
+                .get_result::<i64>(c)
+        })
+        .await
     }
 }
 

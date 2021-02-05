@@ -1,4 +1,30 @@
 table! {
+    caldav (id) {
+        id -> Int4,
+        calendar_id -> Int4,
+        username -> Text,
+        password -> Text,
+        url -> Text,
+    }
+}
+
+table! {
+    caldav_unauthenticated (id) {
+        id -> Int4,
+        calendar_id -> Int4,
+        url -> Text,
+    }
+}
+
+table! {
+    calendar (id) {
+        id -> Int4,
+        calendar_type -> Int4,
+        user_id -> Int4,
+    }
+}
+
+table! {
     class (id) {
         id -> Int4,
         name -> Text,
@@ -84,6 +110,16 @@ table! {
 }
 
 table! {
+    google_calendar (id) {
+        id -> Int4,
+        calendar_id -> Int4,
+        refresh_token -> Text,
+        access_token -> Text,
+        lovelace_calendar_id -> Text,
+    }
+}
+
+table! {
     notifications (id) {
         id -> Int4,
         title -> Text,
@@ -124,6 +160,9 @@ table! {
     }
 }
 
+joinable!(caldav -> calendar (calendar_id));
+joinable!(caldav_unauthenticated -> calendar (calendar_id));
+joinable!(calendar -> users (user_id));
 joinable!(class_asynchronous_task -> class (class_id));
 joinable!(class_asynchronous_task -> class_teacher (class_teacher_id));
 joinable!(class_message -> class (class_id));
@@ -138,6 +177,7 @@ joinable!(class_synchronous_task -> class_teacher (class_teacher_id));
 joinable!(class_teacher -> class (class_id));
 joinable!(class_teacher -> users (user_id));
 joinable!(class_teacher_invite -> class (class_id));
+joinable!(google_calendar -> calendar (calendar_id));
 joinable!(notifications -> users (user_id));
 joinable!(student_class_asynchronous_task -> class_asynchronous_task (class_asynchronous_task_id));
 joinable!(student_class_asynchronous_task -> class_student (class_student_id));
@@ -145,6 +185,9 @@ joinable!(student_class_synchronous_task -> class_student (class_student_id));
 joinable!(student_class_synchronous_task -> class_synchronous_task (class_synchronous_task_id));
 
 allow_tables_to_appear_in_same_query!(
+    caldav,
+    caldav_unauthenticated,
+    calendar,
     class,
     class_asynchronous_task,
     class_message,
@@ -153,6 +196,7 @@ allow_tables_to_appear_in_same_query!(
     class_synchronous_task,
     class_teacher,
     class_teacher_invite,
+    google_calendar,
     notifications,
     student_class_asynchronous_task,
     student_class_synchronous_task,

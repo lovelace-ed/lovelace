@@ -69,12 +69,12 @@ impl Display for Html {
 }
 
 #[cfg(feature = "with_rocket")]
-impl<'r> Responder<'r> for Html {
-    fn respond_to(self, _: &rocket::Request) -> rocket::response::Result<'r> {
+impl<'r, 'o: 'r> Responder<'r, 'o> for Html {
+    fn respond_to(self, _: &rocket::Request) -> rocket::response::Result<'o> {
         Response::build()
             .raw_status(self.status, self.reason.unwrap_or(""))
             .raw_header("Content-Type", "text/html")
-            .sized_body(Cursor::new(self.to_string()))
+            .streamed_body(Cursor::new(self.to_string()))
             .ok()
     }
 }
