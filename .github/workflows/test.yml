@@ -87,7 +87,7 @@ jobs:
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
           python -m pip install --upgrade xandikos
       - name: Test prospero
-        run: (xandikos --defaults -d .) & (cd prospero && cargo test --all-features)
+        run: (xandikos --defaults -d .) & (cd utils/prospero && cargo test --all-features)
 
 
   bors-report:
