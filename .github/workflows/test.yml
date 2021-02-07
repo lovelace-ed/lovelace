@@ -106,5 +106,5 @@ jobs:
         run: |
           [ ${{ needs.lint.result }} == success ] &&
           [ ${{ needs.test.result }} == success ] &&
-          [ ${{ needs.test-prospero }} == success ] &&
+          [ ${{ needs.test-prospero.result }} == success ] &&
           [ ${{ needs.test-malvolio-in-browser.result }} == success ] || exit 1
