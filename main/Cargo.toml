@@ -35,3 +35,6 @@ features = ["diesel_postgres_pool"]
 [dev-dependencies]
 tokio = { version = "1.0.2", features = ["macros", "rt"] }
 wiremock = "0.4.7"
+
+[profile.release]
+lto = true
