@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           git remote add gigalixir $GIGALIXIR
-          git push gigalixir master
+          git push -f gigalixir HEAD:refs/heads/master
         env:
           GIGALIXIR: ${{ secrets.GIGALIXIR }}
