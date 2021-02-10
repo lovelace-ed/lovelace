@@ -5,7 +5,7 @@ authors = ["Teymour Aldridge <teymour.aldridge@icloud.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = "0.4.6"
+rocket = "0.4.7"
 malvolio = { path = "../utils/malvolio", features = ["with_rocket"] }
 thiserror = "1.0.23"
 chrono = "0.4"
