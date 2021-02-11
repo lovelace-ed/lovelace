@@ -62,9 +62,9 @@ jobs:
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
           python -m pip install --upgrade xandikos
       - run: sudo apt install postgresql postgresql-contrib
-      - run: (xandikos --defaults -d .dav) & sleep 3 ; kill $!
+      - run: (xandikos --defaults -d dav) & sleep 3 ; kill $!
       - run: (cd dav/user/calendars && cp -r calendar lovelace)
-      - run: (xandikos --defaults -d .dav) & (cargo test --no-fail-fast --all)
+      - run: (xandikos --defaults -d dav) & (cargo test --no-fail-fast --all)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
   test-malvolio-in-browser:
