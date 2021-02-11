@@ -10,6 +10,7 @@
 //! NOTE: (because there's only one of me and thousands of lines of code) we are currently assuming
 //! that all tasks take 25 minutes, which is obviously not correct
 
+use crate::models::{ClassAsynchronousTask, StudentClassAsynchronousTask};
 use crate::{
     db::Database,
     models::{
@@ -20,9 +21,6 @@ use crate::{
         calendar, class, class_asynchronous_task, class_student, google_calendar,
         student_class_asynchronous_task, users,
     },
-};
-use crate::{
-    models::{ClassAsynchronousTask, StudentClassAsynchronousTask},
 };
 use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;

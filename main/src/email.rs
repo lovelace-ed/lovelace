@@ -137,32 +137,34 @@ mod tests {
             .mount(&mock_server)
             .await;
         let mail_sender = SendgridMailSender::default();
-        let result = mail_sender.send(
-            &EmailBuilder::default()
-                .subject("Some dummy subject".to_string())
-                .plaintext(Some("Hello World!".to_string()))
-                .html_text(Some("<p>Hello World!</p>".to_string()))
-                .recipients(
-                    RecipientsBuilder::default()
-                        .recipients(vec![RecipientBuilder::default()
-                            .email("someone@example.com".to_string())
-                            .name("Someone".to_string())
+        let result = mail_sender
+            .send(
+                &EmailBuilder::default()
+                    .subject("Some dummy subject".to_string())
+                    .plaintext(Some("Hello World!".to_string()))
+                    .html_text(Some("<p>Hello World!</p>".to_string()))
+                    .recipients(
+                        RecipientsBuilder::default()
+                            .recipients(vec![RecipientBuilder::default()
+                                .email("someone@example.com".to_string())
+                                .name("Someone".to_string())
+                                .build()
+                                .unwrap()])
                             .build()
-                            .unwrap()])
-                        .build()
-                        .unwrap(),
-                )
-                .from((
-                    "Some dummy sender".to_string(),
-                    "dummy_sender@example.com".to_string(),
-                ))
-                .reply_to((
-                    "Some dummy sender".to_string(),
-                    "dummy_sender@example.com".to_string(),
-                ))
-                .build()
-                .unwrap(),
-        ).await;
+                            .unwrap(),
+                    )
+                    .from((
+                        "Some dummy sender".to_string(),
+                        "dummy_sender@example.com".to_string(),
+                    ))
+                    .reply_to((
+                        "Some dummy sender".to_string(),
+                        "dummy_sender@example.com".to_string(),
+                    ))
+                    .build()
+                    .unwrap(),
+            )
+            .await;
         assert!(result.is_ok());
     }
 }

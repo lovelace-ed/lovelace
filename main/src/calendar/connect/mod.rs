@@ -1,10 +1,6 @@
 //! Calendar authentication.
 
-use crate::{
-    db::{Database},
-    models::calendar::Calendar,
-    utils::default_head,
-};
+use crate::{db::Database, models::calendar::Calendar, utils::default_head};
 use diesel::prelude::*;
 use malvolio::prelude::*;
 

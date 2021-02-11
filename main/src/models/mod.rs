@@ -4,7 +4,6 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use chrono::NaiveDateTime;
 
-
 use crate::schema::class_asynchronous_task;
 use crate::schema::class_message;
 use crate::schema::class_message_reply;
