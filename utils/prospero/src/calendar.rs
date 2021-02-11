@@ -9,7 +9,6 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use ical::parser::ical::component::IcalCalendar;
-use icalendar::Component;
 use reqwest::Method;
 use roxmltree::{Descendants, Document};
 use uuid::Uuid;

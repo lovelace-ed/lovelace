@@ -29,25 +29,10 @@ use crate::{
 pub const LOGIN_COOKIE: &str = "AUTHORISED";
 
 #[derive(ThisError, Debug)]
-pub enum AuthError {
-    #[error("not logged in")]
-    NotLoggedIn,
-    #[error("invalid cookie state")]
-    InvalidCookieIssued,
-}
+pub enum AuthError {}
 
 #[derive(Debug, Copy, Clone)]
 pub struct AuthCookie(pub i32);
-
-impl AuthCookie {
-    fn parse(c: Cookie) -> Result<Self, AuthError> {
-        let str = c.value();
-        match str.parse::<i32>() {
-            Ok(t) => Ok(Self(t)),
-            Err(_) => Err(AuthError::InvalidCookieIssued),
-        }
-    }
-}
 
 #[rocket::async_trait]
 impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
@@ -60,7 +45,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
             .cookies()
             .get_private(LOGIN_COOKIE)
             .and_then(|cookie| cookie.value().parse().ok())
-            .and_then(|id| Some(AuthCookie(id)))
+            .map(AuthCookie)
             .or_forward(())
     }
 }
@@ -401,7 +386,7 @@ pub async fn register(data: Form<RegisterData>, conn: Database, cookies: &Cookie
 }
 
 #[get("/logout")]
-pub fn logout(mut cookies: &CookieJar<'_>) -> Html {
+pub fn logout(cookies: &CookieJar<'_>) -> Html {
     if cookies.get_private(LOGIN_COOKIE).is_none() {
         return Html::default()
             .head(default_head("Cannot log you out.".to_string()))
@@ -486,7 +471,7 @@ mod test {
     #[test]
     fn test_register_validation() {
         let client = crate::utils::client();
-        let mut register_res = client
+        let register_res = client
             .post("/auth/register")
             .header(ContentType::Form)
             .body(format!(
@@ -517,14 +502,14 @@ mod test {
             .await
             .unwrap();
         // check register page looks right
-        let mut register_page = client.get("/auth/register").dispatch().await;
+        let register_page = client.get("/auth/register").dispatch().await;
         let page = register_page
             .into_string()
             .await
             .expect("invalid body response");
         assert!(page.contains("Register"));
         // test can register
-        let mut register_res = client
+        let register_res = client
             .post("/auth/register")
             .header(ContentType::Form)
             .body(format!(
@@ -543,14 +528,14 @@ mod test {
             .expect("invalid body response");
         assert!(response.contains("sucessfully registered"));
         // test login page looks right
-        let mut login_page = client.get("/auth/login").dispatch().await;
+        let login_page = client.get("/auth/login").dispatch().await;
         let page = login_page
             .into_string()
             .await
             .expect("invalid body response");
         assert!(page.contains("Login"));
         // test can login
-        let mut login_res = client
+        let login_res = client
             .post("/auth/login")
             .header(ContentType::Form)
             .body(format!("identifier={}&password={}", USERNAME, PASSWORD))
@@ -592,7 +577,7 @@ mod test {
                     .unwrap()
             })
             .await;
-        let mut res = client
+        let res = client
             .get(format!(
                 "/auth/verify?code={}",
                 jwt::encode(

@@ -3,7 +3,7 @@
 use crate::{
     models::calendar::{Calendar, GoogleCalendar},
     schema::{calendar, google_calendar},
-    utils::{launch, login_user_async, logout, logout_async},
+    utils::{launch, login_user_async, logout_async},
 };
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
@@ -14,7 +14,6 @@ use wiremock::{matchers::method, Mock, MockServer, ResponseTemplate};
 use crate::{
     db::{Database, DatabaseConnection},
     models::{NewClass, NewClassStudent, NewClassTeacher, NewUser},
-    utils::login_user,
 };
 
 use super::connect::gcal::StateValues;
@@ -95,14 +94,14 @@ async fn unauthenticated_caldav_integration_test() {
     let client = rocket::local::asynchronous::Client::tracked(launch())
         .await
         .unwrap();
-    let (class_id, student_id, teacher_id) = Database::get_one(client.rocket())
+    let (_class_id, _student_id, _teacher_id) = Database::get_one(client.rocket())
         .await
         .unwrap()
         .run(|c| setup_env(c))
         .await;
 
     // test user can link calendar
-    let mut add_calendar_response = client
+    let add_calendar_response = client
         .post("/calendar/unauthenticated_caldav/link")
         .header(ContentType::Form)
         .dispatch()
@@ -143,7 +142,7 @@ async fn google_oauth_caldav_integration_test() {
         .mount(&test_server)
         .await;
 
-    let (class_id, student_id, teacher_id) = Database::get_one(client.rocket())
+    let (class_id, student_id, _teacher_id) = Database::get_one(client.rocket())
         .await
         .unwrap()
         .run(|c| setup_env(c))
@@ -175,7 +174,7 @@ async fn google_oauth_caldav_integration_test() {
         "/calendar/gcal/callback?state={}&code={}",
         state_token, AUTH_CODE
     );
-    let mut res = client.get(inp).dispatch().await;
+    let res = client.get(inp).dispatch().await;
     let string = res.into_string().await.unwrap();
     assert!(string.contains("Connected your calendar"));
     let (_, google_calendar) = Database::get_one(&client.rocket())

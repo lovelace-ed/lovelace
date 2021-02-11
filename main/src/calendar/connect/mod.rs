@@ -1,7 +1,7 @@
 //! Calendar authentication.
 
 use crate::{
-    db::{Database, DatabaseConnection},
+    db::{Database},
     models::calendar::Calendar,
     utils::default_head,
 };

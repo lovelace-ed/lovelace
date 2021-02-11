@@ -768,7 +768,7 @@ mod synchronous_task_tests {
             .run(|c| populate_database(c))
             .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
-        let mut view_task_res = client
+        let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
         let string = view_task_res.into_string().expect("invalid body response");
@@ -785,7 +785,7 @@ mod synchronous_task_tests {
             .await;
 
         login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
-        let mut view_task_res = client
+        let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
         let string = view_task_res.into_string().expect("invalid body response");
@@ -793,7 +793,7 @@ mod synchronous_task_tests {
         assert!(string.contains(TASK_1_DESCRIPTION));
 
         login_user(STUDENT_2_USERNAME, STUDENT_2_PASSWORD, &client);
-        let mut view_task_res = client
+        let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
             .dispatch();
         let string = view_task_res.into_string().expect("invalid body response");
@@ -812,7 +812,7 @@ mod synchronous_task_tests {
             .await;
         login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client);
 
-        let mut res = client
+        let res = client
             .post(format!("/class/{}/task/sync/create", class_id))
             .header(ContentType::Form)
             .body(format!(
@@ -863,7 +863,7 @@ mod synchronous_task_tests {
             .run(|c| populate_database(c))
             .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
-        let mut res = client
+        let res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
             .header(ContentType::Form)
             .body(format!(
@@ -894,7 +894,7 @@ mod synchronous_task_tests {
             .run(|c| populate_database(c))
             .await;
         login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
-        let mut res = client
+        let res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
             .header(ContentType::Form)
             .body(format!(
@@ -923,7 +923,7 @@ mod synchronous_task_tests {
             .run(|c| populate_database(c))
             .await;
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
-        let mut res = client
+        let res = client
             .get(format!("/class/{}/task/sync/{}/delete", class_id, tasks[1]))
             .dispatch();
         let string = res.into_string().expect("invalid body response");

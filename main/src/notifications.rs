@@ -202,6 +202,7 @@ pub struct Notify<'a> {
 
 impl<'a> Notify<'a> {
     /// Add the current struct to the database.
+    #[allow(unused)]
     pub fn create(&self, conn: &DatabaseConnection) -> Result<(), diesel::result::Error> {
         use crate::schema::notifications::dsl as notifications;
         diesel::insert_into(notifications::notifications)
@@ -290,9 +291,9 @@ mod test {
             .unwrap()
             .run(|c| create_dummy_setup(c))
             .await;
-        let client = Client::new(rocket).expect("needs a valid rocket instance");
+        let client = Client::tracked(rocket).expect("needs a valid rocket instance");
         login_user(EMAIL, PASSWORD, &client);
-        let mut notification_list_res = client.get("/notifications/").dispatch();
+        let notification_list_res = client.get("/notifications/").dispatch();
         let string = notification_list_res
             .into_string()
             .expect("invalid body response");
@@ -312,7 +313,7 @@ mod test {
         let client = Client::new(rocket).expect("needs a valid rocket instance");
 
         login_user(EMAIL, PASSWORD, &client);
-        let mut marked_as_read = client
+        let marked_as_read = client
             .get(format!("/notifications/mark_read/{}", ids[0]))
             .dispatch();
         assert!(marked_as_read
@@ -346,7 +347,7 @@ mod test {
             .await;
         let client = Client::new(rocket).expect("needs a valid rocket instance");
         login_user(EMAIL, PASSWORD, &client);
-        let mut deleted = client
+        let deleted = client
             .get(format!("/notifications/delete/{}", ids[0]))
             .dispatch();
         assert!(deleted

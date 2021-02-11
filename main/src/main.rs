@@ -28,6 +28,7 @@ extern crate cfg_if;
 extern crate jsonwebtoken as jwt;
 
 use malvolio::prelude::{Body, Content, Head, Href, Html, Meta, MetaName, A, H1, P};
+use rocket::Rocket;
 use utils::launch;
 
 mod auth;
@@ -69,6 +70,7 @@ fn index() -> Html {
         )
 }
 
-fn main() {
-    launch().launch();
+#[rocket::launch]
+fn rocket() -> Rocket {
+    launch()
 }

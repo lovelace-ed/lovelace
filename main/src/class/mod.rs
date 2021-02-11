@@ -725,13 +725,13 @@ mod tests {
 
         // test can create class
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
-        let mut create_class_res = client.get("/class/create").dispatch();
+        let create_class_res = client.get("/class/create").dispatch();
         let string = create_class_res
             .into_string()
             .expect("invalid body response");
         assert!(string.contains("Create a class"));
 
-        let mut create_class_res = client
+        let create_class_res = client
             .post("/class/create")
             .header(ContentType::Form)
             .body(format!(
@@ -745,7 +745,7 @@ mod tests {
             .contains("Successfully created"));
 
         // test created class shows up on teacher class list
-        let mut get_class_list = client.get("/class").dispatch();
+        let get_class_list = client.get("/class").dispatch();
         let string = get_class_list.into_string().expect("invalid body response");
         assert!(string.contains(CLASS_NAME));
 
@@ -761,7 +761,7 @@ mod tests {
 
         // test created class overview page can be seen
 
-        let mut class_overview_page = client.get(format!("/class/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/class/{}", id)).dispatch();
         let string = class_overview_page
             .into_string()
             .expect("invalid body string");
@@ -778,7 +778,7 @@ mod tests {
 
         // test teacher can see settings page
 
-        let mut settings_page = client.get(format!("/class/{}/settings", id)).dispatch();
+        let settings_page = client.get(format!("/class/{}/settings", id)).dispatch();
         let string = settings_page.into_string().unwrap();
         assert!(string.contains("delete"));
 
@@ -787,7 +787,7 @@ mod tests {
 
         login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
 
-        let mut invalid_join_attempt = client
+        let invalid_join_attempt = client
             .get("/join/SOME_RANDOM_CODE_WHICH_DOES_NOT_WORK+")
             .dispatch();
         let string = invalid_join_attempt.into_string().unwrap();
@@ -795,13 +795,13 @@ mod tests {
 
         // test students can join class
 
-        let mut valid_join_attempt = client.get(format!("/join/{}", join_code)).dispatch();
+        let valid_join_attempt = client.get(format!("/join/{}", join_code)).dispatch();
         let string = valid_join_attempt.into_string().unwrap();
         assert!(string.contains("joined this class"));
 
         // test joined classes show up on student class list
 
-        let mut student_class_list = client.get("/class".to_string()).dispatch();
+        let student_class_list = client.get("/class".to_string()).dispatch();
         let string = student_class_list
             .into_string()
             .expect("invalid body response");
@@ -809,7 +809,7 @@ mod tests {
 
         // test students can see class overview page
 
-        let mut class_overview_page = client.get(format!("/class/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/class/{}", id)).dispatch();
         let string = class_overview_page
             .into_string()
             .expect("invalid body response");
@@ -822,13 +822,13 @@ mod tests {
 
         login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client);
 
-        let mut delete_page = client.get(format!("/class/{}/delete", id)).dispatch();
+        let delete_page = client.get(format!("/class/{}/delete", id)).dispatch();
         let string = delete_page.into_string().expect("invalid body response");
         assert!(string.contains("Delete this class"));
 
         // test can't delete class without correct name
 
-        let mut invalid_delete_request = client
+        let invalid_delete_request = client
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name=wrong", id))
@@ -840,7 +840,7 @@ mod tests {
 
         // test can't delete class without correct class id
 
-        let mut invalid_delete_request = client
+        let invalid_delete_request = client
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", 100000000, CLASS_NAME))
@@ -852,7 +852,7 @@ mod tests {
 
         // test teacher can delete class
 
-        let mut invalid_delete_request = client
+        let invalid_delete_request = client
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", id, CLASS_NAME))
@@ -864,7 +864,7 @@ mod tests {
 
         // test teacher can't see deleted classes
 
-        let mut class_overview_page = client.get(format!("/client/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/client/{}", id)).dispatch();
         let string = class_overview_page
             .into_string()
             .expect("invalid body string");
@@ -875,7 +875,7 @@ mod tests {
 
         logout(&client);
         login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
-        let mut class_overview_page = client.get(format!("/client/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/client/{}", id)).dispatch();
         let string = class_overview_page
             .into_string()
             .expect("invalid body string");

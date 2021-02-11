@@ -11,9 +11,12 @@ use malvolio::prelude::*;
 
 use super::default_head;
 
-/// Useful where an error needs to be returned.
+/// Return this where an error that shouldn't happen has happened.
+#[allow(unused)]
 pub fn undiagnosed_server_error() -> Html {
-    todo!()
+    Html::new()
+        .head(default_head("Undiagnosed error"))
+        .body(Body::new().child(H1::new("Something strange is happening.")))
 }
 
 /// An error with the database.

@@ -11,7 +11,7 @@ use rocket::figment::{
     value::{Map, Value},
 };
 use rocket::tokio::sync::RwLock;
-use rocket::{fairing::AdHoc, Config, Rocket};
+use rocket::{fairing::AdHoc, Rocket};
 #[cfg(test)]
 use rocket::{http::ContentType, local::blocking::Client};
 use std::collections::HashMap;
@@ -150,7 +150,7 @@ pub fn client() -> Client {
 
 #[cfg(test)]
 pub fn create_user(username: &str, email: &str, timezone: &str, password: &str, client: &Client) {
-    let mut register_res = client
+    let register_res = client
         .post("/auth/register")
         .header(ContentType::Form)
         .body(format!(
@@ -167,7 +167,7 @@ pub fn create_user(username: &str, email: &str, timezone: &str, password: &str, 
 #[cfg(test)]
 /// Logs in a user using a synchronous client
 pub fn login_user(identifier: &str, password: &str, client: &Client) {
-    let mut login_res = client
+    let login_res = client
         .post("/auth/login")
         .header(ContentType::Form)
         .body(format!("identifier={}&password={}", identifier, password))

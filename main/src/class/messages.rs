@@ -743,7 +743,7 @@ mod tests {
             .run(|c| setup_test_env(c))
             .await;
         login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
-        let mut view_message_res = client
+        let view_message_res = client
             .get(format!("/class/{}/message", class_id))
             .dispatch();
         let string = view_message_res
@@ -775,7 +775,7 @@ mod tests {
             .body(format!("contents={}", REPLY_CONTENTS))
             .dispatch();
         assert_eq!(reply_res.status().code, 303);
-        let mut message_page = client
+        let message_page = client
             .get(format!(
                 "/class/{}/message/{}/view",
                 class_id, message_ids[0]
@@ -809,7 +809,7 @@ mod tests {
             .body(format!("contents={}", NEW_MESSAGE_CONTENTS))
             .dispatch();
         assert_eq!(edit_message_res.status().code, 303);
-        let mut view_message_replies = client
+        let view_message_replies = client
             .get(format!("/class/{}/message/{}/view", class_id, message_id_1))
             .dispatch();
         let string = view_message_replies

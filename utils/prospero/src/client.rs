@@ -91,7 +91,7 @@ impl DAVClient {
         }
     }
     /// Construct a new CalDAV client which uses OAuth authentication.
-    pub fn new_oauth(url: String, access_token: String, refresh_token: String) -> Self {
+    pub fn new_oauth(_url: String, _access_token: String, _refresh_token: String) -> Self {
         todo!()
     }
     /// Returns a list of calendars.

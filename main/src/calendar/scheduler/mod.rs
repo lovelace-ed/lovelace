@@ -22,7 +22,6 @@ use crate::{
     },
 };
 use crate::{
-    db::DatabaseConnection,
     models::{ClassAsynchronousTask, StudentClassAsynchronousTask},
 };
 use chrono::{DateTime, Duration, Utc};
@@ -39,8 +38,6 @@ use uuid::Uuid;
 
 #[derive(ThisError, Debug)]
 pub enum SchedulingError {
-    #[error("couldn't schedule")]
-    OtherError,
     #[error("database error")]
     DatabaseError(diesel::result::Error),
     #[error("scheduling error")]
@@ -95,7 +92,7 @@ async fn map_user_events_to_free_time(events: Vec<EventPointer>) -> Vec<FreeSlot
 ///
 /// Schedules cannot be created for people who have not connected a calendar.
 pub async fn two_week_schedule(user_id: i32, conn: Arc<Database>) -> Result<(), SchedulingError> {
-    let (user, calendar) = conn
+    let (_user, calendar) = conn
         .run(move |c| {
             users::table
                 .filter(users::id.eq(user_id))
@@ -143,7 +140,7 @@ pub async fn two_week_schedule(user_id: i32, conn: Arc<Database>) -> Result<(), 
                         DAVClient::new_oauth(
                             user_calendar_url,
                             gcal.access_token.clone(),
-                            gcal.refresh_token.clone(),
+                            gcal.refresh_token,
                         ),
                     )
                 }
