@@ -145,7 +145,7 @@ pub fn error_message(title: String, message: String) -> Html {
 #[cfg(test)]
 pub fn client() -> Client {
     let rocket = launch();
-    Client::new(rocket).expect("needs a valid rocket instance")
+    Client::tracked(rocket).expect("needs a valid rocket instance")
 }
 
 #[cfg(test)]

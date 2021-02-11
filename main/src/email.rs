@@ -40,19 +40,18 @@ pub enum EmailSendError {
     NetworkError,
 }
 
+#[rocket::async_trait]
 pub trait SendMail {
     /// Sends an email
-    ///
-    /// After Rocket cuts a release with `async` support this method will be refactored to return a
-    /// future.
-    fn send(&self, email: &Email) -> Result<(), EmailSendError>;
+    async fn send(&self, email: &Email) -> Result<(), EmailSendError>;
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct SendgridMailSender {}
 
+#[rocket::async_trait]
 impl SendMail for SendgridMailSender {
-    fn send(&self, email: &Email) -> Result<(), EmailSendError> {
+    async fn send(&self, email: &Email) -> Result<(), EmailSendError> {
         let content = {
             let mut result = vec![];
             if let Some(text) = &email.plaintext {
@@ -89,19 +88,22 @@ impl SendMail for SendgridMailSender {
                 }
             }
         );
-        match ureq::post(&format!(
-            "{}/v3/mail/send",
-            std::env::var("SENDGRID_API_SERVER")
-                .unwrap_or_else(|_| "https://api.sendgrid.com".to_string())
-        ))
-        .set(
-            "Authorization",
-            &format!(
-                "Bearer: {}",
-                std::env::var("SENDGRID_API_KEY").expect("no sendgrid api key provided")
-            ),
-        )
-        .send_json(res)
+        match reqwest::Client::new()
+            .post(&format!(
+                "{}/v3/mail/send",
+                std::env::var("SENDGRID_API_SERVER")
+                    .unwrap_or_else(|_| "https://api.sendgrid.com".to_string())
+            ))
+            .header(
+                "Authorization",
+                &format!(
+                    "Bearer: {}",
+                    std::env::var("SENDGRID_API_KEY").expect("no sendgrid api key provided")
+                ),
+            )
+            .body(res.to_string())
+            .send()
+            .await
         {
             Ok(_) => Ok(()),
             Err(e) => {
@@ -160,7 +162,7 @@ mod tests {
                 ))
                 .build()
                 .unwrap(),
-        );
+        ).await;
         assert!(result.is_ok());
     }
 }

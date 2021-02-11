@@ -11,7 +11,7 @@ use malvolio::prelude::{
 };
 use regex::Regex;
 use rocket::{
-    http::{Cookie, CookieJar, RawStr, Status},
+    http::{Cookie, CookieJar, RawStr},
     outcome::IntoOutcome,
     request::{Form, FromRequest},
 };
@@ -358,6 +358,7 @@ pub async fn register(data: Form<RegisterData>, conn: Database, cookies: &Cookie
                         .build()
                         .unwrap(),
                 )
+                .await
                 .expect("fatal: failed to send verification email");
             Html::default()
                 .head(default_head("You have sucessfully registered!".to_string()))
@@ -501,7 +502,7 @@ mod test {
         assert!(response.contains("Invalid email"));
     }
 
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_auth() {
         let mock_server = MockServer::start().await;
         std::env::set_var("SENDGRID_API_KEY", "SomeRandomAPIKey");
@@ -512,10 +513,15 @@ mod test {
             .expect(1..)
             .mount(&mock_server)
             .await;
-        let client = crate::utils::client();
+        let client = rocket::local::asynchronous::Client::tracked(crate::utils::launch())
+            .await
+            .unwrap();
         // check register page looks right
-        let mut register_page = client.get("/auth/register").dispatch();
-        let page = register_page.into_string().expect("invalid body response");
+        let mut register_page = client.get("/auth/register").dispatch().await;
+        let page = register_page
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(page.contains("Register"));
         // test can register
         let mut register_res = client
@@ -529,32 +535,45 @@ mod test {
                 password = PASSWORD,
                 timezone = TIMEZONE
             ))
-            .dispatch();
-        let response = register_res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let response = register_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(response.contains("sucessfully registered"));
         // test login page looks right
-        let mut login_page = client.get("/auth/login").dispatch();
-        let page = login_page.into_string().expect("invalid body response");
+        let mut login_page = client.get("/auth/login").dispatch().await;
+        let page = login_page
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(page.contains("Login"));
         // test can login
         let mut login_res = client
             .post("/auth/login")
             .header(ContentType::Form)
             .body(format!("identifier={}&password={}", USERNAME, PASSWORD))
-            .dispatch();
+            .dispatch()
+            .await;
         // check cookie set
         login_res
             .cookies()
             .iter()
             .find(|c| c.name() == LOGIN_COOKIE)
             .unwrap();
-        let page = login_res.into_string().expect("invalid body response");
+        let page = login_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(page.contains("now logged in"));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_email_verification() {
         use crate::schema::users::dsl as users;
-        let client = crate::utils::client();
+        let client = rocket::local::asynchronous::Client::tracked(crate::utils::launch())
+            .await
+            .unwrap();
         let user_id = Database::get_one(&client.rocket())
             .await
             .unwrap()
@@ -591,8 +610,9 @@ mod test {
                 )
                 .unwrap()
             ))
-            .dispatch();
-        let string = res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
         assert!(string.contains("verified"));
         assert_eq!(
             {
