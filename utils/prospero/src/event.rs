@@ -12,7 +12,7 @@ pub(crate) const DELETE: &[u8] = b"DELETE";
 use crate::{
     calendar::get_calendar_data,
     client::{DavClient, REPORT},
-    error::{CalDAVError, CalDAVResult},
+    error::{CalDavError, CalDavResult},
 };
 
 const DTSTART: &str = "DTSTART";
@@ -34,7 +34,7 @@ pub struct EventPointer {
 
 impl EventPointer {
     /// Resolves the request and retreives the event from the server.s
-    async fn resolve(&self) -> CalDAVResult<IcalEvent> {
+    async fn resolve(&self) -> CalDavResult<IcalEvent> {
         let borrow = self.data.borrow();
         match &*borrow {
             EventPointerData::FetchedEvent(event) => Ok(event.clone()),
@@ -74,7 +74,7 @@ impl EventPointer {
                     .flatten()
                     .next()
                     .map(Ok)
-                    .unwrap_or(Err(CalDAVError::OtherError))?;
+                    .unwrap_or(Err(CalDavError::OtherError))?;
                 std::mem::drop(borrow);
                 let mut d = self.data.borrow_mut();
                 *d = EventPointerData::FetchedEvent(event.clone());
@@ -85,7 +85,7 @@ impl EventPointer {
     }
 
     /// Refreshes the event (by sending a request to the server.)
-    pub async fn refresh(&self) -> CalDAVResult<()> {
+    pub async fn refresh(&self) -> CalDavResult<()> {
         let borrow = self.data.borrow();
         let data = match &*borrow {
             EventPointerData::FetchedEvent(event) => EventPointerData::CreatedEventResponse {
@@ -94,11 +94,11 @@ impl EventPointer {
                     .iter()
                     .find(|p| p.name == "UID")
                     .map(Ok)
-                    .unwrap_or(Err(CalDAVError::OtherError))?
+                    .unwrap_or(Err(CalDavError::OtherError))?
                     .value
                     .clone()
                     .map(Ok)
-                    .unwrap_or(Err(CalDAVError::OtherError))?,
+                    .unwrap_or(Err(CalDavError::OtherError))?,
             },
             EventPointerData::CreatedEventResponse { uid } => {
                 EventPointerData::CreatedEventResponse { uid: uid.clone() }
@@ -111,7 +111,7 @@ impl EventPointer {
     }
 
     /// Returns the start time of the event.
-    pub async fn start_time(&self) -> CalDAVResult<DateTime<Utc>> {
+    pub async fn start_time(&self) -> CalDavResult<DateTime<Utc>> {
         self.resolve()
             .await?
             .properties
@@ -119,11 +119,11 @@ impl EventPointer {
             .find(|prop| prop.name == DTSTART)
             .map(|prop| prop.value.as_ref())
             .flatten()
-            .map(|t| parse_date(t).map_err(|_| CalDAVError::OtherError))
-            .unwrap_or(Err(CalDAVError::OtherError))
+            .map(|t| parse_date(t).map_err(|_| CalDavError::OtherError))
+            .unwrap_or(Err(CalDavError::OtherError))
     }
     /// Returns the finish time of the event.
-    pub async fn end_time(&self) -> CalDAVResult<DateTime<Utc>> {
+    pub async fn end_time(&self) -> CalDavResult<DateTime<Utc>> {
         self.resolve()
             .await?
             .properties
@@ -131,11 +131,11 @@ impl EventPointer {
             .find(|prop| prop.name == DTEND)
             .map(|prop| prop.value.as_ref())
             .flatten()
-            .map(|t| parse_date(t).map_err(|_| CalDAVError::OtherError))
-            .unwrap_or(Err(CalDAVError::OtherError))
+            .map(|t| parse_date(t).map_err(|_| CalDavError::OtherError))
+            .unwrap_or(Err(CalDavError::OtherError))
     }
     /// Returns the summary of this event.
-    pub async fn summary(&self) -> CalDAVResult<String> {
+    pub async fn summary(&self) -> CalDavResult<String> {
         self.resolve()
             .await?
             .properties
@@ -144,9 +144,9 @@ impl EventPointer {
             .map(|prop| prop.value.clone())
             .flatten()
             .map(Ok)
-            .unwrap_or(Err(CalDAVError::OtherError))
+            .unwrap_or(Err(CalDavError::OtherError))
     }
-    pub async fn delete(self) -> CalDAVResult<()> {
+    pub async fn delete(self) -> CalDavResult<()> {
         let borrow = self.data.borrow();
         let uid = match &*borrow {
             EventPointerData::FetchedEvent(event) => event
@@ -154,11 +154,11 @@ impl EventPointer {
                 .iter()
                 .find(|p| p.name == "UID")
                 .map(Ok)
-                .unwrap_or(Err(CalDAVError::OtherError))?
+                .unwrap_or(Err(CalDavError::OtherError))?
                 .value
                 .clone()
                 .map(Ok)
-                .unwrap_or(Err(CalDAVError::OtherError))?,
+                .unwrap_or(Err(CalDavError::OtherError))?,
             EventPointerData::CreatedEventResponse { uid } => uid.clone(),
         };
         std::mem::drop(borrow);

@@ -26,7 +26,7 @@ use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
 use prospero::{
     client::DavClient,
-    error::CalDAVError,
+    error::CalDavError,
     event::EventPointer,
     icalendar::{Component, Event},
 };
@@ -39,11 +39,11 @@ pub enum SchedulingError {
     #[error("database error")]
     DatabaseError(diesel::result::Error),
     #[error("scheduling error")]
-    SchedulingError(prospero::error::CalDAVError),
+    SchedulingError(prospero::error::CalDavError),
 }
 
-impl From<CalDAVError> for SchedulingError {
-    fn from(e: CalDAVError) -> Self {
+impl From<CalDavError> for SchedulingError {
+    fn from(e: CalDavError) -> Self {
         SchedulingError::SchedulingError(e)
     }
 }

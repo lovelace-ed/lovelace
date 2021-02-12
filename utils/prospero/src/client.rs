@@ -11,7 +11,7 @@ pub(crate) const REPORT: &[u8] = b"REPORT";
 
 use crate::{
     calendar::Calendar,
-    error::{CalDAVError, CalDAVResult},
+    error::{CalDavError, CalDavResult},
 };
 
 /// The CalDAV client. This is the entry point to the application, and you will need one of these
@@ -26,7 +26,7 @@ pub struct DavClient {
 }
 
 impl DavClient {
-    pub async fn request<S>(&self, method: Method, url: S) -> CalDAVResult<RequestBuilder>
+    pub async fn request<S>(&self, method: Method, url: S) -> CalDavResult<RequestBuilder>
     where
         S: AsRef<str>,
     {
@@ -38,7 +38,7 @@ impl DavClient {
         request: RequestBuilder,
         username: &str,
         password: &str,
-    ) -> CalDAVResult<RequestBuilder> {
+    ) -> CalDavResult<RequestBuilder> {
         let res = self.client.get(&self.url).send().await?;
         let headers = res.headers();
         let wwwauth = headers["www-authenticate"].to_str()?;
@@ -52,7 +52,7 @@ impl DavClient {
     async fn authenticate_cache_http(
         &self,
         request: RequestBuilder,
-    ) -> CalDAVResult<RequestBuilder> {
+    ) -> CalDavResult<RequestBuilder> {
         match self.auth_scheme {
             AuthScheme::UsernamePassword(ref username, ref password) => {
                 if let Some(ref auth) = *self.auth_header.borrow() {
@@ -97,7 +97,7 @@ impl DavClient {
     /// Returns a list of calendars.
     ///
     /// I think the spec discourages using this.
-    pub async fn calendars(&'_ self) -> CalDAVResult<Vec<Calendar>> {
+    pub async fn calendars(&'_ self) -> CalDavResult<Vec<Calendar>> {
         let body_string = xml! {
             <?xml version="1.0" encoding="utf-8" ?>
             <D:principal-match xmlns:D="DAV:">
@@ -124,7 +124,7 @@ impl DavClient {
     }
     /// Creates a new calendar from the provided `MakeCalendar` struct. If any of the fields on the
     /// `MkCalendar` struct are `None` a uuid will be used in their place.
-    pub async fn make_calendar(&'_ self, cal: MakeCalendar) -> CalDAVResult<Calendar> {
+    pub async fn make_calendar(&'_ self, cal: MakeCalendar) -> CalDavResult<Calendar> {
         let url = format!(
             "{}/{}",
             self.url,
@@ -156,7 +156,7 @@ impl DavClient {
                 client: Arc::new(self.clone()),
                 url: Arc::new(self.url.to_string()),
             })
-            .map_err(CalDAVError::RequestError)
+            .map_err(CalDavError::RequestError)
     }
 }
 

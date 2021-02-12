@@ -2,35 +2,35 @@ use http::uri::InvalidUri;
 use reqwest::{header::ToStrError, Error};
 
 #[derive(Error, Debug)]
-pub enum CalDAVError {
+pub enum CalDavError {
     #[error("request error")]
     RequestError(Error),
     #[error("other error")]
     OtherError,
 }
 
-impl From<digest_auth::Error> for CalDAVError {
+impl From<digest_auth::Error> for CalDavError {
     fn from(_: digest_auth::Error) -> Self {
         Self::OtherError
     }
 }
 
-impl From<InvalidUri> for CalDAVError {
+impl From<InvalidUri> for CalDavError {
     fn from(_: InvalidUri) -> Self {
-        CalDAVError::OtherError
+        CalDavError::OtherError
     }
 }
 
-impl From<ToStrError> for CalDAVError {
+impl From<ToStrError> for CalDavError {
     fn from(_: ToStrError) -> Self {
-        CalDAVError::OtherError
+        CalDavError::OtherError
     }
 }
 
-impl From<Error> for CalDAVError {
+impl From<Error> for CalDavError {
     fn from(e: Error) -> Self {
         Self::RequestError(e)
     }
 }
 
-pub type CalDAVResult<T> = Result<T, CalDAVError>;
+pub type CalDavResult<T> = Result<T, CalDavError>;

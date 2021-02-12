@@ -4,7 +4,7 @@ use atomic_refcell::AtomicRefCell;
 
 use crate::{
     client::{DavClient, REPORT},
-    error::{CalDAVError, CalDAVResult},
+    error::{CalDavError, CalDavResult},
     event::{EventPointer, EventPointerData, DATETIME_FORMAT},
 };
 use chrono::{DateTime, Utc};
@@ -24,7 +24,7 @@ pub struct Etag(String);
 
 impl Calendar {
     /// Saves a new event in the calendar.
-    pub async fn save_event(&self, event: icalendar::Event) -> CalDAVResult<EventPointer> {
+    pub async fn save_event(&self, event: icalendar::Event) -> CalDavResult<EventPointer> {
         let mut calendar = icalendar::Calendar::new();
         calendar.push(event);
         let uid = Uuid::new_v4().to_string();
@@ -38,7 +38,7 @@ impl Calendar {
             .body(calendar.to_string());
         let res = req.send().await?;
         if res.status().as_u16() != 201 && res.status() != 200 && res.status().as_u16() != 207 {
-            return Err(CalDAVError::OtherError);
+            return Err(CalDavError::OtherError);
         }
         Ok(EventPointer {
             data: AtomicRefCell::new(EventPointerData::CreatedEventResponse { uid }),
@@ -52,7 +52,7 @@ impl Calendar {
         &self,
         start: DateTime<Utc>,
         end: DateTime<Utc>,
-    ) -> CalDAVResult<Vec<EventPointer>> {
+    ) -> CalDavResult<Vec<EventPointer>> {
         let start = start.format(DATETIME_FORMAT).to_string();
         let end = end.format(DATETIME_FORMAT).to_string();
         let body_string = xml! {
