@@ -95,11 +95,11 @@ pub struct AccessTokenResponse {
 }
 
 #[get("/callback?<code>&<error>&<state>")]
-pub async fn gcal_callback<'r>(
+pub async fn gcal_callback(
     code: Option<String>,
     error: Option<String>,
     state: Option<String>,
-    oauth_state_values: State<'r, StateValues>,
+    oauth_state_values: State<'_, StateValues>,
     conn: Database,
 ) -> Html {
     use crate::schema::calendar;
@@ -113,7 +113,7 @@ pub async fn gcal_callback<'r>(
         if let Some(state) = state {
             if let Some(entry) = lock.get(&state) {
                 let entry = entry.clone();
-                // we forcibly drop the lock here because we want to read from it later.
+                // we drop the lock here because we want to read from it later.
                 std::mem::drop(lock);
                 let access_token_response: AccessTokenResponse = ureq::post(
                     &std::env::var("TOKEN_URL")

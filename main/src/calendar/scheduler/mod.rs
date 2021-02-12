@@ -63,7 +63,7 @@ struct FreeSlot {
 async fn map_user_events_to_free_time(events: Vec<EventPointer>) -> Vec<FreeSlot> {
     // this shouldn't really ever happen (because otherwise people are going to start getting
     // scheduled to do things in the middle of the night)
-    if events.len() <= 0 {
+    if events.is_empty() {
         return vec![FreeSlot {
             start: Utc::now(),
             end: Utc::now() + Duration::days(14),
@@ -78,10 +78,9 @@ async fn map_user_events_to_free_time(events: Vec<EventPointer>) -> Vec<FreeSlot
         if i == (events.len() - 1) {
             break;
         }
-        free_slots.push(FreeSlot {
-            start: event.end_time().await.unwrap(),
-            end: events.get(i + 1).unwrap().start_time().await.unwrap(),
-        })
+        let start = event.end_time().await.unwrap();
+        let end = events.get(i + 1).unwrap().start_time().await.unwrap();
+        free_slots.push(FreeSlot { start, end })
     }
     free_slots
 }
@@ -211,7 +210,7 @@ fn fill_slot(
     tasks: &mut Vec<(ClassAsynchronousTask, StudentClassAsynchronousTask)>,
     events_to_add: &mut Vec<Event>,
 ) {
-    if tasks.len() <= 0 {
+    if tasks.is_empty() {
         return;
     }
     let len = slot.end - slot.start;

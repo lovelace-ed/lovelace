@@ -346,7 +346,7 @@ pub async fn get_user_role_in_class(
 ) -> Option<ClassMemberRole> {
     use crate::schema::class_student::dsl as class_student;
     use crate::schema::class_teacher::dsl as class_teacher;
-    if conn
+    let if_condition = conn
         .run(move |c| {
             diesel::dsl::select(diesel::dsl::exists(
                 class_student::class_student
@@ -356,21 +356,18 @@ pub async fn get_user_role_in_class(
             .get_result(c)
         })
         .await
-        .unwrap()
-    {
+        .unwrap();
+    let else_if_condition = conn.run(move |c| {
+        diesel::dsl::select(diesel::dsl::exists(
+            class_teacher::class_teacher
+                .filter(class_teacher::user_id.eq(user))
+                .filter(class_teacher::class_id.eq(class)),
+        ))
+        .get_result(c)
+    });
+    if if_condition {
         Some(ClassMemberRole::Student)
-    } else if conn
-        .run(move |c| {
-            diesel::dsl::select(diesel::dsl::exists(
-                class_teacher::class_teacher
-                    .filter(class_teacher::user_id.eq(user))
-                    .filter(class_teacher::class_id.eq(class)),
-            ))
-            .get_result(c)
-        })
-        .await
-        .unwrap()
-    {
+    } else if else_if_condition.await.unwrap() {
         Some(ClassMemberRole::Teacher)
     } else {
         None
