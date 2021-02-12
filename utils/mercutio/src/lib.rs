@@ -6,7 +6,7 @@ pub use mercutio_codegen::CSS;
 /// macro we provide.
 ///
 /// ```rust
-/// # use mercutio::prelude::*;
+/// # use mercutio::*;
 /// #[derive(CSS)]
 /// #[font_family = "sans-serif"]
 /// #[font_size = "24px"]
