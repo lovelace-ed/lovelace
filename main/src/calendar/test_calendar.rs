@@ -7,7 +7,7 @@ use crate::{
 };
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
-use prospero::client::DAVClient;
+use prospero::client::DavClient;
 use rocket::{http::ContentType, local::asynchronous::Client};
 use wiremock::{matchers::method, Mock, MockServer, ResponseTemplate};
 
@@ -215,7 +215,7 @@ async fn sequence(client: &Client, class_id: i32) {
     let string = res.into_string().await.expect("invalid body string");
     assert!(string.contains("created"));
     rocket::tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-    let client = DAVClient::new_unauthenticated("http://localhost:8080/user/calendars/lovelace");
+    let client = DavClient::new_unauthenticated("http://localhost:8080/user/calendars/lovelace");
     let calendar = client.calendar();
     let results = calendar
         .date_search(

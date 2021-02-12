@@ -2,7 +2,7 @@ use std::ops::Add;
 
 use chrono::{Duration, Utc};
 use icalendar::{Component, Event};
-use prospero::client::DAVClient;
+use prospero::client::DavClient;
 
 #[tokio::test]
 #[cfg(feature = "caldav_test")]
@@ -10,7 +10,7 @@ use prospero::client::DAVClient;
 ///
 /// This is automatically done on our continuous integration
 async fn test_caldav_calendars() {
-    let client = DAVClient::new_unauthenticated("http://localhost:8080/user/calendars/calendar");
+    let client = DavClient::new_unauthenticated("http://localhost:8080/user/calendars/calendar");
     let calendar = client.calendar();
     calendar
         .save_event(
@@ -38,17 +38,25 @@ async fn test_caldav_calendars() {
         .date_search(Utc::now(), Utc::now().add(Duration::days(50)))
         .await
         .expect("failed to search for dates");
-    assert_eq!(dates.len(), 2);
+    let mut sorted = vec![];
+    let first = if dates[0].start_time().await.unwrap() > dates[1].start_time().await.unwrap() {
+        1
+    } else {
+        0
+    };
+    sorted.push(dates[first].clone());
+    sorted.push(dates[1 - first].clone());
+    assert_eq!(sorted.len(), 2);
     assert_eq!(
-        dates[0].summary().await.unwrap(),
+        sorted[0].summary().await.unwrap(),
         "some-summary".to_string()
     );
     assert_eq!(
-        dates[1].summary().await.unwrap(),
+        sorted[1].summary().await.unwrap(),
         "some-other-summary".to_string()
     );
-    assert!(dates[0].start_time().await.is_ok());
-    assert!(dates[0].end_time().await.is_ok());
-    assert!(dates[1].start_time().await.is_ok());
-    assert!(dates[1].end_time().await.is_ok());
+    assert!(sorted[0].start_time().await.is_ok());
+    assert!(sorted[0].end_time().await.is_ok());
+    assert!(sorted[1].start_time().await.is_ok());
+    assert!(sorted[1].end_time().await.is_ok());
 }

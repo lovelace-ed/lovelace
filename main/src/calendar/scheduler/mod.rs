@@ -25,12 +25,12 @@ use crate::{
 use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
 use prospero::{
-    client::DAVClient,
+    client::DavClient,
     error::CalDAVError,
     event::EventPointer,
     icalendar::{Component, Event},
 };
-use std::{ops::Add, sync::Arc};
+use std::ops::Add;
 use thiserror::Error as ThisError;
 use uuid::Uuid;
 
@@ -89,7 +89,7 @@ async fn map_user_events_to_free_time(events: Vec<EventPointer>) -> Vec<FreeSlot
 /// Creates a schedule for the next two weeks.
 ///
 /// Schedules cannot be created for people who have not connected a calendar.
-pub async fn two_week_schedule(user_id: i32, conn: Arc<Database>) -> Result<(), SchedulingError> {
+pub async fn two_week_schedule(user_id: i32, conn: &Database) -> Result<(), SchedulingError> {
     let (_user, calendar) = conn
         .run(move |c| {
             users::table
@@ -121,21 +121,21 @@ pub async fn two_week_schedule(user_id: i32, conn: Arc<Database>) -> Result<(), 
             cfg_if! {
                 if #[cfg(test)] {
                     (
-                        DAVClient::new_unauthenticated(
+                        DavClient::new_unauthenticated(
                             gcal.lovelace_calendar_id,
                         ),
-                        DAVClient::new_unauthenticated(
+                        DavClient::new_unauthenticated(
                             user_calendar_url,
                         ),
                     )
                 } else {
                     (
-                        DAVClient::new_oauth(
+                        DavClient::new_oauth(
                             gcal.lovelace_calendar_id,
                             gcal.access_token.clone(),
                             gcal.refresh_token.clone(),
                         ),
-                        DAVClient::new_oauth(
+                        DavClient::new_oauth(
                             user_calendar_url,
                             gcal.access_token.clone(),
                             gcal.refresh_token,
@@ -246,7 +246,7 @@ fn fill_slot(
 }
 
 /// Computes the schedule for all users in a class.
-pub async fn schedule_class(class_id: i32, conn: Arc<Database>) -> Result<(), SchedulingError> {
+pub async fn schedule_class(class_id: i32, conn: &Database) -> Result<(), SchedulingError> {
     match conn
         .run(move |c| {
             class::table
@@ -259,7 +259,7 @@ pub async fn schedule_class(class_id: i32, conn: Arc<Database>) -> Result<(), Sc
     {
         Ok(users) => {
             for user_id in users {
-                two_week_schedule(user_id, conn.clone()).await?;
+                two_week_schedule(user_id, &conn).await?;
             }
             Ok(())
         }

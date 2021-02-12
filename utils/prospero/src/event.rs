@@ -11,7 +11,7 @@ pub(crate) const DELETE: &[u8] = b"DELETE";
 
 use crate::{
     calendar::get_calendar_data,
-    client::{DAVClient, REPORT},
+    client::{DavClient, REPORT},
     error::{CalDAVError, CalDAVResult},
 };
 
@@ -29,7 +29,7 @@ pub enum EventPointerData {
 pub struct EventPointer {
     pub(crate) data: AtomicRefCell<EventPointerData>,
     pub(crate) url: Arc<String>,
-    pub(crate) client: Arc<DAVClient>,
+    pub(crate) client: Arc<DavClient>,
 }
 
 impl EventPointer {

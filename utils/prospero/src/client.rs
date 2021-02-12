@@ -17,7 +17,7 @@ use crate::{
 /// The CalDAV client. This is the entry point to the application, and you will need one of these
 /// to use all other methods.
 #[derive(Debug, Clone)]
-pub struct DAVClient {
+pub struct DavClient {
     auth_scheme: AuthScheme,
     url: String,
     client: Client,
@@ -25,7 +25,7 @@ pub struct DAVClient {
     auth_header: AtomicRefCell<Option<String>>,
 }
 
-impl DAVClient {
+impl DavClient {
     pub async fn request<S>(&self, method: Method, url: S) -> CalDAVResult<RequestBuilder>
     where
         S: AsRef<str>,

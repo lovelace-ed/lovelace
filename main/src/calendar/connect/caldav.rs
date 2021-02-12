@@ -11,7 +11,7 @@ use crate::{
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use prospero::client::DAVClient;
+use prospero::client::DavClient;
 use rocket::FromForm;
 
 fn caldav_form() -> Form {
@@ -79,7 +79,7 @@ pub async fn connect_caldav_calendar(
     {
         return calendar_already_connected(caldav_form());
     }
-    let client = DAVClient::new_username_password(&form.username, &form.password, &form.url);
+    let client = DavClient::new_username_password(&form.username, &form.password, &form.url);
 
     match client
         .calendar()

@@ -4,8 +4,6 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 //! Asynchronous tasks (e.g. homework).
 
-use std::sync::Arc;
-
 use crate::{
     auth::AuthCookie,
     calendar::scheduler::schedule_class,
@@ -138,9 +136,8 @@ pub async fn create_new_async_task(
             {
                 Ok(_) => {
                     if due_date < Utc::now().naive_utc() + Duration::days(14) {
-                        let conn = Arc::new(conn);
                         rocket::tokio::spawn(async move {
-                            let _ = schedule_class(class_id, conn).await;
+                            let _ = schedule_class(class_id, &conn).await;
                         });
                     }
                     Html::new()
@@ -863,7 +860,7 @@ mod async_task_tests {
                 (chrono::Utc::now() + chrono::Duration::days(7))
                     .naive_utc()
                     .format("%Y-%m-%dT%H:%M")
-                    .to_string()
+                    .to_string(),
             ))
             .dispatch()
             .await;
@@ -876,7 +873,7 @@ mod async_task_tests {
             let results = Database::get_one(&client.rocket())
                 .await
                 .unwrap()
-                .run(move |c| {
+                .run(|c| {
                     class_asynchronous_task::class_asynchronous_task
                         .filter(class_asynchronous_task::description.eq(NEW_TASK_DESCRIPTION))
                         .filter(class_asynchronous_task::title.eq(NEW_TASK_TITLE))
@@ -884,13 +881,11 @@ mod async_task_tests {
                             student_class_asynchronous_task::student_class_asynchronous_task,
                         )
                         .load::<(ClassAsynchronousTask, StudentClassAsynchronousTask)>(c)
-                        .unwrap()
                 })
-                .await;
+                .await
+                .unwrap();
             assert_eq!(results.len(), 2);
             assert_eq!(results[0].0, results[1].0);
-            assert_eq!(results[0].1.completed, false);
-            assert_eq!(results[1].1.completed, false);
         }
     }
     #[rocket::async_test]

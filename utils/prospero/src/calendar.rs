@@ -3,7 +3,7 @@ use std::sync::Arc;
 use atomic_refcell::AtomicRefCell;
 
 use crate::{
-    client::{DAVClient, REPORT},
+    client::{DavClient, REPORT},
     error::{CalDAVError, CalDAVResult},
     event::{EventPointer, EventPointerData, DATETIME_FORMAT},
 };
@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct Calendar {
-    pub(crate) client: Arc<DAVClient>,
+    pub(crate) client: Arc<DavClient>,
     pub(crate) url: Arc<String>,
 }
 
@@ -84,7 +84,6 @@ impl Calendar {
             .send()
             .await?;
         let text = res.text().await.unwrap();
-        dbg!(&text);
         let tree = Document::parse(&text).unwrap();
         let res = get_calendar_data(tree.descendants());
         Ok(res

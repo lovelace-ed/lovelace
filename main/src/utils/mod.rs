@@ -34,9 +34,23 @@ pub fn retrieve_database_url() -> String {
 }
 
 pub fn launch() -> Rocket {
-    let db: Map<_, Value> = map! {
-        "url" => retrieve_database_url().into()
-    };
+    cfg_if! {
+        if #[cfg(test)] {
+            let db: Map<_, Value> = map! {
+                "url" => retrieve_database_url().into(),
+                // if the pool size is not one then some of the tests will open multiple connections
+                // which means that we run into problems (because we've configured each connection
+                // to never commit any data into the database and new connections therefore don't
+                // have the same state as the already created ones)
+                "pool_size" => 1.into()
+            };
+        } else {
+            let db: Map<_, Value> = map! {
+                "url" => retrieve_database_url().into()
+            };
+        }
+    }
+
     let figment = rocket::Config::figment()
         .merge(("databases", map!["postgres" => db]))
         .merge((
@@ -130,6 +144,13 @@ pub fn launch() -> Rocket {
                 crate::calendar::connect::gcal::link_calendar,
                 crate::calendar::connect::gcal::link_gcal,
                 crate::calendar::connect::gcal::gcal_callback
+            ],
+        )
+        .mount(
+            "/calendar/unauthenticated_caldav",
+            routes![
+                crate::calendar::connect::unauthenticated_caldav::link_unauthenticated_caldav,
+                crate::calendar::connect::unauthenticated_caldav::view_link_unauthenticated_caldav
             ],
         )
 }
