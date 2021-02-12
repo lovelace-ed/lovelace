@@ -15,7 +15,7 @@ async fn test_caldav_calendars() {
     calendar
         .save_event(
             Event::new()
-                .summary("some-sumary")
+                .summary("some-summary")
                 .description("a description")
                 .starts(Utc::now())
                 .ends(Utc::now().add(Duration::days(4)))
