@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 mercutio_codegen = { path = "../mercutio_codegen" }
+malvolio = { path = "../malvolio" }
