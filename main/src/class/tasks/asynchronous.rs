@@ -138,11 +138,9 @@ pub async fn create_new_async_task(
             {
                 Ok(_) => {
                     if due_date < Utc::now().naive_utc() + Duration::days(14) {
-                        println!("POINT A");
                         let conn = Arc::new(conn);
                         rocket::tokio::spawn(async move {
                             let _ = schedule_class(class_id, conn).await;
-                            println!("FINISHED SCHEDULE");
                         });
                     }
                     Html::new()
@@ -921,7 +919,6 @@ mod async_task_tests {
             .dispatch()
             .await;
         let string = res.into_string().await.expect("invalid body response");
-        println!("{}", string);
         assert!(string.contains("updated that task"));
     }
     #[rocket::async_test]

@@ -827,7 +827,6 @@ mod tests {
             .into_string()
             .await
             .expect("invalid body response");
-        println!("{}", string);
         assert!(string.contains(NEW_MESSAGE_CONTENTS));
     }
 }

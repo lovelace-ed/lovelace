@@ -843,7 +843,6 @@ mod synchronous_task_tests {
             .dispatch()
             .await;
         let string = res.into_string().await.expect("invalid body response");
-        println!("{}", string);
         assert!(string.contains("Created that task"));
         {
             use crate::schema::class_synchronous_task::dsl as class_synchronous_task;

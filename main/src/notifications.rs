@@ -227,7 +227,7 @@ mod test {
     use crate::{
         db::{Database, TestPgConnection},
         models::{NewNotification, NewUser, Notification},
-        utils::{client, launch, login_user},
+        utils::{client, login_user},
     };
 
     use super::NotificationPriority;
