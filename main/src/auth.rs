@@ -468,9 +468,9 @@ mod test {
 
     use super::{EmailVerificationToken, LOGIN_COOKIE};
 
-    #[test]
-    fn test_register_validation() {
-        let client = crate::utils::client();
+    #[rocket::async_test]
+    async fn test_register_validation() {
+        let client = crate::utils::client().await;
         let register_res = client
             .post("/auth/register")
             .header(ContentType::Form)
@@ -482,8 +482,12 @@ mod test {
                 "validPASSW0RD",
                 timezone = TIMEZONE
             ))
-            .dispatch();
-        let response = register_res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let response = register_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(response.contains("Invalid email"));
     }
 
@@ -597,7 +601,10 @@ mod test {
             ))
             .dispatch()
             .await;
-        let string = res.into_string().await.expect("invalid body response");
+        let string = res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains("verified"));
         assert_eq!(
             {

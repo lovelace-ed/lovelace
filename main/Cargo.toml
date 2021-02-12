@@ -36,7 +36,6 @@ default-features = false
 features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
-tokio = { version = "1.2.0", features = ["macros", "rt"] }
 wiremock = "0.4.9"
 
 [features]

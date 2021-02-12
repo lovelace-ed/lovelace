@@ -759,58 +759,70 @@ mod synchronous_task_tests {
             vec![task_1_id, task_2_id],
         )
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_teacher_can_view_specific_synchronous_task() {
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
         let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
-            .dispatch();
-        let string = view_task_res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = view_task_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_student_can_view_specific_synchronous_task() {
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
 
-        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
+        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client).await;
         let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
-            .dispatch();
-        let string = view_task_res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = view_task_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
 
-        login_user(STUDENT_2_USERNAME, STUDENT_2_PASSWORD, &client);
+        login_user(STUDENT_2_USERNAME, STUDENT_2_PASSWORD, &client).await;
         let view_task_res = client
             .get(format!("/class/{}/task/sync/{}/view", class_id, tasks[0]))
-            .dispatch();
-        let string = view_task_res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = view_task_res
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains(TASK_1_TITLE));
         assert!(string.contains(TASK_1_DESCRIPTION));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_teacher_can_create_synchronous_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
-        login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client).await;
 
         let res = client
             .post(format!("/class/{}/task/sync/create", class_id))
@@ -828,8 +840,9 @@ mod synchronous_task_tests {
                     .format("%Y-%m-%dT%H:%M")
                     .to_string()
             ))
-            .dispatch();
-        let string = res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
         println!("{}", string);
         assert!(string.contains("Created that task"));
         {
@@ -852,17 +865,17 @@ mod synchronous_task_tests {
             assert_eq!(results[0].0, results[1].0);
         }
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_teacher_can_edit_synchronous_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
         let res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
             .header(ContentType::Form)
@@ -879,21 +892,22 @@ mod synchronous_task_tests {
                     .format("%Y-%m-%dT%H:%M")
                     .to_string()
             ))
-            .dispatch();
-        let string = res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
         assert!(string.contains("updated that task"));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_student_cannot_edit_asynchronus_task() {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
-        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client);
+        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client).await;
         let res = client
             .post(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
             .header(ContentType::Form)
@@ -910,23 +924,25 @@ mod synchronous_task_tests {
                     .format("%Y-%m-%dT%H:%M")
                     .to_string()
             ))
-            .dispatch();
-        let string = res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
         assert!(!string.contains("updated that task"));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_teacher_can_delete_synchronous_task() {
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
             .await;
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
         let res = client
             .get(format!("/class/{}/task/sync/{}/delete", class_id, tasks[1]))
-            .dispatch();
-        let string = res.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
         assert!(string.contains("deleted that task"));
     }
 }

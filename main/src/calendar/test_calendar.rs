@@ -3,7 +3,7 @@
 use crate::{
     models::calendar::{Calendar, GoogleCalendar},
     schema::{calendar, google_calendar},
-    utils::{launch, login_user_async, logout_async},
+    utils::{launch, login_user, logout},
 };
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
@@ -148,7 +148,7 @@ async fn google_oauth_caldav_integration_test() {
         .run(|c| setup_env(c))
         .await;
 
-    login_user_async(STUDENT_USERNAME, STUDENT_PASSWORD, &client).await;
+    login_user(STUDENT_USERNAME, STUDENT_PASSWORD, &client).await;
 
     let add_calendar_response = client
         .post("/calendar/gcal/link")
@@ -196,8 +196,8 @@ async fn google_oauth_caldav_integration_test() {
 
 /// Runs the test sequence (adds a number of events and checks that they are added to the calendar)
 async fn sequence(client: &Client, class_id: i32) {
-    logout_async(&client).await;
-    login_user_async(TEACHER_USERNAME, TEACHER_PASSWORD, client).await;
+    logout(&client).await;
+    login_user(TEACHER_USERNAME, TEACHER_PASSWORD, client).await;
     let res = client
         .post(format!("/class/{}/task/async/create", class_id))
         .header(ContentType::Form)

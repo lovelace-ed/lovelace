@@ -698,36 +698,38 @@ mod tests {
     const STUDENT_PASSWORD: &str = "stUD3NTP@SSW0RD";
     const CLASS_NAME: &str = "Some class name";
     const CLASS_DESCRIPTION: &str = "Some class description";
-    #[test]
-    fn test_class_handling() {
-        let client = crate::utils::client();
+
+    #[rocket::async_test]
+    async fn test_class_handling() {
+        let client = crate::utils::client().await;
         create_user(
             TEACHER_USERNAME,
             TEACHER_EMAIL,
             TIMEZONE,
             TEACHER_PASSWORD,
             &client,
-        );
+        ).await;
         create_user(
             SECONDARY_TEACHER_USERNAME,
             SECONDARY_TEACHER_EMAIL,
             TIMEZONE,
             SECONDARY_TEACHER_PASSWORD,
             &client,
-        );
+        ).await;
         create_user(
             STUDENT_USERNAME,
             STUDENT_EMAIL,
             TIMEZONE,
             STUDENT_PASSWORD,
             &client,
-        );
+        ).await;
 
         // test can create class
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
-        let create_class_res = client.get("/class/create").dispatch();
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
+        let create_class_res = client.get("/class/create").dispatch().await;
         let string = create_class_res
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains("Create a class"));
 
@@ -738,15 +740,20 @@ mod tests {
                 "name={}&description={}",
                 CLASS_NAME, CLASS_DESCRIPTION
             ))
-            .dispatch();
+            .dispatch()
+            .await;
         assert!(create_class_res
             .into_string()
+            .await
             .expect("invalid body response")
             .contains("Successfully created"));
 
         // test created class shows up on teacher class list
-        let get_class_list = client.get("/class").dispatch();
-        let string = get_class_list.into_string().expect("invalid body response");
+        let get_class_list = client.get("/class").dispatch().await;
+        let string = get_class_list
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains(CLASS_NAME));
 
         let id = Regex::new(r#"class/(?P<id>[0-9]+)"#)
@@ -761,9 +768,10 @@ mod tests {
 
         // test created class overview page can be seen
 
-        let class_overview_page = client.get(format!("/class/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/class/{}", id)).dispatch().await;
         let string = class_overview_page
             .into_string()
+            .await
             .expect("invalid body string");
         assert!(string.contains(CLASS_NAME));
         assert!(string.contains(CLASS_DESCRIPTION));
@@ -778,52 +786,61 @@ mod tests {
 
         // test teacher can see settings page
 
-        let settings_page = client.get(format!("/class/{}/settings", id)).dispatch();
-        let string = settings_page.into_string().unwrap();
+        let settings_page = client
+            .get(format!("/class/{}/settings", id))
+            .dispatch()
+            .await;
+        let string = settings_page.into_string().await.unwrap();
         assert!(string.contains("delete"));
 
         // test students cannot join classes with the incorrect code
-        logout(&client);
+        logout(&client).await;
 
-        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
+        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client).await;
 
         let invalid_join_attempt = client
             .get("/join/SOME_RANDOM_CODE_WHICH_DOES_NOT_WORK+")
-            .dispatch();
-        let string = invalid_join_attempt.into_string().unwrap();
+            .dispatch()
+            .await;
+        let string = invalid_join_attempt.into_string().await.unwrap();
         assert!(string.contains("cannot be found"));
 
         // test students can join class
 
-        let valid_join_attempt = client.get(format!("/join/{}", join_code)).dispatch();
-        let string = valid_join_attempt.into_string().unwrap();
+        let valid_join_attempt = client.get(format!("/join/{}", join_code)).dispatch().await;
+        let string = valid_join_attempt.into_string().await.unwrap();
         assert!(string.contains("joined this class"));
 
         // test joined classes show up on student class list
 
-        let student_class_list = client.get("/class".to_string()).dispatch();
+        let student_class_list = client.get("/class".to_string()).dispatch().await;
         let string = student_class_list
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains(CLASS_NAME));
 
         // test students can see class overview page
 
-        let class_overview_page = client.get(format!("/class/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/class/{}", id)).dispatch().await;
         let string = class_overview_page
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains(CLASS_NAME));
         assert!(!string.contains("people to join"));
 
         // test teacher can delete class from the settings page
 
-        logout(&client);
+        logout(&client).await;
 
-        login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_EMAIL, TEACHER_PASSWORD, &client).await;
 
-        let delete_page = client.get(format!("/class/{}/delete", id)).dispatch();
-        let string = delete_page.into_string().expect("invalid body response");
+        let delete_page = client.get(format!("/class/{}/delete", id)).dispatch().await;
+        let string = delete_page
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains("Delete this class"));
 
         // test can't delete class without correct name
@@ -832,9 +849,11 @@ mod tests {
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name=wrong", id))
-            .dispatch();
+            .dispatch()
+            .await;
         let string = invalid_delete_request
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains("doesn't match"));
 
@@ -844,9 +863,11 @@ mod tests {
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", 100000000, CLASS_NAME))
-            .dispatch();
+            .dispatch()
+            .await;
         let string = invalid_delete_request
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains("Permission denied"));
 
@@ -856,28 +877,32 @@ mod tests {
             .post("/class/delete".to_string())
             .header(ContentType::Form)
             .body(format!("id={}&confirm_name={}", id, CLASS_NAME))
-            .dispatch();
+            .dispatch()
+            .await;
         let string = invalid_delete_request
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains("sucessfully deleted"));
 
         // test teacher can't see deleted classes
 
-        let class_overview_page = client.get(format!("/client/{}", id)).dispatch();
+        let class_overview_page = client.get(format!("/client/{}", id)).dispatch().await;
         let string = class_overview_page
             .into_string()
+            .await
             .expect("invalid body string");
         assert!(!string.contains(CLASS_NAME));
         assert!(!string.contains(CLASS_DESCRIPTION));
 
         // test students can't see deleted classes
 
-        logout(&client);
-        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
-        let class_overview_page = client.get(format!("/client/{}", id)).dispatch();
+        logout(&client).await;
+        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client).await;
+        let class_overview_page = client.get(format!("/client/{}", id)).dispatch().await;
         let string = class_overview_page
             .into_string()
+            .await
             .expect("invalid body string");
         assert!(!string.contains(CLASS_NAME));
         assert!(!string.contains(CLASS_DESCRIPTION));

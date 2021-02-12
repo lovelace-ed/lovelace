@@ -161,9 +161,9 @@ mod test_connect_caldav {
             .execute(conn)
             .expect("failed to create user");
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_connect_caldav() {
-        let client = client();
+        let client = client().await;
         Database::get_one(client.rocket())
             .await
             .unwrap()

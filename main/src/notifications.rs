@@ -223,12 +223,11 @@ impl<'a> Notify<'a> {
 mod test {
     use bcrypt::DEFAULT_COST;
     use diesel::prelude::*;
-    use rocket::local::blocking::Client;
 
     use crate::{
         db::{Database, TestPgConnection},
         models::{NewNotification, NewUser, Notification},
-        utils::{launch, login_user},
+        utils::{client, launch, login_user},
     };
 
     use super::NotificationPriority;
@@ -283,7 +282,7 @@ mod test {
             .get_results(conn)
             .expect("failed to add notifications")
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_view_notifications() {
         let rocket = launch();
         Database::get_one(&rocket)
@@ -291,18 +290,19 @@ mod test {
             .unwrap()
             .run(|c| create_dummy_setup(c))
             .await;
-        let client = Client::tracked(rocket).expect("needs a valid rocket instance");
-        login_user(EMAIL, PASSWORD, &client);
-        let notification_list_res = client.get("/notifications/").dispatch();
+        let client = client().await;
+        login_user(EMAIL, PASSWORD, &client).await;
+        let notification_list_res = client.get("/notifications/").dispatch().await;
         let string = notification_list_res
             .into_string()
+            .await
             .expect("invalid body response");
         assert!(string.contains(NOTIFICATION_1_TITLE));
         assert!(string.contains(NOTIFICATION_1_CONTENTS));
         assert!(string.contains(NOTIFICATION_2_TITLE));
         assert!(string.contains(NOTIFICATION_1_CONTENTS));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_mark_notifications_as_read() {
         let rocket = launch();
         let ids = Database::get_one(&rocket)
@@ -310,14 +310,16 @@ mod test {
             .unwrap()
             .run(|c| create_dummy_setup(c))
             .await;
-        let client = Client::new(rocket).expect("needs a valid rocket instance");
+        let client = client().await;
 
-        login_user(EMAIL, PASSWORD, &client);
+        login_user(EMAIL, PASSWORD, &client).await;
         let marked_as_read = client
             .get(format!("/notifications/mark_read/{}", ids[0]))
-            .dispatch();
+            .dispatch()
+            .await;
         assert!(marked_as_read
             .into_string()
+            .await
             .expect("invalid body response")
             .contains("notification as read"));
         assert!({
@@ -337,7 +339,7 @@ mod test {
             }
         })
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_delete_notifications() {
         let rocket = launch();
         let ids = Database::get_one(&rocket)
@@ -345,13 +347,15 @@ mod test {
             .unwrap()
             .run(move |c| create_dummy_setup(c))
             .await;
-        let client = Client::new(rocket).expect("needs a valid rocket instance");
-        login_user(EMAIL, PASSWORD, &client);
+        let client = client().await;
+        login_user(EMAIL, PASSWORD, &client).await;
         let deleted = client
             .get(format!("/notifications/delete/{}", ids[0]))
-            .dispatch();
+            .dispatch()
+            .await;
         assert!(deleted
             .into_string()
+            .await
             .expect("invalid body response")
             .contains("deleted that notification"));
         assert!({

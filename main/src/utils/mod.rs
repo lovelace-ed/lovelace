@@ -13,7 +13,7 @@ use rocket::figment::{
 use rocket::tokio::sync::RwLock;
 use rocket::{fairing::AdHoc, Rocket};
 #[cfg(test)]
-use rocket::{http::ContentType, local::blocking::Client};
+use rocket::{http::ContentType, local::asynchronous::Client};
 use std::collections::HashMap;
 
 pub mod auto_database_error;
@@ -143,13 +143,21 @@ pub fn error_message(title: String, message: String) -> Html {
 }
 
 #[cfg(test)]
-pub fn client() -> Client {
+pub async fn client() -> Client {
     let rocket = launch();
-    Client::tracked(rocket).expect("needs a valid rocket instance")
+    Client::tracked(rocket)
+        .await
+        .expect("needs a valid rocket instance")
 }
 
 #[cfg(test)]
-pub fn create_user(username: &str, email: &str, timezone: &str, password: &str, client: &Client) {
+pub async fn create_user(
+    username: &str,
+    email: &str,
+    timezone: &str,
+    password: &str,
+    client: &Client,
+) {
     let register_res = client
         .post("/auth/register")
         .header(ContentType::Form)
@@ -157,37 +165,17 @@ pub fn create_user(username: &str, email: &str, timezone: &str, password: &str, 
             "username={}&email={}&timezone={timezone}&password={password}&password_confirmation={password}",
             username, email, timezone=timezone, password=password
         ))
-        .dispatch();
+        .dispatch().await;
     assert!(register_res
         .into_string()
+        .await
         .expect("invalid body response")
         .contains("Registration successful!"));
 }
 
 #[cfg(test)]
 /// Logs in a user using a synchronous client
-pub fn login_user(identifier: &str, password: &str, client: &Client) {
-    let login_res = client
-        .post("/auth/login")
-        .header(ContentType::Form)
-        .body(format!("identifier={}&password={}", identifier, password))
-        .dispatch();
-    login_res
-        .cookies()
-        .iter()
-        .find(|c| c.name() == LOGIN_COOKIE)
-        .unwrap();
-    let string = login_res.into_string().expect("invalid body response");
-    assert!(string.contains("Logged in"));
-}
-
-#[cfg(test)]
-/// Logs in a user using an asynchronous client
-pub async fn login_user_async(
-    identifier: &str,
-    password: &str,
-    client: &rocket::local::asynchronous::Client,
-) {
+pub async fn login_user(identifier: &str, password: &str, client: &Client) {
     let login_res = client
         .post("/auth/login")
         .header(ContentType::Form)
@@ -207,17 +195,7 @@ pub async fn login_user_async(
 }
 
 #[cfg(test)]
-pub fn logout(client: &Client) {
-    assert!(client
-        .get("/logout")
-        .dispatch()
-        .into_string()
-        .unwrap()
-        .contains("Logged out"));
-}
-
-#[cfg(test)]
-pub async fn logout_async(client: &rocket::local::asynchronous::Client) {
+pub async fn logout(client: &Client) {
     assert!(client
         .get("/logout")
         .dispatch()

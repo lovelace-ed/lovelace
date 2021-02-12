@@ -663,22 +663,23 @@ mod tests {
         msg_reply.id
     }
 
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_create_class_message() {
         const MESSAGE_TITLE: &str = "sometitleofatitle";
         const MESSAGE_BODY: &str = "somebodyof a message";
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
         let create_message_res = client
             .post(format!("/class/{}/message/new", class_id))
             .header(ContentType::Form)
             .body(format!("title={}&contents={}", MESSAGE_TITLE, MESSAGE_BODY))
-            .dispatch();
+            .dispatch()
+            .await;
         assert_eq!(create_message_res.status().code, 303);
         {
             use crate::schema::class_message::dsl as class_message;
@@ -697,25 +698,26 @@ mod tests {
             assert_eq!(res.contents, MESSAGE_BODY);
         }
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_edit_class_message() {
         const NEW_TITLE: &str = "new-title";
         const NEW_CONTENTS: &str = "new-contents-here-we-come";
 
-        let client = client();
+        let client = client().await;
         let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
         let message_id_0 = message_ids[0];
-        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client);
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
 
         let edit_class_message_res = client
             .post(format!("/class/{}/message/{}/edit", class_id, message_id_0))
             .header(ContentType::Form)
             .body(format!("title={}&contents={}", NEW_TITLE, NEW_CONTENTS))
-            .dispatch();
+            .dispatch()
+            .await;
         assert!(edit_class_message_res.status().code == 303);
 
         {
@@ -734,20 +736,22 @@ mod tests {
             assert_eq!(msg.contents, NEW_CONTENTS);
         }
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_view_messages() {
-        let client = client();
+        let client = client().await;
         let (class_id, _, _, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
-        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
+        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client).await;
         let view_message_res = client
             .get(format!("/class/{}/message", class_id))
-            .dispatch();
+            .dispatch()
+            .await;
         let string = view_message_res
             .into_string()
+            .await
             .expect("invalid body response");
 
         assert!(string.contains(CLASS_MESSAGE_1_TITLE));
@@ -756,16 +760,16 @@ mod tests {
         assert!(string.contains(CLASS_MESSAGE_2_TITLE));
         assert!(string.contains(CLASS_MESSAGE_2_CONTENTS));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_reply_to_class_message() {
         const REPLY_CONTENTS: &str = "somereplycontents235";
-        let client = client();
+        let client = client().await;
         let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
-        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client);
+        login_user(STUDENT_EMAIL, STUDENT_PASSWORD, &client).await;
         let reply_res = client
             .post(format!(
                 "/class/{}/message/{}/reply",
@@ -773,27 +777,32 @@ mod tests {
             ))
             .header(ContentType::Form)
             .body(format!("contents={}", REPLY_CONTENTS))
-            .dispatch();
+            .dispatch()
+            .await;
         assert_eq!(reply_res.status().code, 303);
         let message_page = client
             .get(format!(
                 "/class/{}/message/{}/view",
                 class_id, message_ids[0]
             ))
-            .dispatch();
-        let string = message_page.into_string().expect("invalid body response");
+            .dispatch()
+            .await;
+        let string = message_page
+            .into_string()
+            .await
+            .expect("invalid body response");
         assert!(string.contains(REPLY_CONTENTS));
     }
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_can_edit_reply_to_class_message() {
         const NEW_MESSAGE_CONTENTS: &str = "somecontents that is new";
-        let client = client();
+        let client = client().await;
         let (class_id, message_ids, student_id, _) = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
-        login_user(STUDENT_USERNAME, STUDENT_PASSWORD, &client);
+        login_user(STUDENT_USERNAME, STUDENT_PASSWORD, &client).await;
         let message_id_1 = message_ids[0];
         let message_reply_id = Database::get_one(&client.rocket())
             .await
@@ -807,13 +816,16 @@ mod tests {
             ))
             .header(ContentType::Form)
             .body(format!("contents={}", NEW_MESSAGE_CONTENTS))
-            .dispatch();
+            .dispatch()
+            .await;
         assert_eq!(edit_message_res.status().code, 303);
         let view_message_replies = client
             .get(format!("/class/{}/message/{}/view", class_id, message_id_1))
-            .dispatch();
+            .dispatch()
+            .await;
         let string = view_message_replies
             .into_string()
+            .await
             .expect("invalid body response");
         println!("{}", string);
         assert!(string.contains(NEW_MESSAGE_CONTENTS));

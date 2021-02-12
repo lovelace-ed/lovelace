@@ -126,7 +126,7 @@ mod tests {
     use super::{SendMail, SendgridMailSender};
     /// This test runs in a `tokio` runtime because it "mocks" HTTP requests (i.e. it catches HTTP
     /// requests, so that they are not actually dispatched to the internet.)
-    #[tokio::test]
+    #[rocket::async_test]
     async fn test_sendgrid_api_sends_correctly() {
         let mock_server = MockServer::start().await;
         std::env::set_var("SENDGRID_API_KEY", "SomeRandomAPIKey");
