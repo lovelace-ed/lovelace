@@ -144,10 +144,10 @@ pub async fn two_week_schedule(user_id: i32, conn: &Database) -> Result<(), Sche
                 }
             }
         }
-        crate::models::calendar::CalendarType::CalDAV => {
+        crate::models::calendar::CalendarType::CalDav => {
             todo!()
         }
-        crate::models::calendar::CalendarType::CalDAVUnauthenticated => {
+        crate::models::calendar::CalendarType::CalDavUnauthenticated => {
             todo!()
         }
     };

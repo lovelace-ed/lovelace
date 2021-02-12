@@ -90,7 +90,7 @@ pub async fn connect_caldav_calendar(
             .run(move |c| {
                 diesel::insert_into(calendar::table)
                     .values(NewCalendar {
-                        calendar_type: CalendarType::CalDAV.into(),
+                        calendar_type: CalendarType::CalDav.into(),
                         user_id: auth.0,
                     })
                     .returning(calendar::id)

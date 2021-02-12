@@ -4,7 +4,7 @@ use crate::{
     auth::AuthCookie,
     catch_database_error,
     db::Database,
-    models::calendar::{CalendarType, NewCalDAVUnauthenticated, NewCalendar},
+    models::calendar::{CalendarType, NewCalDavUnauthenticated, NewCalendar},
     utils::default_head,
 };
 use diesel::prelude::*;
@@ -63,7 +63,7 @@ pub async fn link_unauthenticated_caldav(
         conn.run(move |c| {
             diesel::insert_into(calendar::table)
                 .values(NewCalendar {
-                    calendar_type: CalendarType::CalDAVUnauthenticated.into(),
+                    calendar_type: CalendarType::CalDavUnauthenticated.into(),
                     user_id,
                 })
                 .returning(calendar::id)
@@ -73,7 +73,7 @@ pub async fn link_unauthenticated_caldav(
     });
     catch_database_error!(
         conn.run(move |c| diesel::insert_into(caldav_unauthenticated::table)
-            .values(NewCalDAVUnauthenticated {
+            .values(NewCalDavUnauthenticated {
                 calendar_id,
                 url: &form.url
             })
