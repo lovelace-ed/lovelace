@@ -27,6 +27,7 @@ extern crate cfg_if;
 extern crate jsonwebtoken as jwt;
 
 use malvolio::prelude::{Body, Content, Head, Href, Html, Meta, MetaName, A, H1, P};
+use mercutio::*;
 use rocket::Rocket;
 use utils::launch;
 
@@ -41,6 +42,12 @@ mod notifications;
 mod schema;
 mod utils;
 
+#[derive(CSS, Debug)]
+#[elements(H1, H2, H3, H4, H5, H6)]
+#[font_family = "sans-serif"]
+#[font_size = "24px"]
+pub struct TitleStyles;
+
 #[get("/")]
 fn index() -> Html {
     Html::default()
@@ -53,7 +60,7 @@ fn index() -> Html {
         )
         .body(
             Body::default()
-                .child(H1::new("Welcome!"))
+                .child(H1::new("Welcome!").map(TitleStyles::apply))
                 .child(P::with_text("IMPORTANT: This site is in beta. Please do not input any data
                 onto it yet (we have hidden all the buttons away for the meantime, until we can be
                 confident that they're safe to press :)"))

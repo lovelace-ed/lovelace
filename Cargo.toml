@@ -1,6 +1,12 @@
 [workspace]
-members=["utils/malvolio", "utils/prospero", "main"]
-default-members=["main"]
+members = [
+    "utils/malvolio",
+    "utils/prospero",
+    "utils/mercutio",
+    "utils/mercutio_codegen",
+    "main",
+]
+default-members = ["main"]
 
 [profile.release]
 lto = true

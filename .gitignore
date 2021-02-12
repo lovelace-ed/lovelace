@@ -4,3 +4,7 @@ Cargo.lock
 .vscode
 node_modules
 .DS_Store
+wip
+
+.vscode
+.idea

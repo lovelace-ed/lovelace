@@ -15,7 +15,7 @@ use yew::virtual_dom::Listener;
 use crate::heading_of_vnode;
 use crate::{
     heading_display, impl_of_heading_new_fn, into_attribute_for_grouping_enum, into_grouping_union,
-    prelude::{Class, Id},
+    prelude::{Class, Id, Style},
     utility_enum,
 };
 
@@ -142,13 +142,16 @@ utility_enum!(
     pub enum HeadingAttr {
         Class(Class),
         Id(Id),
+        Style(Style),
     }
 );
-into_attribute_for_grouping_enum!(HeadingAttr, Class, Id);
+into_attribute_for_grouping_enum!(HeadingAttr, Class, Id, Style);
 
 into_grouping_union!(Class, HeadingAttr);
 
 into_grouping_union!(Id, HeadingAttr);
+
+into_grouping_union!(Style, HeadingAttr);
 
 #[test]
 fn test_headings() {

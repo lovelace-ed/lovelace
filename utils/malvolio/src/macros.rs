@@ -61,6 +61,14 @@ macro_rules! impl_of_heading_new_fn {
                 self.1.insert(a, b);
                 self
             }
+            /// Applies the provided function to this item.
+            pub fn map<F>(mut self, mapping: F) -> Self
+            where
+                F: FnOnce(Self) -> Self,
+            {
+                self = mapping(self);
+                self
+            }
         }
     };
 }
