@@ -1,15 +1,14 @@
-use std::ops::Add;
-
-use chrono::{Duration, Utc};
-use icalendar::{Component, Event};
-use prospero::client::DavClient;
-
 #[tokio::test]
 #[cfg(feature = "caldav_test")]
 /// Note that this assumes that a test server is running at localhost:8080
 ///
 /// This is automatically done on our continuous integration
 async fn test_caldav_calendars() {
+    use chrono::{Duration, Utc};
+    use icalendar::{Component, Event};
+    use prospero::client::DavClient;
+    use std::ops::Add;
+
     let client = DavClient::new_unauthenticated("http://localhost:8080/user/calendars/calendar");
     let calendar = client.calendar();
     calendar
