@@ -708,21 +708,24 @@ mod tests {
             TIMEZONE,
             TEACHER_PASSWORD,
             &client,
-        ).await;
+        )
+        .await;
         create_user(
             SECONDARY_TEACHER_USERNAME,
             SECONDARY_TEACHER_EMAIL,
             TIMEZONE,
             SECONDARY_TEACHER_PASSWORD,
             &client,
-        ).await;
+        )
+        .await;
         create_user(
             STUDENT_USERNAME,
             STUDENT_EMAIL,
             TIMEZONE,
             STUDENT_PASSWORD,
             &client,
-        ).await;
+        )
+        .await;
 
         // test can create class
         login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;

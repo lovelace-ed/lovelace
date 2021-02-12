@@ -601,10 +601,7 @@ mod test {
             ))
             .dispatch()
             .await;
-        let string = res
-            .into_string()
-            .await
-            .expect("invalid body response");
+        let string = res.into_string().await.expect("invalid body response");
         assert!(string.contains("verified"));
         assert_eq!(
             {
