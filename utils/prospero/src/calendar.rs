@@ -84,6 +84,7 @@ impl Calendar {
             .send()
             .await?;
         let text = res.text().await.unwrap();
+        dbg!(&text);
         let tree = Document::parse(&text).unwrap();
         let res = get_calendar_data(tree.descendants());
         Ok(res

@@ -174,7 +174,6 @@ pub async fn create_user(
 }
 
 #[cfg(test)]
-/// Logs in a user using a synchronous client
 pub async fn login_user(identifier: &str, password: &str, client: &Client) {
     let login_res = client
         .post("/auth/login")

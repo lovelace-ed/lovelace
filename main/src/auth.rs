@@ -115,6 +115,7 @@ pub async fn login(cookies: &CookieJar<'_>, data: Form<LoginData>, conn: Databas
                     )
             } else {
                 Html::default()
+                    .status(400)
                     .head(default_head("Error".to_string()))
                     .body(
                         Body::default()
@@ -126,6 +127,7 @@ pub async fn login(cookies: &CookieJar<'_>, data: Form<LoginData>, conn: Databas
         }
         Err(error) => match error {
             diesel::result::Error::NotFound => Html::default()
+                .status(404)
                 .head(default_head("Not found".to_string()))
                 .body(
                     Body::default()
@@ -137,6 +139,7 @@ pub async fn login(cookies: &CookieJar<'_>, data: Form<LoginData>, conn: Databas
                         .child(login_form()),
                 ),
             _ => Html::default()
+                .status(500)
                 .head(default_head("Unknown error".to_string()))
                 .body(
                     Body::default()
@@ -455,18 +458,14 @@ mod test {
     /// This was chosen for no other reason than it is alphabetically first.
     const TIMEZONE: &str = "Africa/Abidjan";
 
-    use crate::{
-        db::Database,
-        models::{NewUser, User},
-    };
+    use crate::{db::Database, models::{NewUser, User}, utils::{client, login_user}};
     use diesel::prelude::*;
     use rocket::http::ContentType;
     use wiremock::{
         matchers::{method, path_regex},
         Mock, MockServer, ResponseTemplate,
     };
-
-    use super::{EmailVerificationToken, LOGIN_COOKIE};
+    use super::{EmailVerificationToken};
 
     #[rocket::async_test]
     async fn test_register_validation() {
@@ -539,30 +538,12 @@ mod test {
             .expect("invalid body response");
         assert!(page.contains("Login"));
         // test can login
-        let login_res = client
-            .post("/auth/login")
-            .header(ContentType::Form)
-            .body(format!("identifier={}&password={}", USERNAME, PASSWORD))
-            .dispatch()
-            .await;
-        // check cookie set
-        login_res
-            .cookies()
-            .iter()
-            .find(|c| c.name() == LOGIN_COOKIE)
-            .unwrap();
-        let page = login_res
-            .into_string()
-            .await
-            .expect("invalid body response");
-        assert!(page.contains("now logged in"));
+        login_user(USERNAME, PASSWORD, &client).await;
     }
     #[rocket::async_test]
     async fn test_email_verification() {
         use crate::schema::users::dsl as users;
-        let client = rocket::local::asynchronous::Client::tracked(crate::utils::launch())
-            .await
-            .unwrap();
+        let client = client().await;
         let user_id = Database::get_one(&client.rocket())
             .await
             .unwrap()

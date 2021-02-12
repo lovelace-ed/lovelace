@@ -284,13 +284,12 @@ mod test {
     }
     #[rocket::async_test]
     async fn test_can_view_notifications() {
-        let rocket = launch();
-        Database::get_one(&rocket)
+        let client = client().await;
+        Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| create_dummy_setup(c))
             .await;
-        let client = client().await;
         login_user(EMAIL, PASSWORD, &client).await;
         let notification_list_res = client.get("/notifications/").dispatch().await;
         let string = notification_list_res
@@ -304,15 +303,15 @@ mod test {
     }
     #[rocket::async_test]
     async fn test_can_mark_notifications_as_read() {
-        let rocket = launch();
-        let ids = Database::get_one(&rocket)
+        let client = client().await;
+        let ids = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(|c| create_dummy_setup(c))
             .await;
-        let client = client().await;
 
         login_user(EMAIL, PASSWORD, &client).await;
+
         let marked_as_read = client
             .get(format!("/notifications/mark_read/{}", ids[0]))
             .dispatch()
@@ -341,13 +340,12 @@ mod test {
     }
     #[rocket::async_test]
     async fn test_can_delete_notifications() {
-        let rocket = launch();
-        let ids = Database::get_one(&rocket)
+        let client = client().await;
+        let ids = Database::get_one(&client.rocket())
             .await
             .unwrap()
             .run(move |c| create_dummy_setup(c))
             .await;
-        let client = client().await;
         login_user(EMAIL, PASSWORD, &client).await;
         let deleted = client
             .get(format!("/notifications/delete/{}", ids[0]))
