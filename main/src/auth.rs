@@ -458,14 +458,18 @@ mod test {
     /// This was chosen for no other reason than it is alphabetically first.
     const TIMEZONE: &str = "Africa/Abidjan";
 
-    use crate::{db::Database, models::{NewUser, User}, utils::{client, login_user}};
+    use super::EmailVerificationToken;
+    use crate::{
+        db::Database,
+        models::{NewUser, User},
+        utils::{client, login_user},
+    };
     use diesel::prelude::*;
     use rocket::http::ContentType;
     use wiremock::{
         matchers::{method, path_regex},
         Mock, MockServer, ResponseTemplate,
     };
-    use super::{EmailVerificationToken};
 
     #[rocket::async_test]
     async fn test_register_validation() {
