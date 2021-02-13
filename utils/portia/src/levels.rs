@@ -36,9 +36,9 @@ impl Level {
     }
 }
 
-impl Into<Div> for Level {
-    fn into(self) -> Div {
-        let layout_strategy = if let Some(layout_strategy) = self.layout_strategy {
+impl From<Level> for Div {
+    fn from(item: Level) -> Div {
+        let layout_strategy = if let Some(layout_strategy) = item.layout_strategy {
             layout_strategy
         } else {
             LayoutStrategy {
@@ -51,13 +51,13 @@ impl Into<Div> for Level {
                 LayoutAxis::Horizontal => div.apply(compose(FlexDirectionRow, DisplayFlex)),
                 LayoutAxis::Vertical => div.apply(compose(FlexDirectionColumn, DisplayFlex)),
             })
-            .children(self.children.into_iter().map(|child| child.item))
+            .children(item.children.into_iter().map(|child| child.item))
     }
 }
 
-impl Into<BodyNode> for Level {
-    fn into(self) -> BodyNode {
-        let div: Div = self.into();
+impl From<Level> for BodyNode {
+    fn from(item: Level) -> BodyNode {
+        let div: Div = From::from(item);
         div.into()
     }
 }
