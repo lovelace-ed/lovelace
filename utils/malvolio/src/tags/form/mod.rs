@@ -131,6 +131,10 @@ impl Form {
         self.attrs.insert(res.0, res.1);
         self
     }
+    /// Read an attribute that has been set
+    pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
+        self.attrs.get(attribute)
+    }
     to_html!();
 }
 

@@ -31,7 +31,6 @@ pub fn css_inner(input: DeriveInput) -> TokenStream {
 
         })
         .filter_map(|item| {
-
             let item = item.map(|(path,  value) | {
                 let key = path.segments.last().unwrap().ident.to_string();
                 let css = format!("{}: {};", css_name(&key), value);
@@ -53,9 +52,6 @@ pub fn css_inner(input: DeriveInput) -> TokenStream {
         .partition_map(From::from);
 
     let tokens = tokens.into_iter().join("");
-    let tokens = quote::quote! {
-        ::malvolio::prelude::Style::new(#tokens)
-    };
 
     if !errors.is_empty() {
         let mut first_error = errors.remove(0);
@@ -102,9 +98,15 @@ pub fn css_inner(input: DeriveInput) -> TokenStream {
         .map(|segment| {
             let name = &input.ident;
             quote::quote! {
-                impl ::mercutio::Apply<::malvolio::prelude::#segment> for #name {
-                    fn apply(t: malvolio::prelude::#segment) -> malvolio::prelude::#segment {
-                        t.attribute(#tokens)
+                impl ::mercutio::Apply<#name> for ::malvolio::prelude::#segment {
+                    fn apply(self, _: #name) -> malvolio::prelude::#segment {
+                        let string: std::borrow::Cow<'static, str> =
+                            if let Some(x) = self.read_attribute("style") {
+                                format!("{} {}", x, #tokens).into()
+                            } else {
+                                #tokens.into()
+                            };
+                        self.attribute(::malvolio::prelude::Style::new(string))
                     }
                 }
             }

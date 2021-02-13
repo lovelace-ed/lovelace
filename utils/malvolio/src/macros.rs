@@ -61,6 +61,10 @@ macro_rules! impl_of_heading_new_fn {
                 self.1.insert(a, b);
                 self
             }
+            /// Read an attribute that has been set.
+            pub fn read_attribute(&self, a: &'static str) -> Option<&Cow<'static, str>> {
+                self.1.get(a)
+            }
             /// Applies the provided function to this item.
             pub fn map<F>(mut self, mapping: F) -> Self
             where

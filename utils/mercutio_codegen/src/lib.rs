@@ -72,6 +72,7 @@ mod inner;
         cursor,
         background_attachment,
         overflow,
+        flex_direction,
         counter_increment,
         list_style_image,
         font_stretch,

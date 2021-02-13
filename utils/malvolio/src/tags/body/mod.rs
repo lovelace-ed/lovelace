@@ -2,12 +2,13 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-use std::fmt::Display;
-
 use self::body_node::BodyNode;
+use crate::attributes::IntoAttribute;
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
+use crate::{into_attribute_for_grouping_enum, into_grouping_union, prelude::Style, utility_enum};
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 /// Contains the `BodyNode` enum.
 pub mod body_node;
@@ -17,7 +18,18 @@ pub mod body_node;
 /// The <body> tag.
 pub struct Body {
     children: Vec<BodyNode>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
 }
+
+utility_enum! {
+    pub enum BodyAttr {
+        /// Add a "style" attribute to this item.
+        Style(Style),
+    }
+}
+
+into_grouping_union!(Style, BodyAttr);
+into_attribute_for_grouping_enum!(BodyAttr, Style);
 
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
@@ -56,11 +68,32 @@ impl Body {
     {
         mapping(self)
     }
+    /// Add a new attribute to this tag.
+    pub fn attribute<A>(mut self, attribute: A) -> Self
+    where
+        A: Into<BodyAttr>,
+    {
+        let (a, b) = attribute.into().into_attribute();
+        self.attrs.insert(a, b);
+        self
+    }
+    /// Read an attribute that has been set
+    pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
+        self.attrs.get(attribute)
+    }
 }
 
 impl Display for Body {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<body>")?;
+        f.write_str("<body")?;
+        for attr in &self.attrs {
+            f.write_str(" ")?;
+            attr.0.fmt(f)?;
+            f.write_str("=\"")?;
+            attr.1.fmt(f)?;
+            f.write_str("\"")?;
+        }
+        f.write_str(">")?;
         for node in &self.children {
             node.fmt(f)?;
         }

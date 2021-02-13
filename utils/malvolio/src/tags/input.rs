@@ -79,6 +79,10 @@ impl Input {
         self.attrs.insert(a, b);
         self
     }
+    /// Read an attribute that has been set
+    pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
+        self.attrs.get(attribute)
+    }
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
     /// Attaches a listener to the input item. Note that this is only available if you have enabled

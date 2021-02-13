@@ -4,6 +4,7 @@ members = [
     "utils/prospero",
     "utils/mercutio",
     "utils/mercutio_codegen",
+    "utils/portia",
     "main",
 ]
 default-members = ["main"]

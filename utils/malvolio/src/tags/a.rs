@@ -94,6 +94,10 @@ impl A {
         self.attrs.insert(res.0, res.1);
         self
     }
+    /// Read an attribute that has been set.
+    pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
+        self.attrs.get(attribute)
+    }
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
     /// Attaches a listener to this item. Only available if the `with_yew` feature is enabled.
