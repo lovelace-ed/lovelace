@@ -589,7 +589,7 @@ mod synchronous_task_tests {
             ClassSynchronousTask, NewClassStudent, NewClassSynchronousTask, NewClassTeacher,
             NewStudentClassSynchronousTask, StudentClassSynchronousTask,
         },
-        utils::{client, login_user},
+        utils::{client, login_user, logout},
     };
 
     use diesel::prelude::*;
@@ -943,5 +943,56 @@ mod synchronous_task_tests {
             .await;
         let string = res.into_string().await.expect("invalid body response");
         assert!(string.contains("deleted that task"));
+    }
+    #[rocket::async_test]
+    async fn test_permissions_for_viewing_create_task_page() {
+        let client = client().await;
+        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
+        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client).await;
+        let res = client
+            .get(format!("/class/{}/task/sync/create", class_id))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains("don't have permission"));
+        logout(&client).await;
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
+        let res = client
+            .get(format!("/class/{}/task/sync/create", class_id))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains("<form"));
+    }
+    #[rocket::async_test]
+    async fn test_permissins_for_viewing_edit_task_page() {
+        let client = client().await;
+        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+            .await
+            .unwrap()
+            .run(|c| populate_database(c))
+            .await;
+
+        login_user(STUDENT_1_USERNAME, STUDENT_1_PASSWORD, &client).await;
+        let res = client
+            .get(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains("don't have permission"));
+        logout(&client).await;
+
+        login_user(TEACHER_USERNAME, TEACHER_PASSWORD, &client).await;
+        let res = client
+            .get(format!("/class/{}/task/sync/{}/edit", class_id, tasks[0]))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains(TASK_1_TITLE));
+        assert!(string.contains(TASK_1_DESCRIPTION))
     }
 }
