@@ -7,6 +7,7 @@
 //! But what is `T` and how does one get an instance of T? Use the `CSS` macro. The `CSS` macro is
 //! a derive macro which automatically implements `Apply<ITEM>` for the `ITEM` on which it is
 //! derived. For example:
+//!
 //! ```rust
 //! # use mercutio::*;
 //! #[derive(CSS)]
@@ -20,13 +21,13 @@
 //!
 //! ```rust
 //! # use mercutio::*;
-//! # use mercutio::*;
+//! # use malvolio::prelude::H1;
 //! # #[derive(CSS)]
 //! # #[font_family = "sans-serif"]
 //! # #[font_size = "24px"]
 //! # #[elements(H1, H2, H3)]
 //! # struct Title;
-//! H1::new("Title").apply(H1);
+//! H1::new("Title").apply(Title);
 //! ```
 
 #![deny(missing_debug_implementations, missing_docs)]
