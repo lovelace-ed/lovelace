@@ -247,7 +247,7 @@ impl CssPropsInner {
             let alphabet: [char; 16] = [
                 '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f',
             ];
-            let class_name = nanoid!(10, &alphabet).to_string();
+            let class_name = nanoid!(10, &alphabet);
             let head_tokens = CssPropsInnerClassOutputter(&self, class_name.clone()).to_string();
             let x: Vec<String> = From::from(elements);
             x.into_iter()
