@@ -135,7 +135,7 @@ pub async fn two_week_schedule(user_id: i32, conn: &Database) -> Result<(), Sche
                         ),
                         DavClient::new_oauth(
                             user_calendar_url,
-                            gcal.access_token.clone(),
+                            gcal.access_token,
                         ),
                     )
                 }
