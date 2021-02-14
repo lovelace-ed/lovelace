@@ -2,7 +2,7 @@ use darling::FromDeriveInput;
 use syn::DeriveInput;
 
 pub fn css_inner(input: DeriveInput) -> proc_macro2::TokenStream {
-    let css_props: CSSProps = match CSSProps::from_derive_input(&input) {
+    let css_props: CssProps = match CssProps::from_derive_input(&input) {
         Ok(ok) => ok,
         Err(e) => {
             return e.write_errors();
@@ -15,14 +15,14 @@ pub fn css_inner(input: DeriveInput) -> proc_macro2::TokenStream {
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(mercutio))]
-pub struct CSSProps {
-    css: CSSPropsInner,
+pub struct CssProps {
+    css: CssPropsInner,
     elements: Elements,
     #[darling(default)]
     use_classes: bool,
 }
 
-impl Default for CSSProps {
+impl Default for CssProps {
     fn default() -> Self {
         Self {
             css: Default::default(),
@@ -96,7 +96,7 @@ impl From<Elements> for Vec<String> {
 
 #[derive(Default, FromMeta)]
 #[darling(default)]
-pub struct CSSPropsInner {
+pub struct CssPropsInner {
     binding: Option<String>,
     width: Option<String>,
     list_style_image: Option<String>,
@@ -236,7 +236,7 @@ pub struct CSSPropsInner {
     elevation: Option<String>,
 }
 
-impl CSSPropsInner {
+impl CssPropsInner {
     fn to_tokens(
         &self,
         name: syn::Ident,
@@ -248,7 +248,7 @@ impl CSSPropsInner {
                 '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f',
             ];
             let class_name = nanoid!(10, &alphabet).to_string();
-            let head_tokens = CSSPropsInnerClassOutputter(&self, class_name.clone()).to_string();
+            let head_tokens = CssPropsInnerClassOutputter(&self, class_name.clone()).to_string();
             let x: Vec<String> = From::from(elements);
             x.into_iter()
                 .map(|segment: String| {
@@ -278,7 +278,7 @@ impl CSSPropsInner {
                     |a, b| quote! {#a #b},
                 )
         } else {
-            let tokens = CSSPropsInnerStyleOutputter(&self).to_string();
+            let tokens = CssPropsInnerStyleOutputter(&self).to_string();
             let x: Vec<String> = From::from(elements);
             x.into_iter()
                 .map(|segment: String| {
@@ -302,9 +302,9 @@ impl CSSPropsInner {
     }
 }
 
-struct CSSPropsInnerStyleOutputter<'a>(pub &'a CSSPropsInner);
+struct CssPropsInnerStyleOutputter<'a>(pub &'a CssPropsInner);
 
-impl<'a> std::fmt::Display for CSSPropsInnerStyleOutputter<'a> {
+impl<'a> std::fmt::Display for CssPropsInnerStyleOutputter<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(value) = &self.0.binding {
             f.write_str("binding:")?;
@@ -995,9 +995,9 @@ impl<'a> std::fmt::Display for CSSPropsInnerStyleOutputter<'a> {
     }
 }
 
-struct CSSPropsInnerClassOutputter<'a>(pub &'a CSSPropsInner, pub String);
+struct CssPropsInnerClassOutputter<'a>(pub &'a CssPropsInner, pub String);
 
-impl<'a> std::fmt::Display for CSSPropsInnerClassOutputter<'a> {
+impl<'a> std::fmt::Display for CssPropsInnerClassOutputter<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(".")?;
         f.write_str(&self.1)?;
