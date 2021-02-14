@@ -11,9 +11,10 @@
 //! ```rust
 //! # use mercutio::*;
 //! #[derive(CSS)]
-//! #[font_family = "sans-serif"]
-//! #[font_size = "24px"]
-//! #[elements(H1, H2, H3)]
+//! #[mercutio(
+//!     css(font_family = "sans-serif", font_size = "24px"),
+//!     elements(H1, H2, H3)
+//! )]
 //! struct Title;
 //! ```
 //!
@@ -23,9 +24,10 @@
 //! # use mercutio::*;
 //! # use malvolio::prelude::H1;
 //! # #[derive(CSS)]
-//! # #[font_family = "sans-serif"]
-//! # #[font_size = "24px"]
-//! # #[elements(H1, H2, H3)]
+//! # #[mercutio(
+//! #     css(font_family = "sans-serif", font_size = "24px"),
+//! #     elements(H1, H2, H3)
+//! # )]
 //! # struct Title;
 //! H1::new("Title").apply(Title);
 //! ```
@@ -42,9 +44,10 @@ pub use mercutio_codegen::CSS;
 /// ```rust
 /// # use mercutio::*;
 /// #[derive(CSS)]
-/// #[font_family = "sans-serif"]
-/// #[font_size = "24px"]
-/// #[elements(H1, H2, H3)]
+/// #[mercutio(
+///     css(font_family = "sans-serif", font_size = "24px"),
+///     elements(H1, H2, H3)
+/// )]
 /// struct Title;
 /// ```
 pub trait Apply<T> {
@@ -60,13 +63,17 @@ pub trait Apply<T> {
 /// # use malvolio::prelude::H1;
 ///
 /// #[derive(CSS)]
-/// #[elements(H1)]
-/// #[color = "blue"]
+/// #[mercutio(
+///     css(color = "blue"),
+///     elements(H1)
+/// )]
 /// struct Blue;
 ///
 /// #[derive(CSS)]
-/// #[elements(H1)]
-/// #[font_size = "24px"]
+/// #[mercutio(
+///     elements(H1),
+///     css(font_size="24px")
+/// )]
 /// struct Title;
 ///
 /// let blue_title = compose(Blue, Title);
@@ -78,18 +85,24 @@ pub trait Apply<T> {
 /// # use malvolio::prelude::H1;
 ///
 /// #[derive(CSS)]
-/// #[elements(H1)]
-/// #[color = "blue"]
+/// #[mercutio(
+///     css(color = "blue"),
+///     elements(H1)
+/// )]
 /// struct Blue;
 ///
 /// #[derive(CSS)]
-/// #[elements(H1)]
-/// #[font_size = "24px"]
+/// #[mercutio(
+///     elements(H1),
+///     css(font_size="24px")
+/// )]
 /// struct Title;
 ///
 /// #[derive(CSS)]
-/// #[elements(H1)]
-/// #[background_color = "blue"]
+/// #[mercutio(
+///     css(background_color = "blue"),
+///     elements(H1)
+/// )]
 /// struct BlueBackground;
 ///
 /// let composed = compose(BlueBackground, compose(Blue, Title));
