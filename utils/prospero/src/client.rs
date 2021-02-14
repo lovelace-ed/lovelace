@@ -63,6 +63,7 @@ impl DavClient {
                 }
             }
             AuthScheme::None => Ok(request),
+            AuthScheme::OAuth(ref access_token) => Ok(request.bearer_auth(access_token)),
         }
     }
     pub fn new_unauthenticated<S>(s: S) -> Self
@@ -91,8 +92,20 @@ impl DavClient {
         }
     }
     /// Construct a new CalDAV client which uses OAuth authentication.
-    pub fn new_oauth(_url: String, _access_token: String, _refresh_token: String) -> Self {
-        todo!()
+    ///
+    /// Note that you are responsible for making sure that the provided access token is valid – if
+    /// it is not you should use a refresh token to generate a new access token if the access token.
+    ///
+    /// For more on this see:
+    /// * [The specification](https://tools.ietf.org/html/rfc6749#section-1.5)
+    /// * [This more readable tutorial](https://tools.ietf.org/html/rfc6749#section-1.5)
+    pub fn new_oauth(url: String, access_token: String) -> Self {
+        Self {
+            auth_scheme: AuthScheme::OAuth(access_token),
+            url,
+            client: Client::new(),
+            auth_header: AtomicRefCell::new(None),
+        }
     }
     /// Returns a list of calendars.
     ///
@@ -189,6 +202,7 @@ impl MakeCalendar {
 #[derive(Debug, Clone)]
 pub enum AuthScheme {
     UsernamePassword(String, String),
+    OAuth(String),
     None,
 }
 
