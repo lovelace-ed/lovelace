@@ -1,17 +1,13 @@
 /// Form styling.
 
 #[derive(CSS)]
-#[outline = "none"]
-#[border = "3px solid #555"]
-#[elements(Input)]
+#[mercutio(css(outline = "none", border = "3px solid #555"), elements(Input))]
 pub struct FormTextInputStyle;
 
 #[derive(CSS)]
-#[outline = "none"]
-#[border = "3px solid #555"]
-#[elements(Input)]
+#[mercutio(css(outline = "none", border = "3px solid #555"), elements(Input))]
 pub struct FormSubmitInputStyle;
 
 #[derive(CSS)]
-#[elements(Form)]
+#[mercutio(css(padding = "5px"), elements(Form))]
 pub struct FormStyle;

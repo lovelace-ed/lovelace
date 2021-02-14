@@ -24,15 +24,16 @@ pub mod input;
 pub mod label;
 /// The <meta> tag.
 pub mod meta;
+/// The <noscript> tag – not very useful when working with Yew, but comes in handy for server-side
+/// rendering.
+pub mod noscript;
 /// The <option> tag.
 pub mod option;
 /// The <p> (paragraph) tag.
 pub mod p;
 /// The <select> tag.
 pub mod select;
+/// The <style> tag.
+pub mod style;
 /// The <title> tag.
 pub mod title;
-
-/// The <noscript> tag – not very useful when working with Yew, but comes in handy for server-side
-/// rendering.
-pub mod noscript;

@@ -4,7 +4,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use crate::{
     enum_display,
-    tags::{meta::Meta, title::Title},
+    tags::{meta::Meta, style::StyleTag, title::Title},
     utility_enum,
 };
 
@@ -18,10 +18,11 @@ utility_enum!(
     pub enum HeadNode {
         Title(Title),
         Meta(Meta),
+        StyleTag(StyleTag),
     }
 );
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
-into_vnode_for_grouping_enum!(HeadNode, Title, Meta);
+into_vnode_for_grouping_enum!(HeadNode, Title, Meta, StyleTag);
 
-enum_display!(HeadNode, Title, Meta);
+enum_display!(HeadNode, Title, Meta, StyleTag);

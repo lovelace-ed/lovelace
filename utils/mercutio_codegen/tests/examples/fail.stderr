@@ -1,5 +1,0 @@
-error: This item should have an attribute called `elements` (in the form `#[elements(H1, H2, P)])`, but that attribute does not exist on this element.ƒ
- --> $DIR/fail.rs:6:12
-  |
-6 | pub struct TitleStyles;
-  |            ^^^^^^^^^^^

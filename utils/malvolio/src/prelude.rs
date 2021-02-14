@@ -18,6 +18,7 @@ pub use crate::tags::{
     option::SelectOption,
     p::P,
     select::Select,
+    style::StyleTag,
     title::Title,
 };
 

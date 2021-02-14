@@ -1,4 +1,3 @@
 #[derive(CSS, Debug)]
-#[elements(Body)]
-#[margin = "0"]
+#[mercutio(css(margin = "0"), elements(Body))]
 pub struct ZeroMargin;

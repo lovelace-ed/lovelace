@@ -63,18 +63,15 @@ impl From<Level> for BodyNode {
 }
 
 #[derive(CSS)]
-#[display = "flex"]
-#[elements(Div)]
+#[mercutio(css(display = "flex"), elements(Div))]
 struct DisplayFlex;
 
 #[derive(CSS)]
-#[flex_direction = "row"]
-#[elements(Div)]
+#[mercutio(css(flex_direction = "row"), elements(Div))]
 struct FlexDirectionRow;
 
 #[derive(CSS)]
-#[flex_direction = "column"]
-#[elements(Div)]
+#[mercutio(css(flex_direction = "column"), elements(Div))]
 struct FlexDirectionColumn;
 
 #[derive(Copy, Clone, Debug)]
