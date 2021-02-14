@@ -23,11 +23,14 @@ use crate::{
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use mercutio::*;
+use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use rocket::FromForm;
 
 /// Create a new form containing the necessary fields to create a new synchronous task.
 fn create_new_sync_task_form() -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
             Input::new()
                 .attribute(Name::new("title"))
@@ -35,15 +38,21 @@ fn create_new_sync_task_form() -> Form {
         )
         .child(
             Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Name::new("description"))
                 .attribute(Type::Text),
         )
         .child(
             Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Name::new("due_date"))
                 .attribute(Type::Text),
         )
-        .child(Input::new().attribute(Type::Submit))
+        .child(
+            Input::new()
+                .apply(FormSubmitInputStyle)
+                .attribute(Type::Submit),
+        )
 }
 
 #[derive(FromForm, Debug, Clone)]
@@ -403,6 +412,7 @@ fn edit_task_form(
     end_time: Option<String>,
 ) -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
             Input::new()
                 .attribute(Type::Text)
@@ -417,6 +427,7 @@ fn edit_task_form(
         )
         .child(
             Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .map(|item| {
                     if let Some(description) = description {
@@ -450,6 +461,11 @@ fn edit_task_form(
                     }
                 })
                 .attribute(Name::new("end_time")),
+        )
+        .child(
+            Input::new()
+                .apply(FormSubmitInputStyle)
+                .attribute(Type::Submit),
         )
 }
 

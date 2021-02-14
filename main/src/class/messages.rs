@@ -13,6 +13,8 @@ A copy of this license can be found in the `licenses` directory at the root of t
 use diesel::prelude::*;
 use diesel::BelongingToDsl;
 use malvolio::prelude::{Body, Div, Form, Html, Input, Method, Name, Type, Value, H1, H3, P};
+use mercutio::Apply;
+use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use rocket::{response::Redirect, FromForm};
 
 use crate::{
@@ -77,18 +79,25 @@ pub async fn list_all_messages(id: i32, conn: Database, auth: AuthCookie) -> Htm
 
 fn create_new_message_form() -> Form {
     Form::new()
+        .apply(FormStyle)
         .attribute(Method::Post)
         .child(
-            Input::default()
+            Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Name::new("title")),
         )
         .child(
-            Input::default()
+            Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Textarea)
                 .attribute(Name::new("contents")),
         )
-        .child(Input::default().attribute(Type::Submit))
+        .child(
+            Input::new()
+                .apply(FormSubmitInputStyle)
+                .attribute(Type::Submit),
+        )
 }
 
 #[get("/<id>/message/new")]
@@ -261,19 +270,26 @@ pub async fn reply_to_teacher_message(
 
 fn edit_message_form(msg: &ClassMessage) -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
-            Input::default()
+            Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Name::new("title"))
                 .attribute(Value::new(msg.title.clone())),
         )
         .child(
-            Input::default()
+            Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Textarea)
                 .attribute(Name::new("contents"))
                 .attribute(Value::new(msg.contents.clone())),
         )
-        .child(Input::default().attribute(Type::Submit))
+        .child(
+            Input::new()
+                .apply(FormSubmitInputStyle)
+                .attribute(Type::Submit),
+        )
 }
 
 #[get("/<_class_id>/message/<message_id>/edit")]
@@ -355,12 +371,18 @@ pub async fn apply_message_edit(
 
 fn edit_message_reply_form(msg: &ClassMessageReply) -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
-            Input::default()
+            Input::new()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Value::new(msg.contents.clone())),
         )
-        .child(Input::default().attribute(Type::Submit))
+        .child(
+            Input::new()
+                .apply(FormSubmitInputStyle)
+                .attribute(Type::Submit),
+        )
 }
 
 #[get("/<class_id>/message/<_message_id>/reply/<message_reply_id>/edit")]

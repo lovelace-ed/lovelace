@@ -28,7 +28,13 @@ extern crate jsonwebtoken as jwt;
 
 use malvolio::prelude::{Body, Content, Div, Head, Href, Html, Meta, MetaName, A, H1, P};
 use mercutio::*;
-use portia::levels::Level;
+use portia::{
+    colour::{GreyBackground, YellowBackground},
+    font::SmallTitle,
+    levels::Level,
+    margin::ZeroMargin,
+    padding::DefaultPadding,
+};
 use rocket::Rocket;
 use utils::launch;
 
@@ -42,32 +48,6 @@ mod models;
 mod notifications;
 mod schema;
 mod utils;
-
-#[derive(CSS, Debug)]
-#[elements(H1, H2, H3, H4, H5, H6)]
-#[font_family = "sans-serif"]
-#[font_size = "24px"]
-pub struct TitleStyles;
-
-#[derive(CSS, Debug)]
-#[elements(Div)]
-#[background_color = "#f4d03f"]
-pub struct YellowBackground;
-
-#[derive(CSS, Debug)]
-#[elements(Div)]
-#[background_color = "#d5dbdb"]
-pub struct GreyBackground;
-
-#[derive(CSS, Debug)]
-#[elements(Body)]
-#[margin = "0"]
-pub struct ZeroMargin;
-
-#[derive(CSS, Debug)]
-#[elements(Div)]
-#[padding = "15px"]
-pub struct DefaultPadding;
 
 #[get("/")]
 fn index() -> Html {
@@ -85,7 +65,7 @@ fn index() -> Html {
                 Level::new()
                     .child(Div::new()
                         .apply(compose(YellowBackground, DefaultPadding))
-                        .child(H1::new("Welcome!").apply(TitleStyles)))
+                        .child(H1::new("Welcome!").apply(SmallTitle)))
                     .child(Level::new()
                         .child(P::with_text(
                             "IMPORTANT: This site is in beta. Please do not input any data

@@ -10,6 +10,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 //! rambling here, aren't I :)
 
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! heading_display {
     ($name:ident) => {
@@ -30,6 +31,7 @@ macro_rules! heading_display {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// For internal case only.
 ///
 /// Generates new code to construct a heading.
@@ -80,6 +82,7 @@ macro_rules! impl_of_heading_new_fn {
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! heading_of_vnode {
     ($name:ident) => {
@@ -100,6 +103,7 @@ macro_rules! heading_of_vnode {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! enum_display {
     ($on:ident, $($variant:ident),*) => {
@@ -116,6 +120,7 @@ macro_rules! enum_display {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! into_grouping_union {
     ($name:ident, $enum_name:ident) => {
@@ -128,6 +133,7 @@ macro_rules! into_grouping_union {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// For intenal use only.
 macro_rules! into_grouping_union_without_lifetimes {
     ($name:ident, $enum_name:ident) => {
@@ -142,6 +148,7 @@ macro_rules! into_grouping_union_without_lifetimes {
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! into_vnode_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
@@ -159,6 +166,7 @@ macro_rules! into_vnode_for_grouping_enum {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only.
 macro_rules! add_single_attribute {
     ($lifetime:tt) => {
@@ -171,6 +179,7 @@ macro_rules! add_single_attribute {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// Generates a function to call `into_vnode`
 macro_rules! to_html {
     () => {
@@ -185,6 +194,7 @@ macro_rules! to_html {
 }
 
 #[macro_export]
+#[doc(hidden)]
 /// Generates code to convert an attribute into a grouping enum.
 ///
 /// For internal use only.
@@ -205,6 +215,7 @@ macro_rules! into_attribute_for_grouping_enum {
 
 #[cfg(test)]
 #[macro_export]
+#[doc(hidden)]
 /// For internal use only
 macro_rules! component_named_app_with_html {
     ($($html:tt)*) => {

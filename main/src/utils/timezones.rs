@@ -14,7 +14,7 @@ use crate::css_names::FORM_GROUP;
 
 /// Creates a field from which a timezone can be selected which should be added to an existing form
 /// (it is just an input field; not a free-standing form on its own).
-pub fn timezone_form<T>(name: T, message: Option<&'static str>) -> Div
+pub fn timezone_field<T>(name: T, message: Option<&'static str>) -> Div
 where
     T: Into<Cow<'static, str>>,
 {

@@ -9,6 +9,8 @@ use diesel::prelude::*;
 use malvolio::prelude::{
     Body, Br, Href, Html, Input, Method, Name, Placeholder, Type, Value, A, H1, P,
 };
+use mercutio::Apply;
+use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use regex::Regex;
 use rocket::{
     http::{Cookie, CookieJar, RawStr},
@@ -23,7 +25,7 @@ use crate::{
     email::{EmailBuilder, RecipientBuilder, RecipientsBuilder, SendMail, SendgridMailSender},
     models::{NewUser, User},
     schema,
-    utils::{default_head, error_messages::database_error, timezones::timezone_form},
+    utils::{default_head, error_messages::database_error, timezones::timezone_field},
 };
 
 pub const LOGIN_COOKIE: &str = "AUTHORISED";
@@ -52,9 +54,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
 
 fn login_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
+        .apply(FormStyle)
         .attribute(Method::Post)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Placeholder::new("Username"))
                 .attribute(Name::new("identifier")),
@@ -62,6 +66,7 @@ fn login_form() -> malvolio::prelude::Form {
         .child(Br)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Password)
                 .attribute(Placeholder::new("Password"))
                 .attribute(Name::new("password")),
@@ -69,6 +74,7 @@ fn login_form() -> malvolio::prelude::Form {
         .child(Br)
         .child(
             Input::default()
+                .apply(FormSubmitInputStyle)
                 .attribute(Type::Submit)
                 .attribute(Value::new("Login!")),
         )
@@ -155,9 +161,11 @@ pub async fn login(cookies: &CookieJar<'_>, data: Form<LoginData>, conn: Databas
 
 fn register_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
+        .apply(FormStyle)
         .attribute(Method::Post)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Placeholder::new("Username"))
                 .attribute(Name::new("username")),
@@ -165,15 +173,17 @@ fn register_form() -> malvolio::prelude::Form {
         .child(Br)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Email)
                 .attribute(Placeholder::new("Email"))
                 .attribute(Name::new("email")),
         )
         .child(Br)
-        .child(timezone_form("timezone", None))
+        .child(timezone_field("timezone", None))
         .child(Br)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Password)
                 .attribute(Placeholder::new("Password"))
                 .attribute(Name::new("password")),
@@ -181,6 +191,7 @@ fn register_form() -> malvolio::prelude::Form {
         .child(Br)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Password)
                 .attribute(Placeholder::new("Password confirmation"))
                 .attribute(Name::new("password_confirmation")),
@@ -188,6 +199,7 @@ fn register_form() -> malvolio::prelude::Form {
         .child(Br)
         .child(
             Input::default()
+                .apply(FormSubmitInputStyle)
                 .attribute(Type::Submit)
                 .attribute(Value::new("Login!")),
         )

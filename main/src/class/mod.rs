@@ -8,6 +8,8 @@ use malvolio::prelude::{
 };
 
 use diesel::prelude::*;
+use mercutio::Apply;
+use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use rocket::request::Form;
 
 pub mod messages;
@@ -26,19 +28,23 @@ use crate::{
 
 fn create_class_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
+        .apply(FormStyle)
         .attribute(Method::Post)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Placeholder::new("Class name")),
         )
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Textarea)
                 .attribute(Placeholder::new("Add a description for this class here.")),
         )
         .child(
             Input::default()
+                .apply(FormSubmitInputStyle)
                 .attribute(Type::Submit)
                 .attribute(Value::new("Create class")),
         )
@@ -433,14 +439,17 @@ pub async fn view_class_members_page(id: usize, conn: Database, auth_cookie: Aut
 
 fn invite_user_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
+        .apply(FormStyle)
         .attribute(Method::Post)
         .child(
             Input::default()
+                .apply(FormTextInputStyle)
                 .attribute(Type::Text)
                 .attribute(Name::new("invited-user-identifier")),
         )
         .child(
             Input::default()
+                .apply(FormSubmitInputStyle)
                 .attribute(Type::Submit)
                 .attribute(Value::new("Invite teacher!")),
         )
@@ -552,6 +561,7 @@ pub async fn invite_teacher(
 
 fn delete_class_form(id: usize) -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
+        .apply(FormStyle)
         .child(Input::default().attribute(Type::Text))
         .child(
             Input::default()
@@ -561,6 +571,7 @@ fn delete_class_form(id: usize) -> malvolio::prelude::Form {
         )
         .child(
             Input::default()
+                .apply(FormSubmitInputStyle)
                 .attribute(Type::Submit)
                 .attribute(Value::new(
                     "Delete this class (which I will never be able to get back!)",

@@ -8,8 +8,8 @@ use std::{borrow::Cow, collections::HashMap, fmt::Display};
 #[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
-    attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, to_html,
-    utility_enum,
+    attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union,
+    prelude::Style, to_html, utility_enum,
 };
 
 use crate::tags::body::body_node::BodyNode;
@@ -164,8 +164,15 @@ utility_enum!(
     pub enum FormAttr {
         Method(Method),
         Action(Action),
+        Style(Style),
     }
 );
+
+into_attribute_for_grouping_enum!(FormAttr, Method, Action, Style);
+
+into_grouping_union!(Method, FormAttr);
+into_grouping_union!(Action, FormAttr);
+into_grouping_union!(Style, FormAttr);
 
 /// The "method" attribute for a form. See the
 /// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method) for
@@ -176,8 +183,6 @@ pub enum Method {
     Post,
     Get,
 }
-
-into_attribute_for_grouping_enum!(FormAttr, Method, Action);
 
 impl IntoAttribute for Method {
     fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
@@ -191,8 +196,6 @@ impl IntoAttribute for Method {
         )
     }
 }
-
-into_grouping_union!(Method, FormAttr);
 
 /// The "action" attribute for a form. See the
 /// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-action) for
@@ -215,8 +218,6 @@ impl IntoAttribute for Action {
         ("action", self.0)
     }
 }
-
-into_grouping_union!(Action, FormAttr);
 
 #[cfg(test)]
 mod form {

@@ -8,7 +8,7 @@ use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute,
     into_attribute_for_grouping_enum, into_grouping_union,
-    prelude::{Class, Id},
+    prelude::{Class, Id, Style},
     to_html, utility_enum,
 };
 #[cfg(feature = "with_yew")]
@@ -123,13 +123,19 @@ utility_enum!(
         Id(Id),
         Class(Class),
         Value(Value),
+        Style(Style),
     }
 );
 
-into_attribute_for_grouping_enum!(InputAttr, Type, Name, Placeholder, Id, Class, Value);
+into_attribute_for_grouping_enum!(InputAttr, Type, Name, Placeholder, Id, Class, Value, Style);
 
 into_grouping_union!(Id, InputAttr);
 into_grouping_union!(Class, InputAttr);
+into_grouping_union!(Value, InputAttr);
+into_grouping_union!(Style, InputAttr);
+into_grouping_union!(Name, InputAttr);
+into_grouping_union!(Type, InputAttr);
+into_grouping_union!(Placeholder, InputAttr);
 
 /// The `type` attribute for an input.
 ///
@@ -165,8 +171,6 @@ impl IntoAttribute for Type {
     }
 }
 
-into_grouping_union!(Type, InputAttr);
-
 /// The `name` attribute for an input.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-name)
@@ -191,8 +195,6 @@ impl Name {
     }
 }
 
-into_grouping_union!(Name, InputAttr);
-
 /// The "placeholder" attribute for an input field.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-placeholder)
@@ -216,8 +218,6 @@ impl Placeholder {
     }
 }
 
-into_grouping_union!(Placeholder, InputAttr);
-
 /// The "value" attribute for an input field.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-value)
@@ -240,8 +240,6 @@ impl IntoAttribute for Value {
         ("value", self.0)
     }
 }
-
-into_grouping_union!(Value, InputAttr);
 
 #[cfg(test)]
 #[cfg(feature = "with_yew")]

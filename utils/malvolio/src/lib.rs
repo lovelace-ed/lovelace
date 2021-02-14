@@ -43,7 +43,10 @@ pub mod tags;
 /// A text node.
 pub mod text;
 #[macro_use]
+#[doc(hidden)]
 pub(crate) mod macros;
+#[doc(hidden)]
 pub(crate) mod utils;
 #[macro_use]
+#[doc(hidden)]
 pub(crate) mod docs;

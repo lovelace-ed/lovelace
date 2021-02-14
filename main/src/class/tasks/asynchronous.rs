@@ -24,11 +24,14 @@ use crate::{
 use chrono::{Duration, NaiveDateTime, Utc};
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use mercutio::Apply;
+use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use rocket::FromForm;
 
 /// Create a new form containing the necessary fields to create a new asynchronous task.
 fn create_new_async_task_form() -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
             Input::new()
                 .attribute(Name::new("title"))
@@ -453,9 +456,11 @@ fn edit_task_form(
     due_date: Option<String>,
 ) -> Form {
     Form::new()
+        .apply(FormStyle)
         .child(
             Input::new()
                 .attribute(Type::Text)
+                .apply(FormTextInputStyle)
                 .map(|item| {
                     if let Some(title) = title {
                         item.attribute(Value::new(title))
@@ -468,6 +473,7 @@ fn edit_task_form(
         .child(
             Input::new()
                 .attribute(Type::Text)
+                .apply(FormTextInputStyle)
                 .map(|item| {
                     if let Some(description) = description {
                         item.attribute(Value::new(description))
@@ -480,6 +486,7 @@ fn edit_task_form(
         .child(
             Input::new()
                 .attribute(Type::DateTimeLocal)
+                .apply(FormSubmitInputStyle)
                 .map(|item| {
                     if let Some(due_date) = due_date {
                         item.attribute(Value::new(due_date))
