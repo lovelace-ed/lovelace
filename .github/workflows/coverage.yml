@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly 
+          toolchain: nightly
           override: true
       - uses: actions/cache@v2
         with:
@@ -52,6 +52,43 @@ jobs:
           (xandikos --defaults -d dav) & (cargo +nightly tarpaulin --verbose --all --workspace --timeout 300 --out Xml)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
+  test-prospero:
+    name: prospero-coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: sudo apt install postgresql postgresql-contrib
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Install CalDAV server
+        run: |
+          sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
+          python -m pip install --upgrade xandikos
+      - run: (xandikos --defaults -d dav) & sleep 3 ; kill $!
+      - run: (cd dav/user/calendars && cp -r calendar lovelace)
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin --version 0.16.0
+      - name: Generate code coverage
+        # this might seem like a long timeout but some of the tests can take quite long
+        run: |
+          (xandikos --defaults -d dav) & (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml)
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
