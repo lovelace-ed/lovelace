@@ -8,6 +8,10 @@ the project is licensed.
 Different parts of this codebase are licensed differently:
 - Malvolio (code contained in `utils/malvolio`) is licensed according to the terms of the Mozilla
 Public License v2.0.
+- Mercutio (code contained in `utils/mercutio` and `utils/mercutio_codegen`) is licensed according
+to the terms of the Mozilla Public License v2.0.
+- Portia (code contained in `utils/portia`) is licensed according to the terms of the Mozilla Public
+License v2.0.
 - Prospero (code contained in `utils/prospero`) is licensed according to the terms of the MIT
 License *OR* the terms of the Apache License 2.0 – at your option.
 - All other code is licensed under the GNU Affero General Public License
