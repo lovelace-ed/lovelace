@@ -21,15 +21,18 @@ use diesel::prelude::*;
 
 pub mod calendar;
 
-#[derive(Queryable, Identifiable, Debug, Clone)]
+#[derive(Queryable, Identifiable, Debug, Clone, Serialize)]
 #[table_name = "users"]
 pub struct User {
     pub id: i32,
     pub username: String,
+    #[serde(skip_serializing)]
     pub email: String,
+    #[serde(skip_serializing)]
     pub password: String,
     pub created: NaiveDateTime,
     pub timezone: String,
+    #[serde(skip_serializing)]
     pub email_verified: bool,
 }
 

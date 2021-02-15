@@ -19,6 +19,7 @@ use std::collections::HashMap;
 pub mod auto_database_error;
 pub mod error_messages;
 pub mod html_or_redirect;
+pub mod json_response;
 pub mod permission_error;
 pub mod timezones;
 
@@ -89,16 +90,20 @@ pub fn launch() -> Rocket {
                 crate::class::invite_teacher,
                 crate::class::delete_class_page,
                 crate::class::delete_class,
-                crate::auth::logout
+                crate::auth::html_logout_user
             ],
+        )
+        .mount(
+            "/api/auth",
+            routes![crate::auth::api_login, crate::auth::api_logout,],
         )
         .mount(
             "/auth",
             routes![
                 crate::auth::login_page,
-                crate::auth::login,
+                crate::auth::html_login,
                 crate::auth::register_page,
-                crate::auth::register,
+                crate::auth::html_register,
                 crate::auth::verify_email
             ],
         )

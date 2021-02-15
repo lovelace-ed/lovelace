@@ -10,7 +10,6 @@ malvolio = { path = "../utils/malvolio", features = ["with_rocket"] }
 mercutio = { path = "../utils/mercutio" }
 portia = { path = "../utils/portia" }
 thiserror = "1.0.23"
-chrono = "0.4"
 diesel = { version = "1.4.5", features = ["r2d2", "chrono", "postgres"] }
 env_logger = "0.8.3"
 log = "0.4.14"
@@ -30,12 +29,13 @@ reqwest = { version = "0.11.0", features = ["json"] }
 prospero = { path = "../utils/prospero" }
 futures = { version = "0.3.12", features = ["executor"] }
 cfg-if = "1.0.0"
+chrono = { version = "0.4.19", features = ["serde"] }
 
 [dependencies.rocket_contrib]
 version = "0.5.0-dev"
 git = "https://github.com/SergioBenitez/Rocket"
 default-features = false
-features = ["diesel_postgres_pool"]
+features = ["diesel_postgres_pool", "json"]
 
 [dev-dependencies]
 wiremock = "0.4.9"
