@@ -51,20 +51,7 @@ pub fn launch() -> Rocket {
         }
     }
 
-    let figment = rocket::Config::figment()
-        .merge(("databases", map!["postgres" => db]))
-        .merge((
-            "secret_key",
-            std::env::var("SECRET_KEY")
-                .unwrap_or_else(|_| "NNnXxqFeQ/1Sn8lh9MtlIW2uePR4TL/1O5dB2CPkTmg=".to_string()),
-        ))
-        .merge((
-            "port",
-            std::env::var("PORT")
-                .unwrap_or_else(|_| "5000".to_string())
-                .parse::<u16>()
-                .expect("invalid $PORT variable supplied"),
-        ));
+    let figment = rocket::Config::figment().merge(("databases", map!["postgres" => db]));
     rocket::custom(figment)
         .manage(StateValues {
             map: RwLock::new(HashMap::new()),
