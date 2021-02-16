@@ -122,7 +122,7 @@ pub struct EditMessageForm {
     contents: String,
 }
 
-#[post("/<class_id>/message/<message_id>/edit", data = "<form>")]
+#[post("/<_class_id>/message/<message_id>/edit", data = "<form>")]
 pub async fn api_apply_message_edit(
     _class_id: i32,
     message_id: i32,
