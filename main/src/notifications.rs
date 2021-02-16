@@ -175,7 +175,7 @@ async fn delete_notification(
         .execute(c)
     })
     .await
-    .and_then(|_| Ok(()))
+    .map(|_| ())
 }
 
 #[get("/delete/<id>")]
