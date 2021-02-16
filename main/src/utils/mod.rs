@@ -99,7 +99,7 @@ pub fn launch() -> Rocket {
             routes![
                 crate::notifications::list_notifications,
                 crate::notifications::mark_notification_as_read,
-                crate::notifications::delete_notification_with_id
+                crate::notifications::html_delete_notification_with_id
             ],
         )
         .mount(

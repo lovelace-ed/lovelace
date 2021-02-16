@@ -5,13 +5,14 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 use diesel::prelude::*;
 use malvolio::prelude::{Body, BodyNode, Div, Href, Html, A, H1, H3, P};
+use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,
     css_names::{LIST, LIST_ITEM},
     db::{Database, DatabaseConnection},
     models::{NewNotification, Notification},
-    utils::default_head,
+    utils::{default_head, json_response::ApiResponse},
 };
 
 async fn retrieve_notifications(
@@ -87,24 +88,59 @@ where
 }
 
 #[get("/")]
+pub async fn api_list_notifications(
+    auth: AuthCookie,
+    conn: Database,
+) -> Json<ApiResponse<Vec<Notification>>> {
+    Json(match retrieve_notifications(auth.0, &conn).await {
+        Ok(notifications) => ApiResponse::new_ok(notifications),
+        Err(_) => {
+            ApiResponse::new_err("Encountered a database error trying to fulfil that request.")
+        }
+    })
+}
+
+#[get("/")]
 pub async fn list_notifications(auth: AuthCookie, conn: Database) -> Html {
     let data = retrieve_notifications(auth.0, &conn).await;
     render_notifications::<P>(data, None)
 }
 
+async fn mark_read(
+    id: i32,
+    auth: AuthCookie,
+    conn: &Database,
+) -> Result<Notification, diesel::result::Error> {
+    use crate::schema::notifications::dsl as notifications;
+
+    conn.run(move |c| {
+        diesel::update(notifications::notifications)
+            .set(notifications::read.eq(true))
+            .filter(notifications::id.eq(id))
+            .filter(notifications::user_id.eq(auth.0))
+            .returning(crate::schema::notifications::all_columns)
+            .get_result(c)
+    })
+    .await
+}
+
+#[get("/mark_read/<id>")]
+pub async fn api_mark_notification_as_read(
+    id: i32,
+    auth: AuthCookie,
+    conn: Database,
+) -> Json<ApiResponse<Notification>> {
+    Json(match mark_read(id, auth, &conn).await {
+        Ok(notification) => ApiResponse::new_ok(notification),
+        Err(_) => ApiResponse::new_err(
+            "Encountered a database error when trying to update that item in the database.",
+        ),
+    })
+}
+
 #[get("/mark_read/<id>")]
 pub async fn mark_notification_as_read(id: i32, auth: AuthCookie, conn: Database) -> Html {
-    use crate::schema::notifications::dsl as notifications;
-    match conn
-        .run(move |c| {
-            diesel::update(notifications::notifications)
-                .set(notifications::read.eq(true))
-                .filter(notifications::id.eq(id))
-                .filter(notifications::user_id.eq(auth.0))
-                .execute(c)
-        })
-        .await
-    {
+    match mark_read(id, auth, &conn).await {
         Ok(_) => {
             let data = retrieve_notifications(auth.0, &conn).await;
             render_notifications(
@@ -124,20 +160,39 @@ pub async fn mark_notification_as_read(id: i32, auth: AuthCookie, conn: Database
     }
 }
 
-#[get("/delete/<id>")]
-pub async fn delete_notification_with_id(id: i32, auth: AuthCookie, conn: Database) -> Html {
+async fn delete_notification(
+    id: i32,
+    auth: AuthCookie,
+    conn: &Database,
+) -> Result<(), diesel::result::Error> {
     use crate::schema::notifications::dsl as notifications;
-    match conn
-        .run(move |c| {
-            diesel::delete(
-                notifications::notifications
-                    .filter(notifications::id.eq(id))
-                    .filter(notifications::user_id.eq(auth.0)),
-            )
-            .execute(c)
-        })
-        .await
-    {
+    conn.run(move |c| {
+        diesel::delete(
+            notifications::notifications
+                .filter(notifications::id.eq(id))
+                .filter(notifications::user_id.eq(auth.0)),
+        )
+        .execute(c)
+    })
+    .await
+    .and_then(|_| Ok(()))
+}
+
+#[get("/delete/<id>")]
+pub async fn api_delete_notification_with_id(
+    id: i32,
+    auth: AuthCookie,
+    conn: Database,
+) -> Json<ApiResponse<()>> {
+    Json(match delete_notification(id, auth, &conn).await {
+        Ok(_) => ApiResponse::new_ok(()),
+        Err(_) => ApiResponse::new_ok(()),
+    })
+}
+
+#[get("/delete/<id>")]
+pub async fn html_delete_notification_with_id(id: i32, auth: AuthCookie, conn: Database) -> Html {
+    match delete_notification(id, auth, &conn).await {
         Ok(_) => {
             let data = retrieve_notifications(auth.0, &conn).await;
             render_notifications(

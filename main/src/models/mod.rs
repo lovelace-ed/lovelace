@@ -151,7 +151,9 @@ pub struct NewClassTeacherInvite {
     pub accepted: bool,
 }
 
-#[derive(Queryable, Identifiable, Debug, Clone)]
+#[derive(
+    Queryable, Identifiable, Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Ord, PartialOrd,
+)]
 #[table_name = "notifications"]
 pub struct Notification {
     pub id: i32,
