@@ -103,16 +103,25 @@ pub fn launch() -> Rocket {
             ],
         )
         .mount(
+            "/api/class",
+            routes![
+                crate::class::messages::api_list_all_messages,
+                crate::class::messages::api_apply_message_edit,
+                crate::class::messages::api_view_message,
+                crate::class::messages::api_reply_to_teacher_message,
+                crate::class::messages::api_apply_create_new_class_message,
+            ],
+        )
+        .mount(
             "/class",
             routes![
-                crate::class::messages::list_all_messages,
-                crate::class::messages::create_new_class_message,
-                crate::class::messages::apply_create_new_class_message,
-                crate::class::messages::reply_to_teacher_message,
-                crate::class::messages::edit_message,
-                crate::class::messages::apply_message_edit,
+                crate::class::messages::html_list_all_messages,
+                crate::class::messages::html_apply_create_new_class_message,
+                crate::class::messages::html_reply_to_teacher_message,
+                crate::class::messages::edit_message_page,
+                crate::class::messages::html_apply_message_edit,
                 crate::class::messages::edit_message_reply,
-                crate::class::messages::apply_message_reply_edit,
+                crate::class::messages::html_apply_message_reply_edit,
                 crate::class::messages::view_message,
                 crate::class::tasks::asynchronous::view_all_async_tasks_in_class,
                 crate::class::tasks::asynchronous::create_new_async_task,

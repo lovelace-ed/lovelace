@@ -66,22 +66,25 @@ impl<'a> NewUser<'a> {
     }
 }
 
-#[derive(Queryable, Identifiable, Debug, Clone)]
+#[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
 #[table_name = "class"]
 pub struct Class {
     pub id: i32,
     pub name: String,
     pub description: String,
     pub created: NaiveDateTime,
+    #[serde(skip_serializing)]
     pub code: String,
 }
 
 impl Class {
+    /// Returns an instance of the class with the given id.
     pub async fn with_id(id: i32, conn: &Database) -> Result<Self, diesel::result::Error> {
         use crate::schema::class::dsl as class;
         conn.run(move |c| class::class.filter(class::id.eq(id)).first::<Self>(c))
             .await
     }
+    /// Returns the number of students in the class in question.
     pub async fn student_count(id: i32, conn: &Database) -> Result<i64, diesel::result::Error> {
         use crate::schema::class::dsl as class;
         use crate::schema::class_student::dsl as class_student;
@@ -191,7 +194,19 @@ impl<'a> NewNotification<'a> {
     }
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug)]
+#[derive(
+    Queryable,
+    Identifiable,
+    Associations,
+    Debug,
+    Serialize,
+    Deserialize,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+)]
 #[belongs_to(Class)]
 #[table_name = "class_message"]
 pub struct ClassMessage {
@@ -199,9 +214,22 @@ pub struct ClassMessage {
     pub title: String,
     pub contents: String,
     pub created_at: NaiveDateTime,
+    #[serde(skip_serializing)]
     pub user_id: i32,
+    #[serde(skip_serializing)]
     pub class_id: i32,
     pub edited: bool,
+}
+
+#[derive(AsChangeset, Default, Debug)]
+#[table_name = "class_message"]
+pub struct UpdateClassMessage {
+    pub title: Option<String>,
+    pub contents: Option<String>,
+    pub created_at: Option<NaiveDateTime>,
+    pub user_id: Option<i32>,
+    pub class_id: Option<i32>,
+    pub edited: Option<bool>,
 }
 
 #[derive(Insertable, Debug)]
@@ -215,7 +243,7 @@ pub struct NewClassMessage<'a> {
     pub edited: bool,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug)]
+#[derive(Queryable, Identifiable, Associations, Debug, Serialize, Deserialize)]
 #[table_name = "class_message_reply"]
 #[belongs_to(User)]
 #[belongs_to(ClassMessage)]
@@ -227,6 +255,16 @@ pub struct ClassMessageReply {
     pub user_id: i32,
     pub class_id: i32,
     pub class_message_id: i32,
+}
+
+#[derive(AsChangeset, Debug, Default)]
+#[table_name = "class_message_reply"]
+pub struct UpdateClassMessageReply {
+    pub contents: Option<String>,
+    pub created_at: Option<NaiveDateTime>,
+    pub edited: Option<bool>,
+    pub user_id: Option<i32>,
+    pub class_message_id: Option<i32>,
 }
 
 #[derive(Insertable, Debug)]
