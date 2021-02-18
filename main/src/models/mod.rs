@@ -21,8 +21,10 @@ use diesel::prelude::*;
 
 pub mod calendar;
 
-#[derive(Queryable, Identifiable, Debug, Clone, Serialize)]
+#[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
 #[table_name = "users"]
+/// Note: this struct cannot be deserialized as-is (because we never serialize confidential data –
+/// i.e. password hashes, emails and whether or not the user has verified their email).
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -280,7 +282,7 @@ pub struct NewClassMessageReply<'a> {
     pub class_message_id: i32,
 }
 
-#[derive(Queryable, Identifiable, PartialEq, Debug, Clone)]
+#[derive(Queryable, Identifiable, PartialEq, Debug, Clone, Serialize, Deserialize)]
 #[table_name = "class_asynchronous_task"]
 pub struct ClassAsynchronousTask {
     pub id: i32,
@@ -302,6 +304,17 @@ impl ClassAsynchronousTask {
     }
 }
 
+#[derive(AsChangeset, Debug, Default)]
+#[table_name = "class_asynchronous_task"]
+pub struct UpdateClassAsynchronousTask {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub created: Option<NaiveDateTime>,
+    pub due_date: Option<NaiveDateTime>,
+    pub class_teacher_id: Option<i32>,
+    pub class_id: Option<i32>,
+}
+
 #[derive(Insertable, Debug, Clone)]
 #[table_name = "class_asynchronous_task"]
 pub struct NewClassAsynchronousTask<'a> {
@@ -321,7 +334,18 @@ pub struct NewStudentClassAsynchronousTask {
     pub completed: bool,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug)]
+#[derive(
+    Queryable,
+    Identifiable,
+    Associations,
+    Debug,
+    Serialize,
+    Deserialize,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+)]
 #[table_name = "student_class_asynchronous_task"]
 #[belongs_to(ClassStudent)]
 #[belongs_to(ClassAsynchronousTask)]

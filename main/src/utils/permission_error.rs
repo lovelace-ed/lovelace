@@ -2,8 +2,10 @@ use malvolio::prelude::*;
 
 use super::default_head;
 
+/// A permission error which means that a user may not access the resource in question.
 pub fn permission_error() -> Html {
     Html::new()
+        .status(403)
         .head(default_head("Permission error".to_string()))
         .body(
             Body::new()

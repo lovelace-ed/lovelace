@@ -471,7 +471,7 @@ pub struct InviteTeacherForm {
     identifier: String,
 }
 
-fn user_is_teacher(user_id: i32, class_id: i32, conn: &DatabaseConnection) -> bool {
+pub fn user_is_teacher(user_id: i32, class_id: i32, conn: &DatabaseConnection) -> bool {
     use crate::schema::class_teacher::dsl as class_teacher;
     diesel::dsl::select(diesel::dsl::exists(
         class_teacher::class_teacher
