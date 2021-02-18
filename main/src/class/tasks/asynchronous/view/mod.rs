@@ -25,8 +25,6 @@ mod teacher;
 pub enum ViewAsyncTaskSummaryError {
     #[error("database error")]
     DatabaseError,
-    #[error("permission error")]
-    PermissionError,
 }
 
 #[get("/<class_id>/task/async/<task_id>/view")]
@@ -50,7 +48,6 @@ pub async fn html_view_specific_asynchronous_task(
                 }
                 Err(e) => match e {
                     ViewAsyncTaskSummaryError::DatabaseError => database_error(),
-                    ViewAsyncTaskSummaryError::PermissionError => permission_error(),
                 },
             }
         }
@@ -61,7 +58,6 @@ pub async fn html_view_specific_asynchronous_task(
                 }
                 Err(e) => match e {
                     ViewAsyncTaskSummaryError::DatabaseError => database_error(),
-                    ViewAsyncTaskSummaryError::PermissionError => permission_error(),
                 },
             }
         }
@@ -116,10 +112,7 @@ pub async fn api_view_specific_asynchronous_task(
                         task: class_task,
                         student_tasks: student_tasks
                             .into_iter()
-                            .map(|(student, task)| StudentTask {
-                                student: student,
-                                task: task,
-                            })
+                            .map(|(student, task)| StudentTask { student, task })
                             .collect(),
                     }),
                 ),
@@ -127,7 +120,6 @@ pub async fn api_view_specific_asynchronous_task(
                     ViewAsyncTaskSummaryError::DatabaseError => {
                         "Encountered an error trying to get this item from the database."
                     }
-                    ViewAsyncTaskSummaryError::PermissionError => "Permission error.",
                 }),
             }
         }
@@ -143,7 +135,6 @@ pub async fn api_view_specific_asynchronous_task(
                     ViewAsyncTaskSummaryError::DatabaseError => {
                         "Encountered an error trying to get this item from the database."
                     }
-                    ViewAsyncTaskSummaryError::PermissionError => "Permission error.",
                 }),
             }
         }

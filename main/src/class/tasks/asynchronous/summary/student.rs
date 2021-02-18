@@ -5,7 +5,7 @@ use crate::{
     css_names::LIST,
     db::Database,
     models::{ClassAsynchronousTask, StudentClassAsynchronousTask},
-    utils::{default_head, error_messages::database_error},
+    utils::default_head,
 };
 
 use super::ShowAsyncTaskSummaryError;

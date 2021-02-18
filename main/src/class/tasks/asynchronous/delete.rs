@@ -5,6 +5,7 @@ use thiserror::Error as ThisError;
 
 use crate::{
     auth::AuthCookie,
+    class::{get_user_role_in_class, ClassMemberRole},
     db::Database,
     utils::{default_head, error_messages::database_error, json_response::ApiResponse},
 };
@@ -13,6 +14,8 @@ use crate::{
 pub enum DeleteTaskError {
     #[error("database error")]
     DatabaseError,
+    #[error("permission error")]
+    PermissionError,
 }
 
 async fn delete_task(
@@ -22,6 +25,13 @@ async fn delete_task(
     conn: Database,
 ) -> Result<(), DeleteTaskError> {
     use crate::schema::class_asynchronous_task::dsl as class_asynchronous_task;
+    if let Some(role) = get_user_role_in_class(auth.0, class_id, &conn).await {
+        if role != ClassMemberRole::Teacher {
+            return Err(DeleteTaskError::PermissionError);
+        }
+    } else {
+        return Err(DeleteTaskError::PermissionError);
+    }
     conn.run(move |c| {
         diesel::delete(
             class_asynchronous_task::class_asynchronous_task
