@@ -12,28 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache cargo registry
-        uses: actions/cache@v2
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v2
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v2
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
       - name: Check formatting
         run: cargo fmt -- --check
+
       - name: Lint
         run: cargo clippy -- -D warnings
   test:
@@ -50,48 +48,99 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable 
           override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
       - uses: actions/setup-python@v2
         with:
           python-version: '3.7'
+
       - name: Install CalDAV server
         run: |
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
           python -m pip install --upgrade xandikos
+
       - run: sudo apt install postgresql postgresql-contrib
+
       - run: (xandikos --defaults -d dav) & sleep 3 ; kill $!
+
       - run: (cd dav/user/calendars && cp -r calendar lovelace)
+
       - run: (xandikos --defaults -d dav) & (cargo test --no-fail-fast --all)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+
   test-malvolio-in-browser:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable 
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
 
       - name: Install
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - run: (cd utils/malvolio && wasm-pack test --headless --chrome -- --features with_yew)
+
       - run: (cd utils/malvolio && wasm-pack test --headless --firefox -- --features with_yew)
+
   test-prospero:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: stable 
           override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
       - uses: actions/setup-python@v2
         with:
           python-version: '3.7'
+
       - name: Install CalDAV server
         run: |
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
           python -m pip install --upgrade xandikos
+
       - name: Test prospero
         run: (xandikos --defaults -d .) & (cd utils/prospero && cargo test --all-features)
 
@@ -100,7 +149,7 @@ jobs:
     needs:
       - lint
       - test
-      # tested seperately from everything else
+      # tested seperately from everything else for speed
       - test-malvolio-in-browser
       - test-prospero
 
