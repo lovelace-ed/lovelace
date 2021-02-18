@@ -49,7 +49,7 @@ jobs:
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long
         run: |
-          (xandikos --defaults -d dav) & (cargo +nightly tarpaulin --verbose --all --workspace --timeout 300 --out Xml)
+          (xandikos --defaults -d dav) & (cargo +nightly tarpaulin --verbose --all --workspace --out Xml)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
       - name: Upload to codecov.io
