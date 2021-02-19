@@ -89,7 +89,7 @@ jobs:
           (xandikos --defaults -d dav) &
           (cd utils/prospero &&
           cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml
-          --exclude-files utils/mercutio_codegen/lib.rs utils/mercutio_codegen/inner.rs)
+          -e --exclude-files utils/mercutio_codegen/*.rs)
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
