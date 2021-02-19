@@ -4,8 +4,8 @@ extern crate quote;
 extern crate darling;
 #[macro_use]
 extern crate nanoid;
-
 use proc_macro::TokenStream;
+
 mod inner;
 
 #[proc_macro_derive(CSS, attributes(mercutio))]

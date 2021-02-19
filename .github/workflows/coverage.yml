@@ -37,7 +37,7 @@ jobs:
       - run: sudo apt install postgresql postgresql-contrib
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: "3.7"
       - name: Install CalDAV server
         run: |
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
@@ -76,7 +76,7 @@ jobs:
       - run: sudo apt install postgresql postgresql-contrib
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: "3.7"
       - name: Install CalDAV server
         run: |
           sudo apt install python3-dulwich python3-defusedxml python3-icalendar python3-jinja2
@@ -86,7 +86,10 @@ jobs:
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long
         run: |
-          (xandikos --defaults -d dav) & (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml -e mercutio_codegen)
+          (xandikos --defaults -d dav) &
+          (cd utils/prospero &&
+          cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml
+          --exclude-files utils/mercutio_codegen/lib.rs utils/mercutio_codegen/inner.rs)
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
