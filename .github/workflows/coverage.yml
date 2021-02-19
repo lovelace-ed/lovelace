@@ -51,7 +51,7 @@ jobs:
         run: |
           (xandikos --defaults -d dav) &
           (cargo +nightly tarpaulin --verbose --all --timeout 450 --workspace --out Xml \
-          --exclude-files utils/mercutio_codegen/*.rs)
+          --exclude-files utils/mercutio_codegen/src/*.rs)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
       - name: Upload to codecov.io
