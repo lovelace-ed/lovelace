@@ -32,7 +32,7 @@ macro_rules! heading_display {
 
 #[macro_export]
 #[doc(hidden)]
-/// For internal case only.
+/// For internal use only.
 ///
 /// Generates new code to construct a heading.
 macro_rules! impl_of_heading_new_fn {

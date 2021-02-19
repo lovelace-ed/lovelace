@@ -18,6 +18,8 @@ pub mod head;
 pub mod headings;
 /// The <html> tag.
 pub mod html;
+/// The <img> tag.
+pub mod img;
 /// The <input> tag.
 pub mod input;
 /// The <label> tag.

@@ -12,6 +12,7 @@ pub use crate::tags::{
     head::Head,
     headings::{H1, H2, H3, H4, H5, H6},
     html::Html,
+    img::{Alt, Img, Src},
     input::{Input, Name, Placeholder, Type, Value},
     label::Label,
     meta::{Content, Meta, MetaName},

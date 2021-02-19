@@ -124,6 +124,7 @@ impl Display for A {
         f.write_str("</a>")
     }
 }
+
 into_grouping_union!(A, BodyNode);
 
 utility_enum!(
@@ -160,6 +161,7 @@ impl Href {
         Self(value.into())
     }
 }
+
 into_grouping_union!(Href, AAttr);
 
 /// The download attribute.
