@@ -1,3 +1,5 @@
+#[cfg(feature = "with_yew")]
+use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 #[cfg(feature = "with_yew")]
 use yew::virtual_dom::Listener;
