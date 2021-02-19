@@ -86,7 +86,7 @@ jobs:
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long
         run: |
-          (xandikos --defaults -d dav) & (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml)
+          (xandikos --defaults -d dav) & (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml -e mercutio_codegen)
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
