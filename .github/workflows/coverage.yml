@@ -49,7 +49,9 @@ jobs:
       - name: Generate code coverage
         # this might seem like a long timeout but some of the tests can take quite long
         run: |
-          (xandikos --defaults -d dav) & (cargo +nightly tarpaulin --verbose --all --timeout 450 --workspace --out Xml)
+          (xandikos --defaults -d dav) &
+          (cargo +nightly tarpaulin --verbose --all --timeout 450 --workspace --out Xml \
+          -e --exclude-files utils/mercutio_codegen/*.rs)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
       - name: Upload to codecov.io
@@ -87,9 +89,7 @@ jobs:
         # this might seem like a long timeout but some of the tests can take quite long
         run: |
           (xandikos --defaults -d dav) &
-          (cd utils/prospero &&
-          cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml
-          -e --exclude-files utils/mercutio_codegen/*.rs)
+          (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml)
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1
         with:
