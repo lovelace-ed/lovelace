@@ -151,6 +151,7 @@ pub enum Type {
     Submit,
     Hidden,
     DateTimeLocal,
+    Checkbox,
 }
 
 impl IntoAttribute for Type {
@@ -165,6 +166,7 @@ impl IntoAttribute for Type {
                 Type::Textarea => "textarea",
                 Type::Hidden => "hidden",
                 Type::DateTimeLocal => "datetime-local",
+                Type::Checkbox => "checkbox",
             }
             .into(),
         )

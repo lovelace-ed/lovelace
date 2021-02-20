@@ -1,4 +1,22 @@
 table! {
+    administrator (id) {
+        id -> Int4,
+        user_id -> Int4,
+        institution_id -> Int4,
+    }
+}
+
+table! {
+    administrator_invite (id) {
+        id -> Int4,
+        inviting_user_id -> Int4,
+        invited_user_id -> Int4,
+        institution_id -> Int4,
+        accepted -> Bool,
+    }
+}
+
+table! {
     caldav (id) {
         id -> Int4,
         calendar_id -> Int4,
@@ -31,6 +49,8 @@ table! {
         description -> Text,
         created -> Timestamp,
         code -> Text,
+        institution_id -> Nullable<Int4>,
+        student_group_id -> Nullable<Int4>,
     }
 }
 
@@ -120,6 +140,16 @@ table! {
 }
 
 table! {
+    institution (id) {
+        id -> Int4,
+        name -> Text,
+        domain -> Text,
+        created -> Timestamp,
+        enforce_same_domain -> Bool,
+    }
+}
+
+table! {
     notifications (id) {
         id -> Int4,
         title -> Text,
@@ -149,6 +179,41 @@ table! {
 }
 
 table! {
+    student_group (id) {
+        id -> Int4,
+        parent_group -> Nullable<Int4>,
+        institution_id -> Int4,
+        code -> Text,
+    }
+}
+
+table! {
+    student_group_student (id) {
+        id -> Int4,
+        user_id -> Int4,
+        student_group_id -> Int4,
+    }
+}
+
+table! {
+    student_group_teacher (id) {
+        id -> Int4,
+        user_id -> Int4,
+        student_group_id -> Int4,
+    }
+}
+
+table! {
+    student_group_teacher_invite (id) {
+        id -> Int4,
+        inviting_user_id -> Int4,
+        invited_user_id -> Int4,
+        student_group_id -> Int4,
+        accepted -> Bool,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         username -> Text,
@@ -160,9 +225,14 @@ table! {
     }
 }
 
+joinable!(administrator -> institution (institution_id));
+joinable!(administrator -> users (user_id));
+joinable!(administrator_invite -> institution (institution_id));
 joinable!(caldav -> calendar (calendar_id));
 joinable!(caldav_unauthenticated -> calendar (calendar_id));
 joinable!(calendar -> users (user_id));
+joinable!(class -> institution (institution_id));
+joinable!(class -> student_group (student_group_id));
 joinable!(class_asynchronous_task -> class (class_id));
 joinable!(class_asynchronous_task -> class_teacher (class_teacher_id));
 joinable!(class_message -> class (class_id));
@@ -183,8 +253,16 @@ joinable!(student_class_asynchronous_task -> class_asynchronous_task (class_asyn
 joinable!(student_class_asynchronous_task -> class_student (class_student_id));
 joinable!(student_class_synchronous_task -> class_student (class_student_id));
 joinable!(student_class_synchronous_task -> class_synchronous_task (class_synchronous_task_id));
+joinable!(student_group -> institution (institution_id));
+joinable!(student_group_student -> student_group (student_group_id));
+joinable!(student_group_student -> users (user_id));
+joinable!(student_group_teacher -> student_group (student_group_id));
+joinable!(student_group_teacher -> users (user_id));
+joinable!(student_group_teacher_invite -> student_group (student_group_id));
 
 allow_tables_to_appear_in_same_query!(
+    administrator,
+    administrator_invite,
     caldav,
     caldav_unauthenticated,
     calendar,
@@ -197,8 +275,13 @@ allow_tables_to_appear_in_same_query!(
     class_teacher,
     class_teacher_invite,
     google_calendar,
+    institution,
     notifications,
     student_class_asynchronous_task,
     student_class_synchronous_task,
+    student_group,
+    student_group_student,
+    student_group_teacher,
+    student_group_teacher_invite,
     users,
 );

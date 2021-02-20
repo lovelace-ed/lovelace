@@ -79,6 +79,8 @@ pub async fn create_class(form: Form<CreateClassForm>, cookie: AuthCookie, conn:
                     &form.description,
                     Utc::now().naive_utc(),
                     &nanoid!(5),
+                    None,
+                    None,
                 ))
                 .get_result::<Class>(c)
         })

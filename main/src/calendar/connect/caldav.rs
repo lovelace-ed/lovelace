@@ -145,7 +145,7 @@ mod test_connect_caldav {
     const USERNAME: &str = "someuser";
     const EMAIL: &str = "someuser@example.com";
     const PASSWORD: &str = "arand0mishpassw0rd";
-    const TIMEZONE: &str = "";
+    const TIMEZONE: &str = "Africa/Abidjan";
 
     fn setup_env(conn: &DatabaseConnection) {
         use crate::schema::users;

@@ -103,6 +103,8 @@ mod class_tests {
                 description: CLASS_DESCRIPTION,
                 created: chrono::Utc::now().naive_utc(),
                 code: &nanoid!(5),
+                institution_id: None,
+                student_group_id: None,
             })
             .returning(crate::schema::class::all_columns)
             .get_result::<Class>(conn)

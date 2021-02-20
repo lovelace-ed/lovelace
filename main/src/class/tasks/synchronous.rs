@@ -642,6 +642,8 @@ mod synchronous_task_tests {
                 description: CLASS_DESCRIPTION,
                 created: chrono::Utc::now().naive_utc(),
                 code: CLASS_CODE,
+                institution_id: None,
+                student_group_id: None,
             })
             .returning(crate::schema::class::id)
             .get_result::<i32>(conn)

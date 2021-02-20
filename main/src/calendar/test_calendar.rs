@@ -32,7 +32,7 @@ const STUDENT_PASSWORD: &str = "student-passwordsa13524rerewrweds@$E@$@#@";
 const CLASS_NAME: &str = "task-name";
 const CLASS_DESCRIPTION: &str = "class description";
 
-const TIMEZONE: &str = "";
+const TIMEZONE: &str = "Africa/Abidjan";
 
 /// Returns the class id, student id, teacher id
 fn setup_env(conn: &DatabaseConnection) -> (i32, i32, i32) {
@@ -67,6 +67,8 @@ fn setup_env(conn: &DatabaseConnection) -> (i32, i32, i32) {
             description: CLASS_DESCRIPTION,
             created: Utc::now().naive_utc(),
             code: "12345",
+            institution_id: None,
+            student_group_id: None,
         })
         .returning(class::id)
         .get_result(conn)

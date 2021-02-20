@@ -2,7 +2,7 @@
 This source code file is distributed subject to the terms of the GNU Affero General Public License.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-#![deny(missing_debug_implementations)]
+#![deny(missing_debug_implementations, unused_must_use, unused_mut)]
 
 #[macro_use]
 extern crate serde;
@@ -44,6 +44,7 @@ mod class;
 mod css_names;
 mod db;
 mod email;
+mod institution;
 mod models;
 mod notifications;
 mod schema;

@@ -17,7 +17,9 @@ use rocket::{http::ContentType, local::asynchronous::Client};
 use std::collections::HashMap;
 
 pub mod auto_database_error;
+pub mod error;
 pub mod error_messages;
+pub mod form;
 pub mod html_or_redirect;
 pub mod json_response;
 pub mod permission_error;
@@ -92,6 +94,25 @@ pub fn launch() -> Rocket {
                 crate::auth::register_page,
                 crate::auth::html_register,
                 crate::auth::verify_email
+            ],
+        )
+        .mount(
+            "/api/institution",
+            routes![
+                crate::institution::register::api_register_new_institution,
+                crate::institution::delete::api_delete_institution,
+                crate::institution::configure::api_configure_institution
+            ],
+        )
+        .mount(
+            "/institution",
+            routes![
+                crate::institution::register::register_new_institution_page,
+                crate::institution::register::html_register_new_institution,
+                crate::institution::delete::delete_institution_page,
+                crate::institution::delete::html_delete_institution,
+                crate::institution::configure::configure_institution_page,
+                crate::institution::configure::html_configure_institution
             ],
         )
         .mount(
