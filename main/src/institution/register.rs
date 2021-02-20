@@ -11,7 +11,7 @@ use crate::{
     auth::AuthCookie,
     db::Database,
     models::institution::Institution,
-    schema::{institution, administrator},
+    schema::{administrator, institution},
     utils::{default_head, error::LovelaceError, json_response::ApiResponse},
 };
 

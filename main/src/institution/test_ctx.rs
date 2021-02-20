@@ -18,7 +18,6 @@ pub const TIMEZONE: &str = "Africa/Abidjan";
 pub const NAME: &str = "Some educational institution";
 pub const WEBSITE: &str = "https://example.com";
 
-
 /// (user_id, institution_id)
 pub async fn setup_env(conn: Database) -> (i32, i32) {
     conn.run(|c| {

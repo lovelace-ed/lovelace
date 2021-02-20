@@ -16,9 +16,11 @@ use crate::{
 
 #[get("/<institution_id>/delete")]
 pub fn delete_institution_page(institution_id: i32, auth: AuthCookie, conn: Database) -> Html {
-    let has_permission = conn.run(move |c| {
-        has_permission(institution_id, auth, c);
-    }).await;
+    let has_permission = conn
+        .run(move |c| {
+            has_permission(institution_id, auth, c);
+        })
+        .await;
     if !has_permission {
         return LovelaceError::PermissionError.render();
     }
