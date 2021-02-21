@@ -4,7 +4,7 @@ use rocket_contrib::json::Json;
 use crate::{
     auth::AuthCookie,
     db::Database,
-    utils::{default_head, json_response::ApiResponse},
+    utils::{default_head, error::LovelaceError, json_response::ApiResponse},
 };
 
 use super::{get_user_role_in_class, ClassMemberRole};
@@ -76,7 +76,7 @@ pub async fn api_view_class_overview(
     id: usize,
     auth_cookie: AuthCookie,
     conn: Database,
-) -> Json<ApiResponse<crate::models::Class>> {
+) -> Json<ApiResponse<ClassOverview>> {
     Json(
         match get_user_role_in_class(auth_cookie.0 as i32, id as i32, &conn).await {
             Some(role) => match role {
