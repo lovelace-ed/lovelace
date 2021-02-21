@@ -71,21 +71,25 @@ async fn register_new_institution(
             })
             .returning(institution::all_columns)
             .get_result::<Institution>(c)
-            .and_then(|res| {
+            .map(|res| {
                 diesel::insert_into(administrator::table)
                     .values(NewAdministrator {
                         user_id: auth.0,
                         institution_id: res.id,
                     })
                     .execute(c)
-                    .and_then(|_| Ok(res))
+                    .map_err(|e| {
+                        error!("{:#?}", e);
+                        LovelaceError::DatabaseError
+                    })
+                    .map(|_| res)
+            })
+            .map_err(|e| {
+                error!("{:#?}", e);
+                LovelaceError::DatabaseError
             })
     })
-    .await
-    .map_err(|e| {
-        error!("{:#?}", e);
-        LovelaceError::DatabaseError
-    })
+    .await?
 }
 
 #[post("/register", data = "<form>")]
