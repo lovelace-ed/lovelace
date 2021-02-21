@@ -5,6 +5,14 @@ A copy of this license can be found in the `licenses` directory at the root of t
 #[cfg(test)]
 use crate::auth::LOGIN_COOKIE;
 use crate::calendar::connect::gcal::StateValues;
+#[cfg(test)]
+use crate::db::Database;
+#[cfg(test)]
+use crate::models::NewUser;
+#[cfg(test)]
+use crate::schema::users;
+#[cfg(test)]
+use chrono::Utc;
 use malvolio::prelude::{Body, Head, Html, Title, H1, P};
 use rocket::figment::{
     util::map,
@@ -65,20 +73,31 @@ pub fn launch() -> Rocket {
             crate::db::run_migrations,
         ))
         .mount(
+            "/api",
+            routes![
+                crate::class::api_create_class,
+                crate::class::api_delete_class,
+                crate::class::api_join_class,
+                crate::class::api_view_class_members_page,
+                crate::class::api_view_all_classes,
+                crate::class::api_invite_teacher
+            ],
+        )
+        .mount(
             "/",
             routes![
                 crate::index,
-                crate::class::create_class,
+                crate::class::html_create_class,
                 crate::class::create_class_page,
-                crate::class::join_class,
-                crate::class::view_all_classes,
-                crate::class::view_class_overview,
+                crate::class::html_join_class,
+                crate::class::html_view_all_classes,
+                crate::class::api_view_class_overview,
                 crate::class::get_class_settings,
-                crate::class::view_class_members_page,
+                crate::class::html_view_class_members_page,
                 crate::class::invite_teacher_page,
-                crate::class::invite_teacher,
+                crate::class::html_invite_teacher,
                 crate::class::delete_class_page,
-                crate::class::delete_class,
+                crate::class::html_delete_class,
                 crate::auth::html_logout_user
             ],
         )
@@ -200,25 +219,30 @@ pub async fn client() -> Client {
 
 #[cfg(test)]
 pub async fn create_user(
-    username: &str,
-    email: &str,
-    timezone: &str,
-    password: &str,
+    username: &'static str,
+    email: &'static str,
+    timezone: &'static str,
+    password: &'static str,
     client: &Client,
 ) {
-    let register_res = client
-        .post("/auth/register")
-        .header(ContentType::Form)
-        .body(format!(
-            "username={}&email={}&timezone={timezone}&password={password}&password_confirmation={password}",
-            username, email, timezone=timezone, password=password
-        ))
-        .dispatch().await;
-    assert!(register_res
-        .into_string()
+    use diesel::prelude::*;
+    Database::get_one(client.rocket())
         .await
-        .expect("invalid body response")
-        .contains("Registration successful!"));
+        .unwrap()
+        .run(move |c| {
+            diesel::insert_into(users::table)
+                .values(NewUser {
+                    username,
+                    email,
+                    password: &bcrypt::hash(password, bcrypt::DEFAULT_COST).unwrap(),
+                    created: Utc::now().naive_utc(),
+                    email_verified: true,
+                    timezone,
+                })
+                .execute(c)
+        })
+        .await
+        .expect("failed to register");
 }
 
 #[cfg(test)]

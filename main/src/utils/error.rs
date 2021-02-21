@@ -12,6 +12,12 @@ pub enum LovelaceError {
     DatabaseError,
 }
 
+impl From<diesel::result::Error> for LovelaceError {
+    fn from(_: diesel::result::Error) -> Self {
+        Self::DatabaseError
+    }
+}
+
 pub type LovelaceResult<T> = Result<T, LovelaceError>;
 
 impl<T> From<LovelaceError> for ApiResponse<T> {
