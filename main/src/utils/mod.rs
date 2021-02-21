@@ -80,7 +80,8 @@ pub fn launch() -> Rocket {
                 crate::class::api_join_class,
                 crate::class::api_view_class_members_page,
                 crate::class::api_view_all_classes,
-                crate::class::api_invite_teacher
+                crate::class::api_invite_teacher,
+                crate::class::api_view_class_overview,
             ],
         )
         .mount(
@@ -91,7 +92,7 @@ pub fn launch() -> Rocket {
                 crate::class::create_class_page,
                 crate::class::html_join_class,
                 crate::class::html_view_all_classes,
-                crate::class::api_view_class_overview,
+                crate::class::html_view_class_overview,
                 crate::class::get_class_settings,
                 crate::class::html_view_class_members_page,
                 crate::class::invite_teacher_page,

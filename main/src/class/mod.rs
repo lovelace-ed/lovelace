@@ -23,7 +23,7 @@ pub use invite::{api_invite_teacher, html_invite_teacher, invite_teacher_page};
 pub use join::{api_join_class, html_join_class};
 pub use list::{api_view_all_classes, html_view_all_classes};
 pub use members::{api_view_class_members_page, html_view_class_members_page};
-pub use overview::api_view_class_overview;
+pub use overview::{api_view_class_overview, html_view_class_overview};
 
 use crate::db::{Database, DatabaseConnection};
 
