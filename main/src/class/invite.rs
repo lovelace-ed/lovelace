@@ -184,3 +184,138 @@ pub async fn api_invite_teacher(
         }
     }
 }
+
+#[cfg(test)]
+mod test_invite_teacher {
+    use chrono::Utc;
+    use diesel::prelude::*;
+    use rocket::http::ContentType;
+
+    use crate::{
+        db::Database,
+        models::{NewClass, NewClassTeacher, NewUser},
+        schema::{class, class_teacher, class_teacher_invite, users},
+        utils::{client, login_user},
+    };
+
+    pub const USERNAME: &str = "teacher";
+    pub const EMAIL: &str = "teacher@example.com";
+    pub const PASSWORD: &str = "s0mes3cuRE_passw-rd";
+    pub const TIMEZONE: &str = "Africa/Abidjan";
+
+    pub const USERNAME_2: &str = "other_teacher";
+    pub const EMAIL_2: &str = "other_teacher@example.com";
+    pub const PASSWORD_2: &str = "s3cuRE_passw-rd";
+
+    const CLASS_NAME: &str = "name";
+    const CLASS_DESCRIPTION: &str = "class-description";
+
+    async fn setup_env(conn: Database) -> (i32, i32) {
+        conn.run(|c| {
+            let user_id = diesel::insert_into(users::table)
+                .values(NewUser {
+                    username: USERNAME,
+                    email: EMAIL,
+                    password: &bcrypt::hash(PASSWORD, bcrypt::DEFAULT_COST).unwrap(),
+                    created: Utc::now().naive_utc(),
+                    email_verified: true,
+                    timezone: TIMEZONE,
+                })
+                .returning(users::id)
+                .get_result(c)
+                .unwrap();
+            let class_id = diesel::insert_into(class::table)
+                .values(NewClass {
+                    name: CLASS_NAME,
+                    description: CLASS_DESCRIPTION,
+                    created: Utc::now().naive_utc(),
+                    code: &nanoid!(5),
+                    institution_id: None,
+                    student_group_id: None,
+                })
+                .returning(class::id)
+                .get_result(c)
+                .unwrap();
+            diesel::insert_into(class_teacher::table)
+                .values(NewClassTeacher { user_id, class_id })
+                .execute(c)
+                .unwrap();
+            diesel::insert_into(users::table)
+                .values(NewUser {
+                    username: USERNAME_2,
+                    email: EMAIL_2,
+                    password: &bcrypt::hash(PASSWORD_2, bcrypt::DEFAULT_COST).unwrap(),
+                    created: Utc::now().naive_utc(),
+                    email_verified: true,
+                    timezone: TIMEZONE,
+                })
+                .execute(c)
+                .unwrap();
+            (user_id, class_id)
+        })
+        .await
+    }
+
+    #[rocket::async_test]
+    async fn test_invite_teacher_html() {
+        let client = client().await;
+        let (_, class_id) = setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        login_user(USERNAME, PASSWORD, &client).await;
+        let res = client
+            .post(format!("/class/{}/invite/teacher", class_id))
+            .header(ContentType::Form)
+            .body(format!("identifier={}", USERNAME_2))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains("invited that user"));
+        assert!(Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(move |c| {
+                diesel::select(diesel::dsl::exists(
+                    class_teacher_invite::table
+                        .inner_join(
+                            users::table.on(users::id.eq(class_teacher_invite::invited_user_id)),
+                        )
+                        .filter(users::username.eq(USERNAME_2))
+                        .filter(class_teacher_invite::class_id.eq(class_id)),
+                ))
+                .get_result::<bool>(c)
+            })
+            .await
+            .unwrap_or(false));
+    }
+
+    #[rocket::async_test]
+
+    async fn test_invite_teacher_api() {
+        let client = client().await;
+        let (_, class_id) = setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        login_user(USERNAME, PASSWORD, &client).await;
+        let res = client
+            .post(format!("/api/class/{}/invite/teacher", class_id))
+            .header(ContentType::Form)
+            .body(format!("identifier={}", USERNAME_2))
+            .dispatch()
+            .await;
+        let string = res.into_string().await.expect("invalid body response");
+        assert!(string.contains("\"success\":true"));
+        assert!(Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(move |c| {
+                diesel::select(diesel::dsl::exists(
+                    class_teacher_invite::table
+                        .inner_join(
+                            users::table.on(users::id.eq(class_teacher_invite::invited_user_id)),
+                        )
+                        .filter(users::username.eq(USERNAME_2))
+                        .filter(class_teacher_invite::class_id.eq(class_id)),
+                ))
+                .get_result::<bool>(c)
+            })
+            .await
+            .unwrap_or(false));
+    }
+}
