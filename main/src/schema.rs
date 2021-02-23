@@ -183,7 +183,9 @@ table! {
         id -> Int4,
         parent_group -> Nullable<Int4>,
         institution_id -> Int4,
-        code -> Text,
+        code -> Nullable<Text>,
+        name -> Text,
+        description -> Text,
     }
 }
 

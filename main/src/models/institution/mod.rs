@@ -3,6 +3,7 @@ use chrono::NaiveDateTime;
 use crate::schema::institution;
 
 pub mod administrator;
+pub mod student_group;
 
 #[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
 #[table_name = "institution"]

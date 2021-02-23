@@ -16,6 +16,10 @@ pub use student::*;
 pub use sync_task::*;
 pub use teacher::*;
 
+use super::institution::{Institution, student_group::StudentGroup};
+use crate::schema::institution;
+use crate::schema::student_group;
+
 #[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
 #[table_name = "class"]
 pub struct Class {
@@ -35,6 +39,19 @@ impl Class {
         use crate::schema::class::dsl as class;
         conn.run(move |c| class::class.filter(class::id.eq(id)).first::<Self>(c))
             .await
+    }
+    pub async fn with_institution(
+        id: i32,
+        conn: &Database,
+    ) -> Result<(Self, Option<Institution>, Option<StudentGroup>), diesel::result::Error> {
+        conn.run(move |c| {
+            class::table
+                .filter(class::id.eq(id))
+                .left_join(institution::table)
+                .left_join(student_group::table)
+                .first::<(Self, Option<Institution>, Option<StudentGroup>)>(c)
+        })
+        .await
     }
     /// Returns the number of students in the class in question.
     pub async fn student_count(id: i32, conn: &Database) -> Result<i64, diesel::result::Error> {

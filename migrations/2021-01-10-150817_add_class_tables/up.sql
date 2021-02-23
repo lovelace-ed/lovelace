@@ -30,7 +30,10 @@ create table if not exists student_group (
     id serial primary key,
     parent_group integer references student_group (id) on delete cascade,
     institution_id integer not null references institution (id) on delete cascade,
-    code text not null unique
+    /* optional student code */
+    code text unique,
+    "name" text not null,
+    "description" text not null
 );
 
 create table if not exists student_group_student (
