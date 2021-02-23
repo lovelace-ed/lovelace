@@ -16,7 +16,7 @@ pub use student::*;
 pub use sync_task::*;
 pub use teacher::*;
 
-use super::institution::{Institution, student_group::StudentGroup};
+use super::institution::{student_group::StudentGroup, Institution};
 use crate::schema::institution;
 use crate::schema::student_group;
 
