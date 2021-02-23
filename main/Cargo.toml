@@ -38,7 +38,7 @@ default-features = false
 features = ["diesel_postgres_pool", "json"]
 
 [dev-dependencies]
-wiremock = "0.4.9"
+wiremock = "0.5.0"
 
 [features]
 # tests which need a caldav server to run sit behind this feature
