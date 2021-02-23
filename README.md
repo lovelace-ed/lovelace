@@ -1,6 +1,6 @@
 # Lovelace
 
-![Codecov](https://img.shields.io/codecov/c/github/lovelace-edu/lovelace?style=flat-square)
+![Code coverage](https://img.shields.io/codecov/c/github/lovelace-edu/lovelace?style=flat-square)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/lovelace-ed/lovelace/Test?style=flat-square)
 [![Bors enabled](https://bors.tech/images/badge_small.svg)](https://app.bors.tech/repositories/31229)
 
