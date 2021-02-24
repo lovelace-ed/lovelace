@@ -121,7 +121,8 @@ pub fn launch() -> Rocket {
             routes![
                 crate::institution::register::api_register_new_institution,
                 crate::institution::delete::api_delete_institution,
-                crate::institution::configure::api_configure_institution
+                crate::institution::configure::api_configure_institution,
+                crate::institution::class::create::api_create_institution_class
             ],
         )
         .mount(
@@ -132,7 +133,10 @@ pub fn launch() -> Rocket {
                 crate::institution::delete::delete_institution_page,
                 crate::institution::delete::html_delete_institution,
                 crate::institution::configure::configure_institution_page,
-                crate::institution::configure::html_configure_institution
+                crate::institution::configure::html_configure_institution,
+                crate::institution::class::create::pick_which_institution_to_create_class_as_part_of,
+                crate::institution::class::create::html_create_institution_class,
+                crate::institution::class::create::create_institution_class_page
             ],
         )
         .mount(

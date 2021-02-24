@@ -19,7 +19,8 @@ use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 use super::input::{Name, Value};
 
-#[derive(Default, Debug, Clone)]
+#[derive(Derivative, Debug, Clone)]
+#[derivative(Default(new = "true"))]
 /// The `option` tag.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for more

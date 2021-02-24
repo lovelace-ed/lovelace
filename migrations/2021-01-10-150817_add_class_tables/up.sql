@@ -9,7 +9,38 @@ create table if not exists institution (
     domain text not null unique,
     created timestamp not null default now(),
     /* settings */
-    enforce_same_domain boolean not null
+    enforce_same_domain boolean not null,
+    let_teachers_create_classes boolean not null,
+    let_all_users_create_classes boolean not null,
+    let_teachers_add_sync_tasks boolean not null
+);
+
+create table if not exists institution_teacher (
+    id serial primary key,
+    user_id integer not null references users (id) on delete cascade,
+    institution_id integer not null references institution (id) on delete cascade
+);
+
+create table if not exists institution_teacher_invite (
+    id serial primary key,
+    inviting_user_id integer not null references users (id) on delete cascade,
+    invited_user_id integer not null references users (id) on delete cascade,
+    institution_id integer not null references institution (id) on delete cascade,
+    accepted boolean not null
+);
+
+create table if not exists institution_student (
+    id serial primary key,
+    user_id integer not null references users (id) on delete cascade,
+    institution_id integer not null references institution (id) on delete cascade
+);
+
+create table if not exists institution_student_invite (
+    id serial primary key,
+    inviting_user_id integer not null references users (id) on delete cascade,
+    invited_user_id integer not null references users (id) on delete cascade,
+    institution_id integer not null references institution (id) on delete cascade,
+    accepted boolean not null
 );
 
 create table if not exists administrator (

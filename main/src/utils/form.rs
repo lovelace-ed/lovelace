@@ -38,6 +38,9 @@ where
                         LovelaceError::DatabaseError => {
                             "Encountered a database error when trying to fulfil this request."
                         }
+                        LovelaceError::OtherError => {
+                            "Encountered an unexpected error trying to do this."
+                        }
                     }))
                     .child(Render::<Div>::render(self)),
             )

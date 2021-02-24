@@ -31,6 +31,20 @@ impl Level {
         self.children.push(child.into_level_child());
         self
     }
+    /// Add a series of children to this level, for example from an iterator.
+    pub fn children<C, D>(mut self, children: C) -> Self
+    where
+        C: IntoIterator<Item = D>,
+        D: IntoLevelChild,
+    {
+        self.children.extend(
+            children
+                .into_iter()
+                .map(IntoLevelChild::into_level_child)
+                .collect::<Vec<_>>(),
+        );
+        self
+    }
     pub fn into_div(self) -> Div {
         self.into()
     }

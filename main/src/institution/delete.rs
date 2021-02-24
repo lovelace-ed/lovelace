@@ -147,7 +147,7 @@ mod test_delete_institution {
     use crate::{
         institution::{
             delete::Database,
-            test_ctx::{PASSWORD, TIMEZONE, USERNAME},
+            test_ctx::{ADMIN_PASSWORD, ADMIN_USERNAME, TIMEZONE},
         },
         models::NewUser,
         schema::users,
@@ -159,9 +159,9 @@ mod test_delete_institution {
     #[rocket::async_test]
     async fn test_admin_can_delete() {
         let client = client().await;
-        let (_, institution_id) =
+        let (_, institution_id, _) =
             setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
-        login_user(USERNAME, PASSWORD, &client).await;
+        login_user(ADMIN_USERNAME, ADMIN_PASSWORD, &client).await;
         let res = client
             .post(format!("/institution/{}/delete", institution_id))
             .dispatch()
@@ -173,7 +173,7 @@ mod test_delete_institution {
     #[rocket::async_test]
     async fn test_not_admin_cannot_delete() {
         let client = client().await;
-        let (_, institution_id) =
+        let (_, institution_id, _) =
             setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
         Database::get_one(client.rocket())
             .await

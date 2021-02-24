@@ -24,7 +24,8 @@ use crate::utils::write_attributes_to_vtag;
 
 use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
 
-#[derive(Default, Debug, Clone)]
+#[derive(Derivative, Debug, Clone)]
+#[derivative(Default(new = "true"))]
 /// The `select` tag.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for more

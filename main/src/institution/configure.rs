@@ -208,7 +208,7 @@ mod test_configure_institution {
 
     use crate::{
         db::Database,
-        institution::test_ctx::{EMAIL, NAME, PASSWORD, TIMEZONE, WEBSITE},
+        institution::test_ctx::{ADMIN_EMAIL, ADMIN_PASSWORD, NAME, TIMEZONE, WEBSITE},
         models::{institution::Institution, NewUser},
         schema::{institution, users},
         utils::{client, login_user},
@@ -221,9 +221,9 @@ mod test_configure_institution {
     #[rocket::async_test]
     async fn test_admin_can_edit() {
         let client = client().await;
-        let (_, institution_id) =
+        let (_, institution_id, _) =
             setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
-        login_user(EMAIL, PASSWORD, &client).await;
+        login_user(ADMIN_EMAIL, ADMIN_PASSWORD, &client).await;
         let res = client
             .post(format!("/institution/{}/configure", institution_id))
             .header(ContentType::Form)
@@ -251,7 +251,7 @@ mod test_configure_institution {
     #[rocket::async_test]
     async fn test_not_admin_cannot_edit() {
         let client = client().await;
-        let (_, institution_id) =
+        let (_, institution_id, _) =
             setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
         Database::get_one(client.rocket())
             .await

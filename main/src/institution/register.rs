@@ -68,6 +68,10 @@ async fn register_new_institution(
                 domain: &domain,
                 created: Utc::now().naive_utc(),
                 enforce_same_domain: false,
+                // these are all set to 'false' by default, but can be configured as needed
+                let_teachers_create_classes: false,
+                let_all_users_create_classes: false,
+                let_teachers_add_sync_tasks: false,
             })
             .returning(institution::all_columns)
             .get_result::<Institution>(c)

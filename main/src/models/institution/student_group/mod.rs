@@ -1,3 +1,6 @@
+pub mod student;
+pub mod teacher;
+
 use crate::schema::student_group;
 
 #[derive(Queryable, Identifiable, Debug, Clone, Serialize, Deserialize)]
@@ -13,12 +16,12 @@ pub struct StudentGroup {
 
 #[derive(Insertable, Debug)]
 #[table_name = "student_group"]
-pub struct NewStudentGroup {
+pub struct NewStudentGroup<'a> {
     pub parent_group: Option<i32>,
     pub institution_id: i32,
-    pub code: Option<String>,
-    pub name: String,
-    pub description: String,
+    pub code: Option<&'a str>,
+    pub name: &'a str,
+    pub description: &'a str,
 }
 
 #[derive(AsChangeset, Debug)]

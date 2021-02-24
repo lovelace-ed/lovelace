@@ -242,6 +242,9 @@ pub mod test_class_overview_handling_with_institutions {
                     domain: INSTITUTION_DOMAIN,
                     created: Utc::now().naive_utc(),
                     enforce_same_domain: true,
+                    let_teachers_create_classes: true,
+                    let_all_users_create_classes: false,
+                    let_teachers_add_sync_tasks: true,
                 })
                 .returning(institution::id)
                 .get_result::<i32>(c)
@@ -257,7 +260,7 @@ pub mod test_class_overview_handling_with_institutions {
                 .values(NewStudentGroup {
                     parent_group: None,
                     institution_id,
-                    code: Some(nanoid!(5)),
+                    code: Some(&nanoid!(5)),
                     name: STUDENT_GROUP_NAME.into(),
                     description: STUDENT_GROUP_DESCRIPTION.into(),
                 })

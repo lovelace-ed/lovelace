@@ -10,6 +10,9 @@ pub enum LovelaceError {
     PermissionError,
     #[error("database error")]
     DatabaseError,
+    #[error("other error")]
+    #[allow(dead_code)]
+    OtherError,
 }
 
 impl From<diesel::result::Error> for LovelaceError {
@@ -25,6 +28,7 @@ impl<T> From<LovelaceError> for ApiResponse<T> {
         ApiResponse::new_err(match e {
             LovelaceError::PermissionError => "Permission error",
             LovelaceError::DatabaseError => "Database error",
+            LovelaceError::OtherError => "Other error",
         })
     }
 }
@@ -46,6 +50,7 @@ impl Render<Div> for LovelaceError {
                         message to be more informative as to why it happened.",
                     ))
             }
+            LovelaceError::OtherError => {Level::new().child(H1::new("Other error"))}
         }
         .into_div()
     }
@@ -57,10 +62,12 @@ impl Render<Html> for LovelaceError {
             .status(match self {
                 LovelaceError::PermissionError => 403,
                 LovelaceError::DatabaseError => 500,
+                LovelaceError::OtherError => 500,
             })
             .head(default_head(match self {
                 LovelaceError::PermissionError => "Invalid permissions",
                 LovelaceError::DatabaseError => "Database error",
+                LovelaceError::OtherError => "Unknown error",
             }))
             .body(Body::new().child(Render::<Div>::render(self)))
     }

@@ -146,6 +146,45 @@ table! {
         domain -> Text,
         created -> Timestamp,
         enforce_same_domain -> Bool,
+        let_teachers_create_classes -> Bool,
+        let_all_users_create_classes -> Bool,
+        let_teachers_add_sync_tasks -> Bool,
+    }
+}
+
+table! {
+    institution_student (id) {
+        id -> Int4,
+        user_id -> Int4,
+        institution_id -> Int4,
+    }
+}
+
+table! {
+    institution_student_invite (id) {
+        id -> Int4,
+        inviting_user_id -> Int4,
+        invited_user_id -> Int4,
+        institution_id -> Int4,
+        accepted -> Bool,
+    }
+}
+
+table! {
+    institution_teacher (id) {
+        id -> Int4,
+        user_id -> Int4,
+        institution_id -> Int4,
+    }
+}
+
+table! {
+    institution_teacher_invite (id) {
+        id -> Int4,
+        inviting_user_id -> Int4,
+        invited_user_id -> Int4,
+        institution_id -> Int4,
+        accepted -> Bool,
     }
 }
 
@@ -250,6 +289,12 @@ joinable!(class_teacher -> class (class_id));
 joinable!(class_teacher -> users (user_id));
 joinable!(class_teacher_invite -> class (class_id));
 joinable!(google_calendar -> calendar (calendar_id));
+joinable!(institution_student -> institution (institution_id));
+joinable!(institution_student -> users (user_id));
+joinable!(institution_student_invite -> institution (institution_id));
+joinable!(institution_teacher -> institution (institution_id));
+joinable!(institution_teacher -> users (user_id));
+joinable!(institution_teacher_invite -> institution (institution_id));
 joinable!(notifications -> users (user_id));
 joinable!(student_class_asynchronous_task -> class_asynchronous_task (class_asynchronous_task_id));
 joinable!(student_class_asynchronous_task -> class_student (class_student_id));
@@ -278,6 +323,10 @@ allow_tables_to_appear_in_same_query!(
     class_teacher_invite,
     google_calendar,
     institution,
+    institution_student,
+    institution_student_invite,
+    institution_teacher,
+    institution_teacher_invite,
     notifications,
     student_class_asynchronous_task,
     student_class_synchronous_task,

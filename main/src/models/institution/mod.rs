@@ -3,7 +3,9 @@ use chrono::NaiveDateTime;
 use crate::schema::institution;
 
 pub mod administrator;
+pub mod student;
 pub mod student_group;
+pub mod teacher;
 
 #[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
 #[table_name = "institution"]
@@ -13,6 +15,9 @@ pub struct Institution {
     pub domain: String,
     pub created: NaiveDateTime,
     pub enforce_same_domain: bool,
+    pub let_teachers_create_classes: bool,
+    pub let_all_users_create_classes: bool,
+    pub let_teachers_add_sync_tasks: bool,
 }
 
 #[derive(Insertable, Debug)]
@@ -22,6 +27,9 @@ pub struct NewInstitution<'a> {
     pub domain: &'a str,
     pub created: NaiveDateTime,
     pub enforce_same_domain: bool,
+    pub let_teachers_create_classes: bool,
+    pub let_all_users_create_classes: bool,
+    pub let_teachers_add_sync_tasks: bool,
 }
 
 #[derive(AsChangeset, Debug, Default)]
