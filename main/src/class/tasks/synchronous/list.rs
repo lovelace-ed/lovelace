@@ -62,18 +62,18 @@ impl Render<Html> for RenderClassTaskList {
             Html::new()
                 .head(default_head("Tasks for this class".to_string()))
                 .body(
-                    Body::new()
-                        .child(H1::new("Tasks for this class"))
-                        .child(Div::new().attribute(Class::from(LIST)).children(
-                            self.0.into_iter().map(|(_, class_task_instance)| {
+                    Body::new().child(H1::new("Tasks for this class")).child(
+                        Div::new()
+                            .attribute(Class::from(LIST))
+                            .children(self.0.into_iter().map(|(_, class_task_instance)| {
                                 Div::new()
                                     .child(H3::new(format!("Task: {}", class_task_instance.title)))
                                     .child(P::with_text(format!(
                                         "Description: {}",
                                         class_task_instance.description
                                     )))
-                            }),
-                        )),
+                            })),
+                    ),
                 )
         }
     }
