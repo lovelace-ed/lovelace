@@ -159,7 +159,12 @@ pub fn launch() -> Rocket {
                 crate::class::tasks::asynchronous::api_apply_edit_task,
                 crate::class::tasks::asynchronous::api_view_specific_asynchronous_task,
                 crate::class::tasks::asynchronous::api_delete_task,
-                crate::class::tasks::asynchronous::api_view_all_async_tasks_in_class
+                crate::class::tasks::asynchronous::api_view_all_async_tasks_in_class,
+                crate::class::tasks::synchronous::api_create_new_async_task,
+                crate::class::tasks::synchronous::api_delete_task,
+                crate::class::tasks::synchronous::api_apply_edit_task,
+                crate::class::tasks::synchronous::api_view_specific_synchronous_task,
+                crate::class::tasks::synchronous::api_view_all_sync_tasks_in_class
             ],
         )
         .mount(
@@ -180,13 +185,13 @@ pub fn launch() -> Rocket {
                 crate::class::tasks::asynchronous::view_edit_task_page,
                 crate::class::tasks::asynchronous::html_apply_edit_task,
                 crate::class::tasks::asynchronous::html_delete_task,
-                crate::class::tasks::synchronous::view_all_sync_tasks_in_class,
-                crate::class::tasks::synchronous::create_new_sync_task,
+                crate::class::tasks::synchronous::html_view_all_sync_tasks_in_class,
+                crate::class::tasks::synchronous::html_create_new_sync_task,
                 crate::class::tasks::synchronous::get_create_new_sync_task,
-                crate::class::tasks::synchronous::view_specific_synchronous_task,
+                crate::class::tasks::synchronous::html_view_specific_synchronous_task,
                 crate::class::tasks::synchronous::view_edit_task_page,
-                crate::class::tasks::synchronous::apply_edit_task,
-                crate::class::tasks::synchronous::delete_task
+                crate::class::tasks::synchronous::html_apply_edit_task,
+                crate::class::tasks::synchronous::html_delete_task
             ],
         )
         .mount(

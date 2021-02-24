@@ -4,12 +4,14 @@ use thiserror::Error as ThisError;
 
 use super::{default_head, json_response::ApiResponse};
 
-#[derive(ThisError, Debug)]
+#[derive(ThisError, Debug, PartialEq, Clone, Eq)]
 pub enum LovelaceError {
     #[error("permission error")]
     PermissionError,
     #[error("database error")]
     DatabaseError,
+    #[error("date parsing error")]
+    ParseDateError,
     #[error("other error")]
     #[allow(dead_code)]
     OtherError,
@@ -29,6 +31,7 @@ impl<T> From<LovelaceError> for ApiResponse<T> {
             LovelaceError::PermissionError => "Permission error",
             LovelaceError::DatabaseError => "Database error",
             LovelaceError::OtherError => "Other error",
+            LovelaceError::ParseDateError => "Could not parse one of the dates you supplied.",
         })
     }
 }
@@ -51,6 +54,7 @@ impl Render<Div> for LovelaceError {
                     ))
             }
             LovelaceError::OtherError => {Level::new().child(H1::new("Other error"))}
+            LovelaceError::ParseDateError => Level::new().child(H1::new("Could not parse one of the dates you supplied."))
         }
         .into_div()
     }
@@ -63,11 +67,13 @@ impl Render<Html> for LovelaceError {
                 LovelaceError::PermissionError => 403,
                 LovelaceError::DatabaseError => 500,
                 LovelaceError::OtherError => 500,
+                LovelaceError::ParseDateError => 400,
             })
             .head(default_head(match self {
                 LovelaceError::PermissionError => "Invalid permissions",
                 LovelaceError::DatabaseError => "Database error",
                 LovelaceError::OtherError => "Unknown error",
+                LovelaceError::ParseDateError => "Couldn't parse a provided date",
             }))
             .body(Body::new().child(Render::<Div>::render(self)))
     }

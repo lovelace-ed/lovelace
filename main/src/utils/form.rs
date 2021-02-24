@@ -41,6 +41,7 @@ where
                         LovelaceError::OtherError => {
                             "Encountered an unexpected error trying to do this."
                         }
+                        LovelaceError::ParseDateError => "Could not parse date.",
                     }))
                     .child(Render::<Div>::render(self)),
             )
