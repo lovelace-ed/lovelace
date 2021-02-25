@@ -221,8 +221,11 @@ mod test_configure_institution {
     #[rocket::async_test]
     async fn test_admin_can_edit() {
         let client = client().await;
-        let (_, institution_id, _) =
-            setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        let (_, _, _, institution_id, _) = Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_env(c))
+            .await;
         login_user(ADMIN_EMAIL, ADMIN_PASSWORD, &client).await;
         let res = client
             .post(format!("/institution/{}/configure", institution_id))
@@ -251,8 +254,11 @@ mod test_configure_institution {
     #[rocket::async_test]
     async fn test_not_admin_cannot_edit() {
         let client = client().await;
-        let (_, institution_id, _) =
-            setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        let (_, _, _, institution_id, _) = Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_env(c))
+            .await;
         Database::get_one(client.rocket())
             .await
             .unwrap()

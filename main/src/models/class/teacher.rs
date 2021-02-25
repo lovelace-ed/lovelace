@@ -1,6 +1,14 @@
 use crate::schema::class_teacher;
 use crate::schema::class_teacher_invite;
 
+#[derive(Queryable, Identifiable, Debug)]
+#[table_name = "class_teacher"]
+pub struct ClassTeacher {
+    pub id: i32,
+    pub user_id: i32,
+    pub class_id: i32,
+}
+
 #[derive(Insertable, Debug, Clone)]
 #[table_name = "class_teacher"]
 pub struct NewClassTeacher {

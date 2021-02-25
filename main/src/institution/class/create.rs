@@ -339,8 +339,11 @@ pub mod test {
     #[rocket::async_test]
     async fn test_create_class_handling() {
         let client = client().await;
-        let (_, institution_id, student_group_id) =
-            setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        let (_, _, _, institution_id, student_group_id) = Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_env(c))
+            .await;
         login_user(ADMIN_USERNAME, ADMIN_PASSWORD, &client).await;
 
         let listing = client.get("/institution/class/create").dispatch().await;

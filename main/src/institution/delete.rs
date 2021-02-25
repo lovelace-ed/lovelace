@@ -159,8 +159,11 @@ mod test_delete_institution {
     #[rocket::async_test]
     async fn test_admin_can_delete() {
         let client = client().await;
-        let (_, institution_id, _) =
-            setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        let (_, _, _, institution_id, _) = Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_env(c))
+            .await;
         login_user(ADMIN_USERNAME, ADMIN_PASSWORD, &client).await;
         let res = client
             .post(format!("/institution/{}/delete", institution_id))
@@ -173,8 +176,11 @@ mod test_delete_institution {
     #[rocket::async_test]
     async fn test_not_admin_cannot_delete() {
         let client = client().await;
-        let (_, institution_id, _) =
-            setup_env(Database::get_one(client.rocket()).await.unwrap()).await;
+        let (_, _, _, institution_id, _) = Database::get_one(client.rocket())
+            .await
+            .unwrap()
+            .run(|c| setup_env(c))
+            .await;
         Database::get_one(client.rocket())
             .await
             .unwrap()

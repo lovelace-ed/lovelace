@@ -67,6 +67,7 @@ pub struct NewStudentClassAsynchronousTask {
     PartialEq,
     Ord,
     PartialOrd,
+    Clone,
 )]
 #[table_name = "student_class_asynchronous_task"]
 #[belongs_to(ClassStudent)]

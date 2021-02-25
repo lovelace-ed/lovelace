@@ -102,6 +102,8 @@ pub fn launch() -> Rocket {
                 crate::auth::html_logout_user
             ],
         )
+        .mount("/api/dashboard", routes![crate::dashboard::api_dashboard])
+        .mount("/dashboard", routes![crate::dashboard::html_dashboard])
         .mount(
             "/api/auth",
             routes![crate::auth::api_login, crate::auth::api_logout,],

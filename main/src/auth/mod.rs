@@ -14,6 +14,11 @@ mod register;
 mod reset;
 mod verify;
 
+pub use login::{api_login, html_login, login_page};
+pub use logout::{api_logout, html_logout_user};
+pub use register::{html_register, register_page};
+pub use verify::verify_email;
+
 #[derive(ThisError, Debug)]
 pub enum AuthError {}
 
@@ -36,10 +41,24 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
     }
 }
 
-pub use login::{api_login, html_login, login_page};
-pub use logout::{api_logout, html_logout_user};
-pub use register::{html_register, register_page};
-pub use verify::verify_email;
+#[derive(Debug, Copy, Clone)]
+pub struct OptionAuthCookie(pub Option<i32>);
+
+#[rocket::async_trait]
+impl<'a, 'r> FromRequest<'a, 'r> for OptionAuthCookie {
+    type Error = AuthError;
+
+    async fn from_request(
+        request: &'a rocket::Request<'r>,
+    ) -> rocket::request::Outcome<Self, Self::Error> {
+        rocket::request::Outcome::Success(OptionAuthCookie(
+            request
+                .cookies()
+                .get_private(LOGIN_COOKIE)
+                .and_then(|cookie| cookie.value().parse().ok()),
+        ))
+    }
+}
 
 #[cfg(test)]
 mod test_authentication {
