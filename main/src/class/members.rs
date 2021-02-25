@@ -1,7 +1,6 @@
 use crate::{
     auth::AuthCookie,
     class::get_user_role_in_class,
-    css_names::LIST_ITEM,
     db::Database,
     models::User,
     utils::{default_head, error_message, json_response::ApiResponse},
@@ -9,6 +8,7 @@ use crate::{
 
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 use rocket_contrib::json::Json;
 
 #[get("/class/<id>/members")]
@@ -39,11 +39,9 @@ pub async fn html_view_class_members_page(
         })
         .await
         .map(|users| {
-            users.into_iter().map(|user| {
-                Div::new()
-                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
-                    .child(H3::new(user.username))
-            })
+            users
+                .into_iter()
+                .map(|user| Div::new().child(H3::new(user.username)))
         })
         .unwrap();
     let teachers = conn
@@ -56,19 +54,17 @@ pub async fn html_view_class_members_page(
         })
         .await
         .map(|users| {
-            users.into_iter().map(|user| {
-                Div::new()
-                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
-                    .child(H3::new(user.username))
-            })
+            users
+                .into_iter()
+                .map(|user| Div::new().child(H3::new(user.username)))
         })
         .unwrap();
     Html::default()
         .head(default_head("Class".to_string()))
         .body(
             Body::default()
-                .child(Div::new().child(H3::new("Teachers")).children(teachers))
-                .child(Div::new().child(H3::new("Students")).children(students)),
+                .child(Level::new().child(H3::new("Teachers")).children(teachers))
+                .child(Level::new().child(H3::new("Students")).children(students)),
         )
 }
 

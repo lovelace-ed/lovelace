@@ -5,15 +5,13 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use portia::render::Render;
+use mercutio::Apply;
+use portia::{levels::Level, render::Render};
 use rocket_contrib::json::Json;
 
+use crate::utils::error::LovelaceResult;
 use crate::utils::{default_head, json_response::ApiResponse};
 use crate::{auth::AuthCookie, db::Database};
-use crate::{
-    css_names::{LIST, LIST_ITEM},
-    utils::error::LovelaceResult,
-};
 
 /// (vec<classes student in>, vec<classes taught>)
 async fn view_all_classes(
@@ -48,9 +46,8 @@ async fn view_all_classes(
 pub async fn html_view_all_classes(auth_cookie: AuthCookie, conn: Database) -> Html {
     match view_all_classes(auth_cookie, conn).await {
         Ok((student_classes, teacher_classes)) => {
-            let student_classes = Div::new()
-                .attribute(malvolio::prelude::Class::from(LIST))
-                .map(|item| {
+            let student_classes = Level::new()
+                .apply(|item| {
                     if !student_classes.is_empty() {
                         item.child(H1::new("Classes I'm a student in".to_string()))
                     } else {
@@ -59,7 +56,6 @@ pub async fn html_view_all_classes(auth_cookie: AuthCookie, conn: Database) -> H
                 })
                 .children(student_classes.iter().map(|class| {
                     Div::new()
-                        .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                         .child(H3::new(class.name.clone()))
                         .child(P::with_text(class.description.clone()))
                         .child(A::default().attribute(malvolio::prelude::Href::new(format!(
@@ -67,9 +63,8 @@ pub async fn html_view_all_classes(auth_cookie: AuthCookie, conn: Database) -> H
                             class.id
                         ))))
                 }));
-            let teacher_classes = Div::new()
-                .attribute(malvolio::prelude::Class::from(LIST))
-                .map(|item| {
+            let teacher_classes = Level::new()
+                .apply(|item| {
                     if !teacher_classes.is_empty() {
                         item.child(H1::new("Classes I teach"))
                     } else {
@@ -78,7 +73,6 @@ pub async fn html_view_all_classes(auth_cookie: AuthCookie, conn: Database) -> H
                 })
                 .children(teacher_classes.iter().map(|class| {
                     Div::new()
-                        .attribute(malvolio::prelude::Class::from(LIST_ITEM))
                         .child(H3::new(class.name.clone()))
                         .child(P::with_text(class.description.clone()))
                         .child(

@@ -5,11 +5,11 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 use diesel::prelude::*;
 use malvolio::prelude::{Body, BodyNode, Div, Href, Html, A, H1, H3, P};
+use portia::levels::Level;
 use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,
-    css_names::{LIST, LIST_ITEM},
     db::{Database, DatabaseConnection},
     models::{NewNotification, Notification},
     utils::{default_head, json_response::ApiResponse},
@@ -44,32 +44,27 @@ where
                 if let Some(element) = custom_element {
                     body = body.child(element);
                 }
-                body.child(
+                body.child(Level::new().children(data.into_iter().map(|notification| {
                     Div::new()
-                        .attribute(malvolio::prelude::Class::from(LIST))
-                        .children(data.into_iter().map(|notification| {
-                            Div::new()
-                                .attribute(malvolio::prelude::Class::from(LIST_ITEM))
-                                .child(H3::new(notification.title))
-                                .child(P::with_text(notification.contents))
-                                .child(
-                                    A::default()
-                                        .attribute(Href::new(format!(
-                                            "/notifications/mark_read/{}",
-                                            notification.id
-                                        )))
-                                        .text("Mark as read"),
-                                )
-                                .child(
-                                    A::default()
-                                        .attribute(Href::new(format!(
-                                            "/notifications/delete/{}",
-                                            notification.id
-                                        )))
-                                        .text("Delete this notification"),
-                                )
-                        })),
-                )
+                        .child(H3::new(notification.title))
+                        .child(P::with_text(notification.contents))
+                        .child(
+                            A::default()
+                                .attribute(Href::new(format!(
+                                    "/notifications/mark_read/{}",
+                                    notification.id
+                                )))
+                                .text("Mark as read"),
+                        )
+                        .child(
+                            A::default()
+                                .attribute(Href::new(format!(
+                                    "/notifications/delete/{}",
+                                    notification.id
+                                )))
+                                .text("Delete this notification"),
+                        )
+                })))
             }),
         Err(e) => {
             error!("Error retrieving notifications: {:?}", e);

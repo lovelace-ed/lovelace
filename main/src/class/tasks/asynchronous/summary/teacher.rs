@@ -1,6 +1,5 @@
 use super::ShowAsyncTaskSummaryError;
 use crate::{
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     models::{ClassAsynchronousTask, User},
     utils::default_head,
@@ -8,6 +7,7 @@ use crate::{
 
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 
 /// Show the list of tasks that have been set in a class. At some point we'll want to add pagination
 /// support for this.
@@ -71,23 +71,19 @@ pub fn render_teacher_async_tasks(
     completion_count: Vec<i64>,
     student_count: i64,
 ) -> Html {
-    Html::new().head(default_head("Tasks".to_string())).body(
-        Body::new().child(
-            Div::new().attribute(Class::from(LIST)).children(
-                tasks
-                    .into_iter()
-                    .zip(completion_count)
-                    .map(|((task, set_by), completed_count)| {
-                        Div::new()
-                            .attribute(Class::from(LIST_ITEM))
-                            .child(task.render())
-                            .child(P::with_text(format!("Set by: {}", set_by.username)))
-                            .child(P::with_text(format!(
-                                "{} out of {} students have marked this task as complete",
-                                completed_count, student_count
-                            )))
-                    }),
-            ),
-        ),
-    )
+    Html::new()
+        .head(default_head("Tasks".to_string()))
+        .body(Body::new().child(
+            Level::new().children(tasks.into_iter().zip(completion_count).map(
+                |((task, set_by), completed_count)| {
+                    Div::new()
+                        .child(task.render())
+                        .child(P::with_text(format!("Set by: {}", set_by.username)))
+                        .child(P::with_text(format!(
+                            "{} out of {} students have marked this task as complete",
+                            completed_count, student_count
+                        )))
+                },
+            )),
+        ))
 }

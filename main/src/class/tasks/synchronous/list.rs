@@ -1,12 +1,11 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use portia::render::Render;
+use portia::{levels::Level, render::Render};
 use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,
     class::get_user_role_in_class,
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     models::{ClassSynchronousTask, StudentClassSynchronousTask, User},
     utils::{
@@ -61,20 +60,16 @@ impl Render<Html> for RenderClassTaskList {
         } else {
             Html::new()
                 .head(default_head("Tasks for this class".to_string()))
-                .body(
-                    Body::new().child(H1::new("Tasks for this class")).child(
+                .body(Body::new().child(H1::new("Tasks for this class")).child(
+                    Level::new().children(self.0.into_iter().map(|(_, class_task_instance)| {
                         Div::new()
-                            .attribute(Class::from(LIST))
-                            .children(self.0.into_iter().map(|(_, class_task_instance)| {
-                                Div::new()
-                                    .child(H3::new(format!("Task: {}", class_task_instance.title)))
-                                    .child(P::with_text(format!(
-                                        "Description: {}",
-                                        class_task_instance.description
-                                    )))
-                            })),
-                    ),
-                )
+                            .child(H3::new(format!("Task: {}", class_task_instance.title)))
+                            .child(P::with_text(format!(
+                                "Description: {}",
+                                class_task_instance.description
+                            )))
+                    })),
+                ))
         }
     }
 }
@@ -115,16 +110,17 @@ struct RenderTeacherTaskList(pub Vec<(ClassSynchronousTask, User)>);
 
 impl Render<Html> for RenderTeacherTaskList {
     fn render(self) -> Html {
-        Html::new().head(default_head("Tasks".to_string())).body(
-            Body::new().child(Div::new().attribute(Class::from(LIST)).children(
-                self.0.into_iter().map(|(task, set_by)| {
-                    Div::new()
-                        .attribute(Class::from(LIST_ITEM))
-                        .child(task.render())
-                        .child(P::with_text(format!("Set by: {}", set_by.username)))
-                }),
-            )),
-        )
+        Html::new()
+            .head(default_head("Tasks".to_string()))
+            .body(
+                Body::new().child(Level::new().children(self.0.into_iter().map(
+                    |(task, set_by)| {
+                        Div::new()
+                            .child(task.render())
+                            .child(P::with_text(format!("Set by: {}", set_by.username)))
+                    },
+                ))),
+            )
     }
 }
 

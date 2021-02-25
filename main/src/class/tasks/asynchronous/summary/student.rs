@@ -1,8 +1,8 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 
 use crate::{
-    css_names::LIST,
     db::Database,
     models::{ClassAsynchronousTask, StudentClassAsynchronousTask},
     utils::default_head,
@@ -49,22 +49,20 @@ pub fn render_student_task_summary(
     if !tasks.is_empty() {
         Html::new().head(default_head("".to_string())).body(
             Body::new().child(H1::new("Tasks for this class")).child(
-                Div::new()
-                    .attribute(Class::from(LIST))
-                    .children(tasks.into_iter().map(
-                        |(student_task_instance, class_task_instance)| {
-                            Div::new()
-                                .child(H3::new(format!("Task: {}", class_task_instance.title)))
-                                .child(P::with_text(format!(
-                                    "Description: {}",
-                                    class_task_instance.description
-                                )))
-                                .child(P::with_text(format!(
-                                    "Completed: {}",
-                                    student_task_instance.completed
-                                )))
-                        },
-                    )),
+                Level::new().children(tasks.into_iter().map(
+                    |(student_task_instance, class_task_instance)| {
+                        Div::new()
+                            .child(H3::new(format!("Task: {}", class_task_instance.title)))
+                            .child(P::with_text(format!(
+                                "Description: {}",
+                                class_task_instance.description
+                            )))
+                            .child(P::with_text(format!(
+                                "Completed: {}",
+                                student_task_instance.completed
+                            )))
+                    },
+                )),
             ),
         )
     } else {

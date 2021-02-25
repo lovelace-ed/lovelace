@@ -41,7 +41,6 @@ use utils::launch;
 mod auth;
 mod calendar;
 mod class;
-mod css_names;
 mod dashboard;
 mod db;
 mod email;

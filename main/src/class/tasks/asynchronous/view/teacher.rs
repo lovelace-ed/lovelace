@@ -1,9 +1,9 @@
 use crate::rocket::futures::TryFutureExt;
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 
 use crate::{
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     models::{ClassAsynchronousTask, StudentClassAsynchronousTask, User},
     utils::default_head,
@@ -82,15 +82,10 @@ pub fn render_teacher_task_summary(
                         .sum::<i32>(),
                     tasks.len()
                 )))
-                .child(
+                .child(Level::new().children(tasks.into_iter().map(|(user, task)| {
                     Div::new()
-                        .attribute(Class::from(LIST))
-                        .children(tasks.into_iter().map(|(user, task)| {
-                            Div::new()
-                                .attribute(Class::from(LIST_ITEM))
-                                .child(H3::new(format!("Student: {}", user.username)))
-                                .child(P::with_text(format!("Completed: {}", task.completed)))
-                        })),
-                ),
+                        .child(H3::new(format!("Student: {}", user.username)))
+                        .child(P::with_text(format!("Completed: {}", task.completed)))
+                }))),
         )
 }

@@ -1,12 +1,11 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use portia::render::Render;
+use portia::{levels::Level, render::Render};
 use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,
     class::get_user_role_in_class,
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     models::{sync_task, user, ClassSynchronousTask, StudentClassSynchronousTask, User},
     utils::{
@@ -138,13 +137,9 @@ impl Render<Html> for RenderTeacherSummary {
                         "Description: {}",
                         class_task.description
                     )))
-                    .child(Div::new().attribute(Class::from(LIST)).children(
-                        tasks.into_iter().map(|(user, _)| {
-                            Div::new()
-                                .attribute(Class::from(LIST_ITEM))
-                                .child(H3::new(format!("Student: {}", user.username)))
-                        }),
-                    )),
+                    .child(Level::new().children(tasks.into_iter().map(|(user, _)| {
+                        Div::new().child(H3::new(format!("Student: {}", user.username)))
+                    }))),
             )
     }
 }

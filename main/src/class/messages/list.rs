@@ -1,7 +1,6 @@
 use crate::{
     auth::AuthCookie,
     class::get_user_role_in_class,
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     models::ClassMessage,
     schema::{class_message, users},
@@ -10,6 +9,7 @@ use crate::{
 
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 use rocket_contrib::json::Json;
 use thiserror::Error as ThisError;
 
@@ -68,16 +68,11 @@ pub async fn html_list_all_messages(id: i32, conn: Database, auth: AuthCookie) -
             .body(
                 Body::default()
                     .child(H1::new(format!("Messages in class {}", class.name)))
-                    .child(
+                    .child(Level::new().children(messages.into_iter().map(|message| {
                         Div::new()
-                            .attribute(malvolio::prelude::Class::from(LIST))
-                            .children(messages.into_iter().map(|message| {
-                                Div::new()
-                                    .attribute(malvolio::prelude::Class::from(LIST_ITEM))
-                                    .child(H3::new(message.0.title))
-                                    .child(P::with_text(message.0.contents))
-                            })),
-                    ),
+                            .child(H3::new(message.0.title))
+                            .child(P::with_text(message.0.contents))
+                    }))),
             ),
         Err(e) => {
             match e {

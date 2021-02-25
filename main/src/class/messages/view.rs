@@ -1,12 +1,12 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
+use portia::levels::Level;
 use rocket_contrib::json::Json;
 use thiserror::Error as ThisError;
 
 use super::super::get_user_role_in_class;
 use crate::{
     auth::AuthCookie,
-    css_names::{LIST, LIST_ITEM},
     db::Database,
     utils::{default_head, error_messages::database_error},
 };
@@ -82,22 +82,23 @@ pub async fn view_message(
     conn: Database,
 ) -> Html {
     match view_message_base(class_id, message_id, auth, conn).await {
-        Ok((_message, replies)) => Html::default().head(default_head("".to_string())).body(
-            Body::default().child(
-                Div::new()
-                    .attribute(malvolio::prelude::Class::from(LIST))
-                    .children(replies.into_iter().map(|(reply, username)| {
-                        Div::new()
-                            .attribute(malvolio::prelude::Class::from(LIST_ITEM))
-                            .child(H3::new(format!("Reply from {}", username)))
-                            .child(P::with_text(format!(
-                                "This reply was posted at {}",
-                                reply.created_at.to_string()
-                            )))
-                            .child(P::with_text(reply.contents))
-                    })),
-            ),
-        ),
+        Ok((_message, replies)) => {
+            Html::default()
+                .head(default_head("".to_string()))
+                .body(
+                    Body::default().child(Level::new().children(replies.into_iter().map(
+                        |(reply, username)| {
+                            Div::new()
+                                .child(H3::new(format!("Reply from {}", username)))
+                                .child(P::with_text(format!(
+                                    "This reply was posted at {}",
+                                    reply.created_at.to_string()
+                                )))
+                                .child(P::with_text(reply.contents))
+                        },
+                    ))),
+                )
+        }
         Err(e) => match e {
             ViewMessageError::DatabaseError => database_error(),
             ViewMessageError::PermissionError => Html::default()
