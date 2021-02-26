@@ -1,3 +1,8 @@
+use std::{
+    fs::{read_to_string, OpenOptions},
+    io::Write,
+};
+
 use darling::FromDeriveInput;
 use syn::DeriveInput;
 
@@ -8,9 +13,12 @@ pub fn css_inner(input: DeriveInput) -> proc_macro2::TokenStream {
             return e.write_errors();
         }
     };
-    css_props
-        .css
-        .to_tokens(input.ident, css_props.elements, css_props.use_classes)
+    css_props.css.to_tokens(
+        input.ident,
+        css_props.elements,
+        css_props.use_classes,
+        css_props.file,
+    )
 }
 
 #[derive(FromDeriveInput)]
@@ -20,6 +28,8 @@ pub struct CssProps {
     elements: Elements,
     #[darling(default)]
     use_classes: bool,
+    #[darling(default)]
+    file: Option<String>,
 }
 
 impl Default for CssProps {
@@ -28,6 +38,7 @@ impl Default for CssProps {
             css: Default::default(),
             elements: Default::default(),
             use_classes: false,
+            file: None,
         }
     }
 }
@@ -242,32 +253,48 @@ impl CssPropsInner {
         name: syn::Ident,
         elements: Elements,
         use_classes: bool,
+        file: Option<String>,
     ) -> proc_macro2::TokenStream {
         if use_classes {
-            let alphabet: [char; 16] = [
+            let alphabet: [char; 62] = [
                 '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f',
+                'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+                'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             ];
-            let class_name = nanoid!(10, &alphabet);
+            let class_name = format!("a{}", nanoid!(10, &alphabet));
             let head_tokens = CssPropsInnerClassOutputter(&self, class_name.clone()).to_string();
             let x: Vec<String> = From::from(elements);
-            x.into_iter()
-                .map(|segment: String| {
-                    let segment = format_ident!("{}", segment);
-                    quote! {
-                        impl ::mercutio::Apply<#name> for ::malvolio::prelude::#segment {
-                            fn apply(self, _: #name) -> malvolio::prelude::#segment {
-                                let string: std::borrow::Cow<'static, str> =
-                                    if let Some(x) = self.read_attribute("class") {
-                                        format!("{} {}", #class_name, x).into()
-                                    } else {
-                                        ::malvolio::prelude::Class::from("class_name")
-                                    };
-                                self.attribute(::malvolio::prelude::Class::from(string))
-                            }
+            let token_stream_iter = x.into_iter().map(|segment: String| {
+                let segment = format_ident!("{}", segment);
+                quote! {
+                    impl ::mercutio::Apply<#name> for ::malvolio::prelude::#segment {
+                        fn apply(self, _: #name) -> malvolio::prelude::#segment {
+                            let string: std::borrow::Cow<'static, str> =
+                                if let Some(x) = self.read_attribute("class") {
+                                    format!("{} {}", #class_name, x).into()
+                                } else {
+                                    "class_name".into()
+                                };
+                            self.attribute(::malvolio::prelude::Class::from(string))
                         }
                     }
-                })
-                .fold(
+                }
+            });
+            if let Some(file) = file {
+                let path = format!("{}{}", std::env::var("CARGO_MANIFEST_DIR").unwrap(), &file);
+                println!("PATH: {}", path);
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .open(&path)
+                    .unwrap();
+                let string = read_to_string(path).unwrap();
+                let new_string = format!("{}\n{}", string, head_tokens);
+                file.write(new_string.as_bytes()).unwrap();
+                token_stream_iter.fold(quote! {}, |a, b| quote! {#a #b})
+            } else {
+                token_stream_iter.fold(
                     quote! {
                         impl Apply<#name> for ::malvolio::prelude::Head {
                             fn apply(self, _: #name) -> ::malvolio::prelude::Head {
@@ -277,6 +304,7 @@ impl CssPropsInner {
                     },
                     |a, b| quote! {#a #b},
                 )
+            }
         } else {
             let tokens = CssPropsInnerStyleOutputter(&self).to_string();
             let x: Vec<String> = From::from(elements);
@@ -1001,7 +1029,16 @@ impl<'a> std::fmt::Display for CssPropsInnerClassOutputter<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(".")?;
         f.write_str(&self.1)?;
+        CssPropsInnerCssOutputter(self.0).fmt(f)
+    }
+}
+
+struct CssPropsInnerCssOutputter<'a>(pub &'a CssPropsInner);
+
+impl<'a> std::fmt::Display for CssPropsInnerCssOutputter<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("{")?;
+
         if let Some(value) = &self.0.binding {
             f.write_str("binding:")?;
             f.write_str(&value)?;

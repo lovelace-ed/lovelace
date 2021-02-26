@@ -165,7 +165,7 @@ fn test_headings() {
                 .child(H5::new("Some other other heading"))
                 .child(
                     H4::new("Some other other other heading")
-                        .attribute(Class::from("heading-class")),
+                        .attribute(Class::from(Cow::Borrowed("heading-class"))),
                 ),
         )
         .to_string();

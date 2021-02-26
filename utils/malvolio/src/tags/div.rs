@@ -152,11 +152,13 @@ into_grouping_union!(Style, DivAttr);
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
+
     use crate::prelude::*;
     #[test]
     fn test_div_attributes() {
         let document = Div::default()
-            .attribute(crate::prelude::Class::from("some-class"))
+            .attribute(crate::prelude::Class::from(Cow::Borrowed("some-class")))
             .attribute(crate::prelude::Style::new("font-family: Arial;"))
             .to_string();
         let document = scraper::Html::parse_document(&document);
