@@ -79,7 +79,7 @@ jobs:
 
       - run: (cd dav/user/calendars && cp -r calendar lovelace)
 
-      - run: (xandikos --defaults -d dav) & (cargo test --no-fail-fast --all)
+      - run: (xandikos --defaults -d dav) & (cargo test --no-fail-fast --all --workspace)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
 
