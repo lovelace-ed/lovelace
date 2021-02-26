@@ -291,7 +291,7 @@ impl CssPropsInner {
                     .unwrap();
                 let string = read_to_string(path).unwrap();
                 let new_string = format!("{}\n{}", string, head_tokens);
-                file.write(new_string.as_bytes()).unwrap();
+                file.write_all(new_string.as_bytes()).unwrap();
                 token_stream_iter.fold(quote! {}, |a, b| quote! {#a #b})
             } else {
                 token_stream_iter.fold(

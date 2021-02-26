@@ -15,6 +15,14 @@ impl From<Cow<'static, str>> for Class {
     }
 }
 
+impl From<&'static str> for Class {
+    fn from(str: &'static str) -> Self {
+        let mut set = HashSet::new();
+        set.insert(str.into());
+        Self(set)
+    }
+}
+
 impl Class {
     /// Add a new class to this `Class` attribute.
     pub fn class(mut self, class: Cow<'static, str>) -> Self {
