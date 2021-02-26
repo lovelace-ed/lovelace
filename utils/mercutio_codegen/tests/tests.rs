@@ -12,7 +12,7 @@ fn test_classes_to_file() {
     t.pass("tests/write_file/pass.rs");
     std::mem::drop(t);
     let file = read_to_string(&format!(
-        "{}/../../target/tests/mercutio_codegen/styles.css",
+        "{}/target/tests/mercutio_codegen/styles.css",
         std::env::var("CARGO_MANIFEST_DIR").unwrap()
     ))
     .unwrap();
