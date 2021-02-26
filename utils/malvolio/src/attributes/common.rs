@@ -10,7 +10,7 @@ pub struct Class(HashSet<Cow<'static, str>>);
 impl From<Cow<'static, str>> for Class {
     fn from(str: Cow<'static, str>) -> Self {
         let mut set = HashSet::new();
-        set.insert(str.into());
+        set.insert(str);
         Self(set)
     }
 }
