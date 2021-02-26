@@ -283,7 +283,6 @@ impl CssPropsInner {
             });
             if let Some(file) = file {
                 let path = format!("{}{}", std::env::var("CARGO_MANIFEST_DIR").unwrap(), &file);
-                println!("PATH: {}", path);
                 let mut file = OpenOptions::new()
                     .write(true)
                     .create(true)
