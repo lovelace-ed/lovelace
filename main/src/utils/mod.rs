@@ -23,7 +23,7 @@ use rocket::tokio::sync::RwLock;
 use rocket::{fairing::AdHoc, Rocket};
 #[cfg(test)]
 use rocket::{http::ContentType, local::asynchronous::Client};
-use std::collections::HashMap;
+use std::{collections::HashMap, net::IpAddr};
 
 pub mod auto_database_error;
 pub mod error;
@@ -57,8 +57,16 @@ pub fn launch() -> Rocket {
                 "pool_size" => 1.into()
             };
         } else {
-            let db: Map<_, Value> = map! {
-                "url" => retrieve_database_url().into()
+            let db: Map<_, Value> = if let Some(pool_size) = std::env::var("POOL_SIZE")
+                .ok().map(|item| item.parse::<u32>().ok()).flatten() {
+                map! {
+                    "url" => retrieve_database_url().into(),
+                    "pool_size" => pool_size.into()
+                }
+            } else {
+                map! {
+                    "url" => retrieve_database_url().into()
+                }
             };
         }
     }
@@ -72,6 +80,14 @@ pub fn launch() -> Rocket {
                     .as_str()
                     .parse::<u16>()
                     .expect("invalid port supplied"),
+            ))
+            .merge((
+                "address",
+                std::env::var("HOST")
+                    .unwrap_or_else(|_| "127.0.0.1".to_string())
+                    .as_str()
+                    .parse::<IpAddr>()
+                    .expect("invalid host supplied"),
             ))
             .merge(("secret_key", secret.as_str()))
             .merge(("databases", map!["postgres" => db]))
