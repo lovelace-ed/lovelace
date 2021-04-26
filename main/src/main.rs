@@ -43,6 +43,6 @@ mod ui;
 mod utils;
 
 #[rocket::launch]
-fn launch() -> rocket::Rocket {
+fn launch() -> _ {
     crate::utils::launch()
 }

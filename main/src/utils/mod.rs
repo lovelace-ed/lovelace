@@ -14,13 +14,16 @@ use crate::schema::users;
 #[cfg(test)]
 use chrono::Utc;
 use malvolio::prelude::{Body, Head, Html, Title, H1, P};
-use rocket::figment::{
-    util::map,
-    value::{Map, Value},
-    Figment,
-};
 use rocket::tokio::sync::RwLock;
 use rocket::{fairing::AdHoc, Rocket};
+use rocket::{
+    figment::{
+        util::map,
+        value::{Map, Value},
+        Figment,
+    },
+    Build,
+};
 #[cfg(test)]
 use rocket::{http::ContentType, local::asynchronous::Client};
 use std::{collections::HashMap, net::IpAddr};
@@ -45,7 +48,7 @@ pub fn retrieve_database_url() -> String {
     std::env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost".to_string())
 }
 
-pub fn launch() -> Rocket {
+pub fn launch() -> Rocket<Build> {
     cfg_if! {
         if #[cfg(test)] {
             let db: Map<_, Value> = map! {
@@ -99,7 +102,7 @@ pub fn launch() -> Rocket {
             map: RwLock::new(HashMap::new()),
         })
         .attach(crate::db::Database::fairing())
-        .attach(AdHoc::on_attach(
+        .attach(AdHoc::try_on_ignite(
             "Database Migrations",
             crate::db::run_migrations,
         ))

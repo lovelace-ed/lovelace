@@ -26,11 +26,11 @@ pub enum AuthError {}
 pub struct AuthCookie(pub i32);
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
+impl<'r> FromRequest<'r> for AuthCookie {
     type Error = AuthError;
 
     async fn from_request(
-        request: &'a rocket::Request<'r>,
+        request: &'r rocket::Request<'_>,
     ) -> rocket::request::Outcome<Self, Self::Error> {
         request
             .cookies()
@@ -45,11 +45,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthCookie {
 pub struct OptionAuthCookie(pub Option<i32>);
 
 #[rocket::async_trait]
-impl<'a, 'r> FromRequest<'a, 'r> for OptionAuthCookie {
+impl<'r> FromRequest<'r> for OptionAuthCookie {
     type Error = AuthError;
 
     async fn from_request(
-        request: &'a rocket::Request<'r>,
+        request: &'r rocket::Request<'_>,
     ) -> rocket::request::Outcome<Self, Self::Error> {
         rocket::request::Outcome::Success(OptionAuthCookie(
             request
