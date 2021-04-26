@@ -30,7 +30,6 @@ prospero = { path = "../utils/prospero" }
 futures = { version = "0.3.12", features = ["executor"] }
 cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
-tokio = "1.2.0"
 derivative = "2.2.0"
 
 [dependencies.rocket_contrib]
@@ -44,5 +43,4 @@ wiremock = "0.5.0"
 
 [features]
 # tests which need a caldav server to run sit behind this feature
-# note that some tests spawn their own caldav server
 caldav_server = []

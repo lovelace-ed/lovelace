@@ -10,7 +10,7 @@ use diesel::query_builder::{AsQuery, QueryFragment, QueryId};
 use diesel::r2d2::CustomizeConnection;
 use diesel::sql_types::HasSqlType;
 use diesel::{Connection, ConnectionResult, PgConnection, QueryResult, Queryable};
-use rocket::Rocket;
+use rocket::{Build, Rocket};
 use rocket_contrib::databases::{diesel, Config, PoolResult, Poolable};
 
 embed_migrations!("../migrations/");
@@ -92,7 +92,7 @@ impl Poolable for TestPgConnection {
     type Manager = diesel::r2d2::ConnectionManager<TestPgConnection>;
     type Error = rocket_contrib::databases::r2d2::Error;
 
-    fn pool(name: &str, rocket: &Rocket) -> PoolResult<Self> {
+    fn pool(name: &str, rocket: &Rocket<Build>) -> PoolResult<Self> {
         let config = Config::from(name, rocket)?;
         let manager = diesel::r2d2::ConnectionManager::new(config.url);
         Ok(diesel::r2d2::Pool::builder()
@@ -106,7 +106,7 @@ impl Poolable for TestPgConnection {
 #[database("postgres")]
 pub struct Database(TestPgConnection);
 
-pub async fn run_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
+pub async fn run_migrations(rocket: Rocket<Build>) -> Result<Rocket<Build>, Rocket<Build>> {
     let conn = Database::get_one(&rocket)
         .await
         .expect("Couldn't create a database connection.");
