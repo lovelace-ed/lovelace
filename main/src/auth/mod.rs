@@ -16,7 +16,7 @@ mod verify;
 
 pub use login::{api_login, html_login, login_page};
 pub use logout::{api_logout, html_logout_user};
-pub use register::{html_register, register_page};
+pub use register::{api_register, html_register, register_page};
 pub use verify::verify_email;
 
 #[derive(ThisError, Debug)]

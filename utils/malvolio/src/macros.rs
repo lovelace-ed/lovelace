@@ -42,7 +42,22 @@ macro_rules! impl_of_heading_new_fn {
             /// `Cow<'static, str>` (for example a `&str` or a `String`).
             pub fn new<S>(from: S) -> Self
             where
-                S: Into<std::borrow::Cow<'static, str>>,
+                S: ToString,
+            {
+                Self(
+                    From::from(::ammonia::clean(&from.to_string())),
+                    std::collections::HashMap::new(),
+                    #[cfg(feature = "with_yew")]
+                    #[cfg(not(tarpaulin))]
+                    vec![],
+                )
+            }
+            /// Create a new item of this type **without first sanitizing the text**. You only want
+            /// this if you are certain that the text in question is safe (i.e. will not execute
+            /// malicious Javascript when run.)
+            pub fn new_unchecked<S>(from: S) -> Self
+            where
+                S: Into<Cow<'static, str>>,
             {
                 Self(
                     from.into(),

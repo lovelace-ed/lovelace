@@ -58,7 +58,7 @@ pub struct LinkCalendarForm {
 #[post("/link", data = "<form>")]
 pub async fn link_calendar(
     auth: AuthCookie,
-    oauth_state_values: State<'_, StateValues>,
+    oauth_state_values: &State<StateValues>,
     form: rocket::form::Form<LinkCalendarForm>,
 ) -> HtmlOrRedirect {
     let uuid = uuid::Uuid::new_v4().to_string();
@@ -99,7 +99,7 @@ pub async fn gcal_callback(
     code: Option<String>,
     error: Option<String>,
     state: Option<String>,
-    oauth_state_values: State<'_, StateValues>,
+    oauth_state_values: &State<StateValues>,
     conn: Database,
 ) -> Html {
     use crate::schema::calendar;

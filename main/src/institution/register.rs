@@ -104,7 +104,6 @@ pub async fn html_register_new_institution(
 ) -> Html {
     match register_new_institution(auth, conn, &form).await {
         Ok(institution) => Html::new()
-            .status(200)
             .head(default_head("Successfully registered."))
             .body(
                 Body::new()

@@ -159,92 +159,89 @@ impl Dashboard {
 
 impl Render<Html> for Dashboard {
     fn render(self) -> Html {
-        Html::new()
-            .status(200)
-            .head(default_head("Dashboard"))
-            .body(
-                Body::new()
-                    .child(
-                        Level::new()
-                            .child(H1::new("Upcoming asynchronous tasks"))
-                            .children(self.async_tasks.into_iter().map(|task| {
-                                Level::new()
-                                    .child(H3::new(format!(
-                                        "Task: {}",
-                                        match task {
-                                            AsynchronousTask::Teacher(ref teacher_task) => {
-                                                teacher_task.task.title.clone()
-                                            }
-                                            AsynchronousTask::Student(ref student_task) => {
-                                                student_task.task.title.clone()
-                                            }
+        Html::new().head(default_head("Dashboard")).body(
+            Body::new()
+                .child(
+                    Level::new()
+                        .child(H1::new("Upcoming asynchronous tasks"))
+                        .children(self.async_tasks.into_iter().map(|task| {
+                            Level::new()
+                                .child(H3::new(format!(
+                                    "Task: {}",
+                                    match task {
+                                        AsynchronousTask::Teacher(ref teacher_task) => {
+                                            teacher_task.task.title.clone()
                                         }
-                                    )))
-                                    .child(P::with_text(format!(
-                                        "Description: {}",
-                                        match task {
-                                            AsynchronousTask::Teacher(ref teacher) => {
-                                                teacher.task.description.clone()
-                                            }
-                                            AsynchronousTask::Student(ref student) => {
-                                                student.task.description.clone()
-                                            }
+                                        AsynchronousTask::Student(ref student_task) => {
+                                            student_task.task.title.clone()
                                         }
-                                    )))
-                                    .child(P::with_text(format!(
-                                        "Due date: {}",
-                                        match task {
-                                            AsynchronousTask::Teacher(ref teacher) => {
-                                                teacher.task.due_date.format("%Y-%m-%d %H:%M:%S")
-                                            }
-                                            AsynchronousTask::Student(ref student) => {
-                                                student.task.due_date.format("%Y-%m-%d %H:%M:%S")
-                                            }
-                                        }
-                                    )))
-                                    .apply(|level| match task {
+                                    }
+                                )))
+                                .child(P::with_text(format!(
+                                    "Description: {}",
+                                    match task {
                                         AsynchronousTask::Teacher(ref teacher) => {
-                                            level.child(P::with_text(format!(
-                                                "{} of {} completed",
-                                                teacher.number_completed, teacher.number_set_to
-                                            )))
+                                            teacher.task.description.clone()
                                         }
-                                        AsynchronousTask::Student(_) => {
-                                            println!("STUDENT");
-                                            level
+                                        AsynchronousTask::Student(ref student) => {
+                                            student.task.description.clone()
                                         }
-                                    })
-                                    .child(A::new().text("See more").attribute(Href::new(format!(
-                                        "/class/{}/async/task/{}",
-                                        match task {
-                                            AsynchronousTask::Teacher(ref teacher) => {
-                                                teacher.class.id
-                                            }
-                                            AsynchronousTask::Student(ref student) => {
-                                                student.class.id
-                                            }
-                                        },
-                                        match task {
-                                            AsynchronousTask::Teacher(teacher) => {
-                                                teacher.task.id
-                                            }
-                                            AsynchronousTask::Student(student) => {
-                                                student.task.id
-                                            }
+                                    }
+                                )))
+                                .child(P::with_text(format!(
+                                    "Due date: {}",
+                                    match task {
+                                        AsynchronousTask::Teacher(ref teacher) => {
+                                            teacher.task.due_date.format("%Y-%m-%d %H:%M:%S")
                                         }
-                                    ))))
-                            })),
-                    )
-                    .child(
-                        Level::new()
-                            .child(H1::new("Upcoming synchronous tasks"))
-                            .children(
-                                self.sync_tasks
-                                    .into_iter()
-                                    .map(|task| SyncTaskCard(task).render()),
-                            ),
-                    ),
-            )
+                                        AsynchronousTask::Student(ref student) => {
+                                            student.task.due_date.format("%Y-%m-%d %H:%M:%S")
+                                        }
+                                    }
+                                )))
+                                .apply(|level| match task {
+                                    AsynchronousTask::Teacher(ref teacher) => {
+                                        level.child(P::with_text(format!(
+                                            "{} of {} completed",
+                                            teacher.number_completed, teacher.number_set_to
+                                        )))
+                                    }
+                                    AsynchronousTask::Student(_) => {
+                                        println!("STUDENT");
+                                        level
+                                    }
+                                })
+                                .child(A::new().text("See more").attribute(Href::new(format!(
+                                    "/class/{}/async/task/{}",
+                                    match task {
+                                        AsynchronousTask::Teacher(ref teacher) => {
+                                            teacher.class.id
+                                        }
+                                        AsynchronousTask::Student(ref student) => {
+                                            student.class.id
+                                        }
+                                    },
+                                    match task {
+                                        AsynchronousTask::Teacher(teacher) => {
+                                            teacher.task.id
+                                        }
+                                        AsynchronousTask::Student(student) => {
+                                            student.task.id
+                                        }
+                                    }
+                                ))))
+                        })),
+                )
+                .child(
+                    Level::new()
+                        .child(H1::new("Upcoming synchronous tasks"))
+                        .children(
+                            self.sync_tasks
+                                .into_iter()
+                                .map(|task| SyncTaskCard(task).render()),
+                        ),
+                ),
+        )
     }
 }
 

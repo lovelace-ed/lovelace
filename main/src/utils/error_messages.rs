@@ -8,6 +8,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 //! Error messages should be understandable by the person who has to read them (who probably hasn't
 //! read through the codebase or has deep familiarity with HTTP)!
 use malvolio::prelude::*;
+use rocket::http::Status;
 
 use super::default_head;
 
@@ -34,7 +35,7 @@ pub fn database_error() -> Html {
 
 pub fn invalid_date(form: Option<Form>) -> Html {
     Html::new()
-        .status(400)
+        .status(Status::BadRequest)
         .head(default_head("Invalid date".to_string()))
         .body(
             Body::new()

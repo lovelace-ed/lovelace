@@ -82,7 +82,7 @@ impl P {
     where
         S: Into<Cow<'static, str>>,
     {
-        self.child(BodyNode::Text(Text::new(clean(&text.into()))))
+        self.child(BodyNode::Text(Text::new(text.into())))
     }
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).
@@ -94,7 +94,7 @@ impl P {
     where
         S: Into<Cow<'static, str>>,
     {
-        self.child(BodyNode::Text(Text::new(text)))
+        self.child(BodyNode::Text(Text::new_unchecked(text.into())))
     }
 }
 
