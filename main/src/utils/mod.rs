@@ -140,7 +140,7 @@ pub fn launch() -> Rocket<Build> {
         .mount("/dashboard", routes![crate::dashboard::html_dashboard])
         .mount(
             "/api/auth",
-            routes![crate::auth::api_login, crate::auth::api_logout,],
+            routes![crate::auth::api_login, crate::auth::api_logout, crate::auth::api_register],
         )
         .mount(
             "/auth",
@@ -184,6 +184,14 @@ pub fn launch() -> Rocket<Build> {
             ],
         )
         .mount(
+            "/api/notifications",
+            routes![
+                crate::notifications::api_list_notifications,
+                crate::notifications::api_mark_notification_as_read,
+                crate::notifications::api_delete_notification_with_id
+            ]
+        )
+        .mount(
             "/api/class",
             routes![
                 crate::class::messages::api_list_all_messages,
@@ -191,6 +199,8 @@ pub fn launch() -> Rocket<Build> {
                 crate::class::messages::api_view_message,
                 crate::class::messages::api_reply_to_teacher_message,
                 crate::class::messages::api_apply_create_new_class_message,
+                crate::class::messages::create_new_class_message_page,
+                crate::class::messages::api_apply_message_reply_edit,
                 crate::class::tasks::asynchronous::api_create_new_async_task,
                 crate::class::tasks::asynchronous::api_apply_edit_task,
                 crate::class::tasks::asynchronous::api_view_specific_asynchronous_task,
@@ -229,6 +239,13 @@ pub fn launch() -> Rocket<Build> {
                 crate::class::tasks::synchronous::html_apply_edit_task,
                 crate::class::tasks::synchronous::html_delete_task
             ],
+        )
+        .mount(
+            "/calendar/caldav",
+            routes![
+                crate::calendar::connect::caldav::link_caldav_page,
+                crate::calendar::connect::caldav::connect_caldav_calendar
+            ]
         )
         .mount(
             "/calendar/gcal",

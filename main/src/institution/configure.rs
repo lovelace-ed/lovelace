@@ -121,7 +121,6 @@ pub async fn configure_institution_page(
         Err(_) => return LovelaceError::DatabaseError.render(),
     };
     Html::new()
-        .status(200)
         .head(default_head("Configure institution"))
         .body(
             Body::new()
@@ -162,16 +161,13 @@ pub async fn html_configure_institution(
     form: rocket::form::Form<ConfigureInstitutionForm>,
 ) -> Html {
     match apply_configure_institution(conn, &form, auth, institution_id).await {
-        Ok(institution) => Html::new()
-            .status(200)
-            .head(default_head("Succesfully updated"))
-            .body(
-                Body::new().child(
-                    Level::new()
-                        .child(H1::new("Succesfully updated"))
-                        .child(Render::<Div>::render(institution)),
-                ),
+        Ok(institution) => Html::new().head(default_head("Succesfully updated")).body(
+            Body::new().child(
+                Level::new()
+                    .child(H1::new("Succesfully updated"))
+                    .child(Render::<Div>::render(institution)),
             ),
+        ),
         Err(e) => FormErrorMsg(
             e,
             ConfigureInstitutionFormProducer(

@@ -1,5 +1,6 @@
 use malvolio::prelude::*;
 use portia::render::Render;
+use rocket::http::Status;
 
 use super::{default_head, error::LovelaceError};
 
@@ -27,7 +28,7 @@ where
 {
     fn render(self) -> Html {
         Html::new()
-            .status(400)
+            .status(Status::BadRequest)
             .head(default_head("Bad request"))
             .body(
                 Body::new()

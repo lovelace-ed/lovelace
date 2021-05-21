@@ -1,5 +1,6 @@
 use malvolio::prelude::*;
 use portia::{levels::Level, render::Render};
+use rocket::http::Status;
 use thiserror::Error as ThisError;
 
 use super::{default_head, json_response::ApiResponse};
@@ -64,10 +65,11 @@ impl Render<Html> for LovelaceError {
     fn render(self) -> Html {
         Html::new()
             .status(match self {
-                LovelaceError::PermissionError => 403,
-                LovelaceError::DatabaseError => 500,
-                LovelaceError::OtherError => 500,
-                LovelaceError::ParseDateError => 400,
+                LovelaceError::PermissionError => Status::Forbidden,
+                LovelaceError::DatabaseError | LovelaceError::OtherError => {
+                    Status::InternalServerError
+                }
+                LovelaceError::ParseDateError => Status::BadRequest,
             })
             .head(default_head(match self {
                 LovelaceError::PermissionError => "Invalid permissions",

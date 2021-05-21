@@ -40,3 +40,17 @@ impl Display for Text {
         self.0.fmt(f)
     }
 }
+
+#[cfg(test)]
+mod test_sanitize {
+    use super::Text;
+
+    #[test]
+    fn test_unsanitized() {
+        let text = Text::new("<script>alert(\"hello\")</script>");
+        assert_ne!(&text.to_string(), "<script>alert(\"hello\")</script>");
+
+        let text = Text::new_unchecked("<script>alert(\"hello\")</script>");
+        assert_eq!(&text.to_string(), "<script>alert(\"hello\")</script>");
+    }
+}

@@ -113,41 +113,38 @@ pub async fn pick_which_institution_to_create_class_as_part_of(
             return database_error();
         }
     };
-    Html::new()
-        .status(200)
-        .head(default_head("Create a new class"))
-        .body(
-            Body::new().child(
-                Level::new()
-                    .child(H1::new("Create a new class as part of an institution"))
-                    .child(
-                        Level::new()
-                            .child(H3::new(
-                                "Note: if you want to create a class which is not part of an
+    Html::new().head(default_head("Create a new class")).body(
+        Body::new().child(
+            Level::new()
+                .child(H1::new("Create a new class as part of an institution"))
+                .child(
+                    Level::new()
+                        .child(H3::new(
+                            "Note: if you want to create a class which is not part of an
                                 institution you can also do that.",
-                            ))
-                            .child(
-                                A::new()
-                                    .attribute(Href::new("/class/create"))
-                                    .text("Create a new stand-alone class."),
-                            ),
-                    )
-                    .apply(|level| {
-                        if institutions.is_empty() {
-                            level.child(H1::new("You're not part of any institutions."))
-                        } else {
-                            level.children(institutions.into_iter().map(|institution| {
-                                A::new()
-                                    .attribute(Href::new(format!(
-                                        "/institution/{}/class/create",
-                                        institution.id
-                                    )))
-                                    .text(format!("Add a class as part of {}", institution.name))
-                            }))
-                        }
-                    }),
-            ),
-        )
+                        ))
+                        .child(
+                            A::new()
+                                .attribute(Href::new("/class/create"))
+                                .text("Create a new stand-alone class."),
+                        ),
+                )
+                .apply(|level| {
+                    if institutions.is_empty() {
+                        level.child(H1::new("You're not part of any institutions."))
+                    } else {
+                        level.children(institutions.into_iter().map(|institution| {
+                            A::new()
+                                .attribute(Href::new(format!(
+                                    "/institution/{}/class/create",
+                                    institution.id
+                                )))
+                                .text(format!("Add a class as part of {}", institution.name))
+                        }))
+                    }
+                }),
+        ),
+    )
 }
 
 async fn get_user_institution_relationship(
@@ -238,16 +235,13 @@ pub async fn create_institution_class_page(
             return LovelaceError::DatabaseError.render();
         }
     };
-    Html::new()
-        .status(200)
-        .head(default_head("Create a new class"))
-        .body(
-            Body::new().child(
-                Level::new()
-                    .child(H1::new("Create a new class as part of this institution"))
-                    .child(create_institution_class_form(student_groups)),
-            ),
-        )
+    Html::new().head(default_head("Create a new class")).body(
+        Body::new().child(
+            Level::new()
+                .child(H1::new("Create a new class as part of this institution"))
+                .child(create_institution_class_form(student_groups)),
+        ),
+    )
 }
 
 #[derive(FromForm, Debug, Serialize, Deserialize)]

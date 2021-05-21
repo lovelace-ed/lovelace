@@ -19,7 +19,10 @@ mod list;
 mod view;
 
 pub use create::{
-    message::{api_apply_create_new_class_message, html_apply_create_new_class_message},
+    message::{
+        api_apply_create_new_class_message, create_new_class_message_page,
+        html_apply_create_new_class_message,
+    },
     reply::{api_reply_to_teacher_message, html_reply_to_teacher_message},
 };
 pub use edit::{

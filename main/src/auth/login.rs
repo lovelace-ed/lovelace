@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
-use rocket::http::{Cookie, CookieJar};
+use rocket::http::{Cookie, CookieJar, Status};
 use rocket_contrib::json::Json;
 use thiserror::Error as ThisError;
 
@@ -162,7 +162,7 @@ pub async fn html_login(
             ),
         Err(e) => match e {
             LoginError::UserNotFound => Html::default()
-                .status(404)
+                .status(Status::NotFound)
                 .head(default_head("Not found".to_string()))
                 .body(
                     Body::default()
@@ -174,7 +174,7 @@ pub async fn html_login(
                         .child(login_form()),
                 ),
             LoginError::PasswordNotValid => Html::default()
-                .status(400)
+                .status(Status::BadRequest)
                 .head(default_head("Error".to_string()))
                 .body(
                     Body::default()
@@ -183,7 +183,7 @@ pub async fn html_login(
                         .child(login_form()),
                 ),
             LoginError::DatabaseError => Html::default()
-                .status(500)
+                .status(Status::InternalServerError)
                 .head(default_head("Unknown error".to_string()))
                 .body(
                     Body::default()

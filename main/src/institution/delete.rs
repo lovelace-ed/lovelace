@@ -27,7 +27,6 @@ pub async fn delete_institution_page(
         return LovelaceError::PermissionError.render();
     }
     Html::new()
-        .status(200)
         .head(default_head("Delete this institution"))
         .body(
             Body::new().child(
@@ -95,7 +94,6 @@ pub async fn html_delete_institution(
 ) -> Html {
     match apply_delete_institution(institution_id, auth, conn).await {
         Ok(()) => Html::new()
-            .status(200)
             .head(default_head("Deleted that institution."))
             .body(
                 Body::new().child(
@@ -107,7 +105,6 @@ pub async fn html_delete_institution(
                 ),
             ),
         Err(e) => Html::new()
-            .status(200)
             .head(default_head("Could not carry out the operation."))
             .body(
                 Body::new().child(
