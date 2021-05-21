@@ -47,7 +47,7 @@ impl IntoVNode for A {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vnode = yew::virtual_dom::VTag::new("a");
         for (a, b) in self.attrs {
-            vnode.add_attribute(a, &b.to_string())
+            vnode.add_attribute(a, b);
         }
         vnode.add_child(yew::virtual_dom::VText::new(String::from(self.text)).into());
         vnode.into()

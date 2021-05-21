@@ -111,7 +111,7 @@ macro_rules! heading_of_vnode {
             fn into_vnode(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
                 for (k, v) in self.1.into_iter() {
-                    vtag.add_attribute(k, &v);
+                    vtag.add_attribute(k, v);
                 }
                 vtag.add_child(::yew::virtual_dom::VText::new(self.0.to_string()).into());
                 vtag.into()

@@ -91,7 +91,7 @@ impl Display for SelectOption {
 impl IntoVNode for SelectOption {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vtag = yew::virtual_dom::VTag::new("option");
-        write_attributes_to_vtag(&self.attrs, &mut vtag);
+        write_attributes_to_vtag(self.attrs, &mut vtag);
         vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
         vtag.into()
     }
