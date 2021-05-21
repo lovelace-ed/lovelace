@@ -5,11 +5,11 @@ A copy of this license can be found in the `licenses` directory at the root of t
 use std::fmt::Display;
 
 #[cfg(feature = "with_rocket")]
-use std::io::Cursor;
-
 use rocket::http::Status;
 #[cfg(feature = "with_rocket")]
 use rocket::{response::Responder, Response};
+#[cfg(feature = "with_rocket")]
+use std::io::Cursor;
 
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
