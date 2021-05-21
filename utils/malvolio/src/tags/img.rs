@@ -39,7 +39,7 @@ impl crate::into_vnode::IntoVNode for Img {
     fn into_vnode(self) -> yew::virtual_dom::VNode {
         let mut vnode = yew::virtual_dom::VTag::new("img");
         for (a, b) in self.attrs {
-            vnode.add_attribute(a, &b.to_string())
+            vnode.add_attribute(a, b)
         }
         vnode.into()
     }

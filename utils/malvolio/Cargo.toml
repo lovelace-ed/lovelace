@@ -19,7 +19,7 @@ with_yew = ["yew"]
 ammonia = "3.1.0"
 derivative = "2.2.0"
 rocket = { version = "0.5.0-dev", git = "https://github.com/SergioBenitez/Rocket", optional = true }
-yew = { version = "0.17.4", optional = true }
+yew = { version = "0.18.0", optional = true }
 
 [dev-dependencies]
 scraper = "0.12.0"
