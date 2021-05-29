@@ -7,8 +7,8 @@ use portia::{
     levels::Level,
     render::Render,
 };
+use rocket::serde::json::Json;
 use rocket::{response::Redirect, FromForm};
-use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,

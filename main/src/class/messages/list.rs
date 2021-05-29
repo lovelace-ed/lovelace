@@ -10,7 +10,7 @@ use crate::{
 use diesel::prelude::*;
 use malvolio::prelude::*;
 use portia::levels::Level;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 #[derive(ThisError, Debug)]

@@ -15,7 +15,7 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 use crate::{auth::AuthCookie, db::Database};

@@ -9,7 +9,7 @@ use crate::{
 use diesel::prelude::*;
 use malvolio::prelude::*;
 use portia::levels::Level;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 #[get("/class/<id>/members")]
 pub async fn html_view_class_members_page(

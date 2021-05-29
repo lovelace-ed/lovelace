@@ -10,7 +10,7 @@ use crate::utils::error_messages::database_error;
 use crate::utils::permission_error::permission_error;
 use diesel::prelude::*;
 use rocket::response::Redirect;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 #[derive(FromForm, Debug, Clone, Serialize, Deserialize)]

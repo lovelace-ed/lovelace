@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
 use portia::{levels::Level, render::Render};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::{
     auth::AuthCookie,

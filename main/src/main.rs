@@ -15,7 +15,7 @@ extern crate log;
 #[macro_use]
 extern crate diesel_migrations;
 #[macro_use]
-extern crate rocket_contrib;
+extern crate rocket_sync_db_pools;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]

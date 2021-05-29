@@ -16,7 +16,7 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::FormStyle;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 /// Create a new form containing the necessary fields to create a new asynchronous task.

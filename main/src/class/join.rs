@@ -5,7 +5,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::utils::default_head;
 use crate::utils::error_message;

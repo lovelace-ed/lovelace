@@ -4,7 +4,7 @@ use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormSubmitInputStyle, FormTextInputStyle};
 use portia::{form::FormStyle, render::Render};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::{
     catch_database_error,
