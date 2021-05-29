@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::{levels::Level, render::Render};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::utils::error::LovelaceResult;
 use crate::utils::{default_head, json_response::ApiResponse};

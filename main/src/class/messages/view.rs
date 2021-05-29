@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
 use portia::levels::Level;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 use super::super::get_user_role_in_class;

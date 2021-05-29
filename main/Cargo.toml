@@ -5,7 +5,6 @@ authors = ["Teymour Aldridge <teymour.aldridge@icloud.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = { version = "0.5.0-dev", git = "https://github.com/SergioBenitez/Rocket", features = ["secrets"] }
 malvolio = { path = "../utils/malvolio", features = ["with_rocket"] }
 mercutio = { path = "../utils/mercutio" }
 portia = { path = "../utils/portia" }
@@ -32,11 +31,17 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 derivative = "2.2.0"
 
-[dependencies.rocket_contrib]
+[dependencies.rocket]
 version = "0.5.0-dev"
 git = "https://github.com/SergioBenitez/Rocket"
-default-features = false
-features = ["diesel_postgres_pool", "json"]
+rev = "1f1976f"
+features = ["secrets", "json"]
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-dev"
+git = "https://github.com/SergioBenitez/Rocket"
+rev = "1f1976f"
+features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
 wiremock = "0.5.0"

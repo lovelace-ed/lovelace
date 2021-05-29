@@ -7,8 +7,8 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle};
+use rocket::serde::json::Json;
 use rocket::FromForm;
-use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,

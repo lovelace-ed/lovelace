@@ -4,8 +4,8 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::{form::FormStyle, levels::Level, render::Render};
+use rocket::serde::json::Json;
 use rocket::FromForm;
-use rocket_contrib::json::Json;
 
 use crate::{
     auth::AuthCookie,

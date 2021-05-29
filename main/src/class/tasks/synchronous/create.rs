@@ -6,7 +6,7 @@ use portia::{
     form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle},
     render::Render,
 };
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::{
     class::{get_user_role_in_class, tasks::synchronous::AuthCookie, user_is_teacher},

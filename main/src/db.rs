@@ -11,7 +11,7 @@ use diesel::r2d2::CustomizeConnection;
 use diesel::sql_types::HasSqlType;
 use diesel::{Connection, ConnectionResult, PgConnection, QueryResult, Queryable};
 use rocket::{Build, Rocket};
-use rocket_contrib::databases::{diesel, Config, PoolResult, Poolable};
+use rocket_sync_db_pools::{diesel, Config, PoolResult, Poolable};
 
 embed_migrations!("../migrations/");
 
@@ -90,7 +90,7 @@ impl Connection for TestPgConnection {
 
 impl Poolable for TestPgConnection {
     type Manager = diesel::r2d2::ConnectionManager<TestPgConnection>;
-    type Error = rocket_contrib::databases::r2d2::Error;
+    type Error = rocket_sync_db_pools::r2d2::Error;
 
     fn pool(name: &str, rocket: &Rocket<Build>) -> PoolResult<Self> {
         let config = Config::from(name, rocket)?;

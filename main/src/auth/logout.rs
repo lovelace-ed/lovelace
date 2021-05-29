@@ -1,6 +1,6 @@
 use malvolio::prelude::*;
 use rocket::http::{Cookie, CookieJar};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::utils::default_head;
 

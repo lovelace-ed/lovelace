@@ -1,6 +1,6 @@
 use diesel::prelude::*;
 use malvolio::prelude::*;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 use crate::{

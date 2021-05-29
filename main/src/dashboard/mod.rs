@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::{card::Card, levels::Level, render::Render};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::{
     auth::AuthCookie,

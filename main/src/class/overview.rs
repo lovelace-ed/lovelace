@@ -1,6 +1,6 @@
 use malvolio::prelude::*;
 use portia::render::Render;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use crate::{
     auth::AuthCookie,

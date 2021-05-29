@@ -4,7 +4,7 @@ use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
 use rocket::http::{Cookie, CookieJar, Status};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
 use crate::{db::Database, models::User, utils::default_head};
