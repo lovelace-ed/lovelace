@@ -28,7 +28,6 @@ jobs:
           toolchain: nightly
           override: true
       - uses: Swatinem/rust-cache@v1
-      - run: sudo apt install postgresql postgresql-contrib
       - uses: actions/setup-python@v2
         with:
           python-version: "3.7"
@@ -69,7 +68,6 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - run: sudo apt install postgresql postgresql-contrib
       - uses: actions/setup-python@v2
         with:
           python-version: "3.7"
