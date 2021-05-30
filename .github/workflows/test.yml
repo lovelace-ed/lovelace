@@ -19,15 +19,7 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
+      - uses: Swatinem/rust-cache@v1
 
       - name: Check formatting
         run: cargo fmt -- --check
@@ -51,22 +43,14 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable 
+          toolchain: stable
           override: true
 
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
+      - uses: Swatinem/rust-cache@v1
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: "3.7"
 
       - name: Install CalDAV server
         run: |
@@ -97,21 +81,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
 
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
+      - uses: Swatinem/rust-cache@v1
 
       - name: Install
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
@@ -121,7 +97,6 @@ jobs:
       - run: (cd utils/malvolio && wasm-pack test --headless --firefox -- --features with_yew)
 
   test-prospero:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -129,22 +104,14 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable 
+          toolchain: stable
           override: true
 
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
+      - uses: Swatinem/rust-cache@v1
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: "3.7"
 
       - name: Install CalDAV server
         run: |
