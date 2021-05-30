@@ -97,6 +97,12 @@ pub enum MetaName {
     ///     .attribute(Content::new("utf-8"));
     /// ```
     Charset,
+    /// Sets the name of this `meta` tag to "viewport".
+    ///
+    /// See the
+    /// [relevant MDN page](https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag)
+    /// for more information.
+    Viewport,
 }
 
 impl IntoAttribute for MetaName {
@@ -105,6 +111,7 @@ impl IntoAttribute for MetaName {
             "name",
             match self {
                 MetaName::Charset => "charset",
+                MetaName::Viewport => "viewport",
             }
             .into(),
         )
