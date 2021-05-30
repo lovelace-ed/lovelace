@@ -13,7 +13,7 @@ use crate::models::NewUser;
 use crate::schema::users;
 #[cfg(test)]
 use chrono::Utc;
-use malvolio::prelude::{Body, Head, Html, Title, H1, P};
+use malvolio::prelude::{Body, Content, Head, Html, Meta, MetaName, Title, H1, P};
 use rocket::tokio::sync::RwLock;
 use rocket::{fairing::AdHoc, Rocket};
 use rocket::{
@@ -41,7 +41,13 @@ pub fn default_head<S>(title: S) -> Head
 where
     S: Into<String>,
 {
-    Head::default().child(Title::new(title.into() + " | Lovelace"))
+    Head::default()
+        .child(Title::new(title.into() + " | Lovelace"))
+        .child(
+            Meta::new()
+                .attribute(MetaName::Viewport)
+                .attribute(Content::new("width=device-width, initial-scale=1")),
+        )
 }
 
 pub fn retrieve_database_url() -> String {

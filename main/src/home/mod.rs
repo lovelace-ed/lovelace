@@ -3,7 +3,11 @@ use mercutio::{compose, Apply};
 use portia::{colour::GreyBackground, levels::Level, padding::DefaultPadding, render::Render};
 use rocket::response::Redirect;
 
-use crate::{auth::OptionAuthCookie, ui::page::Page, utils::html_or_redirect::HtmlOrRedirect};
+use crate::{
+    auth::OptionAuthCookie,
+    ui::page::Page,
+    utils::{default_head, html_or_redirect::HtmlOrRedirect},
+};
 
 #[get("/")]
 pub fn home(auth_cookie: OptionAuthCookie) -> HtmlOrRedirect {
@@ -12,7 +16,7 @@ pub fn home(auth_cookie: OptionAuthCookie) -> HtmlOrRedirect {
     } else {
         HtmlOrRedirect::Html(Html::default()
             .head(
-                Head::default().child(
+                default_head("Home").child(
                     Meta::default()
                         .attribute(MetaName::Charset)
                         .attribute(Content::new("utf-8")),
