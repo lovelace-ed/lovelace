@@ -11,7 +11,7 @@ proc-macro = true
 darling = "0.13.0"
 itertools = "0.10.0"
 nanoid = "0.4.0"
-proc-macro2 = "1.0.24"
+proc-macro2 = "1.0.27"
 quote = "1.0.9"
 syn = "1.0.60"
 
