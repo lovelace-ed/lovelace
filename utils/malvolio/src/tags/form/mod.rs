@@ -65,6 +65,11 @@ pub struct Form {
     attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
+/// Creates a new `Form` tag – functionally equivalent to `Form::new()` (but easier to type.)
+pub fn form() -> Form {
+    Form::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for Form {

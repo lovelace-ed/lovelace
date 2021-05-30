@@ -27,7 +27,7 @@ pub struct Text(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(Text);
+impl_of_heading_new_fn!(Text, text);
 
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]

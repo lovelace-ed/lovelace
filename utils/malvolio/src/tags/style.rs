@@ -8,6 +8,11 @@ pub struct StyleTag {
     text: Cow<'static, str>,
 }
 
+/// Creates a new `Style` tag – functionally equivalent to `Style::new()` (but easier to type.)
+pub fn style(text: impl Into<Cow<'static, str>>) -> StyleTag {
+    StyleTag::new(text)
+}
+
 impl StyleTag {
     /// Create a new style tag.
     pub fn new<C>(c: C) -> Self

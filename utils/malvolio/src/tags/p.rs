@@ -15,9 +15,15 @@ use ammonia::clean;
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p) for more
 /// info.
-#[derive(Default, Debug, Clone)]
+#[derive(Derivative, Debug, Clone)]
+#[derivative(Default(new = "true"))]
 pub struct P {
     children: Vec<BodyNode>,
+}
+
+/// Creates a new `P` tag – functionally equivalent to `P::new()` (but easier to type.)
+pub fn p() -> P {
+    P::new()
 }
 
 #[cfg(feature = "with_yew")]

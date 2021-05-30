@@ -24,6 +24,11 @@ pub struct Meta {
     attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
+/// Creates a new `Meta` tag – functionally equivalent to `Meta::new()` (but easier to type.)
+pub fn meta() -> Meta {
+    Meta::new()
+}
+
 impl Meta {
     #[inline(always)]
     /// Add an attribute to this meta tag.

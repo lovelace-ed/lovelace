@@ -35,7 +35,7 @@ pub struct Label(
 #[cfg(not(tarpaulin))]
 heading_of_vnode!(Label);
 
-impl_of_heading_new_fn!(Label);
+impl_of_heading_new_fn!(Label, label);
 
 heading_display!(Label);
 

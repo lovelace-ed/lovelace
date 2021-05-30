@@ -36,7 +36,12 @@ macro_rules! heading_display {
 ///
 /// Generates new code to construct a heading.
 macro_rules! impl_of_heading_new_fn {
-    ($name:ident) => {
+    ($name:ident, $lowercase_name:ident) => {
+        /// Create a new instance of the tag in question. Equivalent to `<tag name>::new(<text>)`,
+        /// but easier to type (and therefore hopefully more ergonomic.)
+        pub fn $lowercase_name(text: impl ToString) -> $name {
+            $name::new(text)
+        }
         impl $name {
             /// Create a new item of this type, given an item which can be converted into a
             /// `Cow<'static, str>` (for example a `&str` or a `String`).

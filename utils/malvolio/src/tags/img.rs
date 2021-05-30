@@ -18,6 +18,11 @@ pub struct Img {
     listeners: Vec<Rc<dyn Listener>>,
 }
 
+/// Creates a new `Img` tag – functionally equivalent to `Img::new()` (but easier to type.)
+pub fn img() -> Img {
+    Img::new()
+}
+
 impl Display for Img {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<img")?;

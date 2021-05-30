@@ -20,6 +20,11 @@ pub struct Head {
     children: Vec<HeadNode>,
 }
 
+/// Creates a new `Head` tag – functionally equivalent to `Head::new()` (but easier to type.)
+pub fn head() -> Head {
+    Head::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for Head {

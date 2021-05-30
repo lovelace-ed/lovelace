@@ -35,6 +35,11 @@ pub struct Select {
     children: Vec<SelectOption>,
 }
 
+/// Creates a new `Select` tag – functionally equivalent to `Select::new()` (but easier to type.)
+pub fn select() -> Select {
+    Select::new()
+}
+
 impl Select {
     /// Add a number of children to a <select> tag.
     pub fn children<I, C>(mut self, children: I) -> Self

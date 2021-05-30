@@ -31,7 +31,7 @@ pub struct H1(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H1);
+impl_of_heading_new_fn!(H1, h1);
 
 into_grouping_union!(H1, BodyNode);
 
@@ -47,7 +47,7 @@ pub struct H2(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H2);
+impl_of_heading_new_fn!(H2, h2);
 
 into_grouping_union!(H2, BodyNode);
 
@@ -63,7 +63,7 @@ pub struct H3(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H3);
+impl_of_heading_new_fn!(H3, h3);
 
 into_grouping_union!(H3, BodyNode);
 
@@ -79,7 +79,7 @@ pub struct H4(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H4);
+impl_of_heading_new_fn!(H4, h4);
 
 into_grouping_union!(H4, BodyNode);
 
@@ -95,7 +95,7 @@ pub struct H5(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H5);
+impl_of_heading_new_fn!(H5, h5);
 
 into_grouping_union!(H5, BodyNode);
 
@@ -111,7 +111,7 @@ pub struct H6(
     Vec<Rc<dyn Listener>>,
 );
 
-impl_of_heading_new_fn!(H6);
+impl_of_heading_new_fn!(H6, h6);
 
 into_grouping_union!(H6, BodyNode);
 

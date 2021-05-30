@@ -41,6 +41,11 @@ pub struct A {
     listeners: Vec<Rc<dyn Listener>>,
 }
 
+/// Creates a new `A` tag – functionally equivalent to `A::new()` (but easier to type.)
+pub fn a() -> A {
+    A::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for A {

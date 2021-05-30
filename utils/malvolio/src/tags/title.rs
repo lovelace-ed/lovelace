@@ -35,7 +35,7 @@ pub struct Title(
 #[cfg(not(tarpaulin))]
 heading_of_vnode!(Title);
 
-impl_of_heading_new_fn!(Title);
+impl_of_heading_new_fn!(Title, title);
 
 heading_display!(Title);
 
