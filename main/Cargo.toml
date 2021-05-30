@@ -19,7 +19,7 @@ regex = "1.5.4"
 nanoid = "0.4.0"
 derive_builder = "0.10.2"
 serde_json = "1.0.62"
-ureq = { version = "2.0.2", features = ["json"] }
+ureq = { version = "2.1.1", features = ["json"] }
 chrono-tz = { version = "0.5.3", features = ["serde"] }
 jsonwebtoken = "7.2.0"
 serde = { version = "1.0.123", features = ["derive"] }
