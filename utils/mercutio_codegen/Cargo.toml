@@ -16,7 +16,7 @@ quote = "1.0.9"
 syn = "1.0.60"
 
 [dev-dependencies]
-trybuild = "1.0.41"
+trybuild = "1.0.42"
 mercutio = { path = "../mercutio" }
 malvolio = { path = "../malvolio" }
 
