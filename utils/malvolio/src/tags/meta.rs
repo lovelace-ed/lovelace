@@ -97,7 +97,7 @@ pub enum MetaName {
     /// See the
     /// [relevant MDN page](https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag)
     /// for more information.
-    Viewport
+    Viewport,
 }
 
 impl IntoAttribute for MetaName {
@@ -106,7 +106,7 @@ impl IntoAttribute for MetaName {
             "name",
             match self {
                 MetaName::Charset => "charset",
-                MetaName::Viewport => "viewport"
+                MetaName::Viewport => "viewport",
             }
             .into(),
         )
