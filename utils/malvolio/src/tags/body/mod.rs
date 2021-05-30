@@ -23,6 +23,11 @@ pub struct Body {
     attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
+/// Creates a new `Body` tag – functionally equivalent to `Body::new()` (but shorter to type.)
+pub fn body() -> Body {
+    Body::new()
+}
+
 utility_enum! {
     pub enum BodyAttr {
         /// Add a "style" attribute to this item.

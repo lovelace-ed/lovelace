@@ -30,6 +30,11 @@ pub struct Html {
     body: Body,
 }
 
+/// Creates a new `Html` tag – functionally equivalent to `Html::new()` (but easier to type.)
+pub fn html() -> Html {
+    Html::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for Html {

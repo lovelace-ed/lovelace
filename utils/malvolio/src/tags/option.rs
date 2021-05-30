@@ -30,6 +30,12 @@ pub struct SelectOption {
     text: Cow<'static, str>,
 }
 
+/// Creates a new `SelectOption` tag – functionally equivalent to `SelectOption::new()` (but easier
+/// to type.)
+pub fn select_option() -> SelectOption {
+    Default::default()
+}
+
 impl SelectOption {
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).

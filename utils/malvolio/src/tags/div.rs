@@ -30,6 +30,11 @@ pub struct Div {
     attrs: HashMap<&'static str, Cow<'static, str>>,
 }
 
+/// Creates a new `Div` tag – functionally equivalent to `Div::new()` (but easier to type.)
+pub fn div() -> Div {
+    Div::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for Div {

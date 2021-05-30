@@ -34,6 +34,11 @@ pub struct Input {
     listeners: Vec<Rc<dyn Listener>>,
 }
 
+/// Creates a new `Input` tag – functionally equivalent to `Input::new()` (but easier to type.)
+pub fn input() -> Input {
+    Input::new()
+}
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 impl IntoVNode for Input {

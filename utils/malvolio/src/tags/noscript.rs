@@ -12,6 +12,12 @@ pub struct NoScript {
     text: Cow<'static, str>,
 }
 
+/// Creates a new `NoScript` tag – functionally equivalent to `NoScript::new(<text>)` (but easier to
+/// type.)
+pub fn noscript(text: impl Into<Cow<'static, str>>) -> NoScript {
+    NoScript::new(text)
+}
+
 impl NoScript {
     /// Construct a new <noscript> tag.
     pub fn new<T>(text: T) -> Self
