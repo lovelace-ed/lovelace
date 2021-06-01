@@ -24,8 +24,8 @@ use super::input::{Name, Value};
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `option` tag.
 ///
-/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for more
-/// info.
+/// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for
+/// further information..
 pub struct SelectOption {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,

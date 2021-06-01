@@ -29,8 +29,8 @@ use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `select` tag.
 ///
-/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for more
-/// info.
+/// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for
+/// further information.
 pub struct Select {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     children: Vec<SelectOption>,

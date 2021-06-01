@@ -30,7 +30,7 @@ use super::body::body_node::BodyNode;
 /// ```
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
@@ -195,7 +195,7 @@ into_attribute_for_grouping_enum!(AAttr, Href, Download, Target, Id);
 /// request).
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 pub struct Href(Cow<'static, str>);
 
@@ -215,7 +215,7 @@ into_grouping_union!(Href, AAttr);
 /// The download attribute.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 pub struct Download(Cow<'static, str>);
 
@@ -246,7 +246,7 @@ impl IntoAttribute for Href {
 /// The "target" attribute for a link.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-target)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 #[allow(missing_docs)]
 pub enum Target {

@@ -25,7 +25,7 @@ use super::body::body_node::BodyNode;
 /// applying CSS styling.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div)
-/// for more info.
+/// for further information.
 pub struct Div {
     children: Vec<BodyNode>,
     attrs: HashMap<&'static str, Cow<'static, str>>,
