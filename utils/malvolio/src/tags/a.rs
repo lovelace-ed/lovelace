@@ -33,6 +33,7 @@ use super::body::body_node::BodyNode;
 /// for more info.
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct A {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     text: Cow<'static, str>,

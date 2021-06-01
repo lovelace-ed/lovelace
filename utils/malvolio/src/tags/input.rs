@@ -23,6 +23,7 @@ use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// A form input.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)

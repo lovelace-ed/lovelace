@@ -17,6 +17,7 @@ use ammonia::clean;
 /// info.
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct P {
     children: Vec<BodyNode>,
 }

@@ -7,6 +7,7 @@ use crate::into_grouping_union;
 use crate::into_vnode::IntoVNode;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <noscript> tag.
 pub struct NoScript {
     text: Cow<'static, str>,
