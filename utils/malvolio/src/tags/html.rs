@@ -19,6 +19,7 @@ use crate::to_html;
 use super::{body::Body, head::Head};
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// Construct a HTML document. If you are trying to render to a string, this is what you want to use.
 ///
 /// If you're using Yew (enable the `with_yew` feature in your `Cargo.toml` to do this) then you

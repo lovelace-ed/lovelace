@@ -26,6 +26,7 @@ use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
 
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `select` tag.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for more

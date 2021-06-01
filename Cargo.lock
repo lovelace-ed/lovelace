@@ -1487,11 +1487,20 @@ version = "0.2.0"
 dependencies = [
  "ammonia",
  "derivative",
+ "malvolio_codegen",
  "rocket",
  "scraper",
  "wasm-bindgen-test",
  "web-sys",
  "yew",
+]
+
+[[package]]
+name = "malvolio_codegen"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
 ]
 
 [[package]]

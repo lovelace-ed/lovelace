@@ -20,6 +20,7 @@ use super::body::body_node::BodyNode;
 
 #[derive(Debug, Derivative, Clone)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// A div. These are useful for ensuring that your HTML pages are well-structured as well as for
 /// applying CSS styling.
 ///

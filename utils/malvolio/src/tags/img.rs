@@ -10,6 +10,7 @@ use crate::{
 
 #[derive(Debug, Derivative)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `<img>` tag.
 pub struct Img {
     attrs: HashMap<&'static str, Cow<'static, str>>,

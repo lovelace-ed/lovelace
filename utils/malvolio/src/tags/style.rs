@@ -4,6 +4,7 @@ use std::{borrow::Cow, fmt::Display};
 
 /// the style tag
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct StyleTag {
     text: Cow<'static, str>,
 }

@@ -64,6 +64,10 @@ A copy of this license can be found in the `licenses` directory at the root of t
 #[macro_use]
 extern crate derivative;
 
+#[cfg(feature = "pub_fields")]
+#[macro_use]
+extern crate malvolio_codegen;
+
 /// Attributes which can be attached to multiple nodes.
 pub mod attributes;
 #[cfg(feature = "with_yew")]

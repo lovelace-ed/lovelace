@@ -15,6 +15,7 @@ pub mod head_node;
 
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default = "new")]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <head> tag.
 pub struct Head {
     children: Vec<HeadNode>,

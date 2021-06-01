@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "utils/malvolio",
+    "utils/malvolio_codegen",
     "utils/prospero",
     "utils/mercutio",
     "utils/mercutio_codegen",

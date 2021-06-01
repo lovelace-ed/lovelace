@@ -17,6 +17,7 @@ pub mod body_node;
 
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <body> tag.
 pub struct Body {
     children: Vec<BodyNode>,

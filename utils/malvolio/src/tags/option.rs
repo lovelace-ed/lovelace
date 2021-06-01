@@ -21,6 +21,7 @@ use super::input::{Name, Value};
 
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `option` tag.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for more
