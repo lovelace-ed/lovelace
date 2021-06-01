@@ -8,7 +8,11 @@ use crate::into_vnode::IntoVNode;
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-/// The <noscript> tag.
+/// The <noscript> tag. The contents of this tag will be shown to people whose browsers don't
+/// support Javascript, or who don't have Javascript enabled.
+///
+/// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/noscript) for
+/// further information.
 pub struct NoScript {
     text: Cow<'static, str>,
 }

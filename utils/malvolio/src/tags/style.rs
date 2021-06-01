@@ -2,7 +2,10 @@ use crate::into_grouping_union;
 use crate::tags::head::head_node::HeadNode;
 use std::{borrow::Cow, fmt::Display};
 
-/// the style tag
+/// The `<style>` tag, useful for embedding CSS styling inside HTML documents.
+///
+/// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) for
+/// further information.
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct StyleTag {

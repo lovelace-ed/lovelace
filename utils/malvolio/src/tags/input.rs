@@ -27,7 +27,7 @@ use super::body::body_node::BodyNode;
 /// A form input.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
-/// for more info.
+/// for further information.
 pub struct Input {
     attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
@@ -146,7 +146,7 @@ into_grouping_union!(Placeholder, InputAttr);
 /// The `type` attribute for an input.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 #[allow(missing_docs)]
 pub enum Type {
@@ -182,7 +182,7 @@ impl IntoAttribute for Type {
 /// The `name` attribute for an input.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-name)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 
 pub struct Name(Cow<'static, str>);
@@ -206,7 +206,7 @@ impl Name {
 /// The "placeholder" attribute for an input field.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-placeholder)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 pub struct Placeholder(Cow<'static, str>);
 
@@ -229,7 +229,7 @@ impl Placeholder {
 /// The "value" attribute for an input field.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-value)
-/// for more info.
+/// for further information.
 #[derive(Debug, Clone)]
 pub struct Value(Cow<'static, str>);
 

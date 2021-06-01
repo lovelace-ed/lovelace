@@ -22,7 +22,7 @@ use super::body::body_node::BodyNode;
 /// A label for a form.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
-/// for more info.
+/// for further information.
 pub struct Label(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,

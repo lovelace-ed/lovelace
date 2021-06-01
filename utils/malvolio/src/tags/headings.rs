@@ -23,6 +23,10 @@ use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
 /// The <h1> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H1(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -39,6 +43,10 @@ heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
 /// The <h2> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H2(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -55,6 +63,10 @@ heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
 /// The <h3> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H3(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -71,6 +83,10 @@ heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
 /// The <h4> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H4(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -87,6 +103,10 @@ heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
 /// The <h5> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H5(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,
@@ -103,6 +123,10 @@ heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
 /// The <h6> tag.
+///
+/// See
+/// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+/// for further information.
 pub struct H6(
     Cow<'static, str>,
     HashMap<&'static str, Cow<'static, str>>,

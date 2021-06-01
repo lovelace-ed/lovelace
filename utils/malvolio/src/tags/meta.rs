@@ -19,8 +19,8 @@ use super::head::head_node::HeadNode;
 /// A metadata element. Useful for adding metadata which can not be represented through other HTML
 /// tags.
 ///
-/// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) for more
-/// info.
+/// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) for
+/// further information.
 pub struct Meta {
     attrs: HashMap<&'static str, Cow<'static, str>>,
 }
