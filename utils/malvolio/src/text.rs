@@ -19,13 +19,13 @@ use crate::heading_of_vnode;
 
 #[derive(Default, Debug, Clone)]
 /// A text node.
-pub struct Text(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct Text {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(Text, text);
 
@@ -37,7 +37,7 @@ into_grouping_union!(Text, BodyNode);
 
 impl Display for Text {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
+        self.text.fmt(f)
     }
 }
 

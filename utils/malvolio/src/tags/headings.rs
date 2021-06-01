@@ -22,18 +22,19 @@ use crate::{
 use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h1> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H1(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H1 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H1, h1);
 
@@ -42,18 +43,19 @@ into_grouping_union!(H1, BodyNode);
 heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h2> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H2(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H2 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H2, h2);
 
@@ -62,18 +64,19 @@ into_grouping_union!(H2, BodyNode);
 heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h3> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H3(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H3 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H3, h3);
 
@@ -82,18 +85,19 @@ into_grouping_union!(H3, BodyNode);
 heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h4> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H4(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H4 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H4, h4);
 
@@ -102,18 +106,19 @@ into_grouping_union!(H4, BodyNode);
 heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h5> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H5(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H5 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H5, h5);
 
@@ -122,18 +127,19 @@ into_grouping_union!(H5, BodyNode);
 heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The <h6> tag.
 ///
 /// See
 /// [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
 /// for further information.
-pub struct H6(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct H6 {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 impl_of_heading_new_fn!(H6, h6);
 

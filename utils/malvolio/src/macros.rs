@@ -19,9 +19,9 @@ macro_rules! heading_display {
                 f.write_str("<")?;
                 f.write_str(stringify!($name))?;
                 f.write_str(" ")?;
-                crate::utils::write_attributes(&self.1, f)?;
+                crate::utils::write_attributes(&self.attrs, f)?;
                 f.write_str(">")?;
-                self.0.fmt(f)?;
+                self.text.fmt(f)?;
                 f.write_str("</")?;
                 f.write_str(stringify!($name))?;
                 f.write_str(">")
@@ -49,13 +49,13 @@ macro_rules! impl_of_heading_new_fn {
             where
                 S: ToString,
             {
-                Self(
-                    From::from(::ammonia::clean(&from.to_string())),
-                    std::collections::HashMap::new(),
+                Self {
+                    text: From::from(::ammonia::clean(&from.to_string())),
+                    attrs: std::collections::HashMap::new(),
                     #[cfg(feature = "with_yew")]
                     #[cfg(not(tarpaulin))]
-                    vec![],
-                )
+                    listeners: vec![],
+                }
             }
             /// Create a new item of this type **without first sanitizing the text**. You only want
             /// this if you are certain that the text in question is safe (i.e. will not execute
@@ -64,13 +64,13 @@ macro_rules! impl_of_heading_new_fn {
             where
                 S: Into<Cow<'static, str>>,
             {
-                Self(
-                    from.into(),
-                    std::collections::HashMap::new(),
+                Self {
+                    text: from.into(),
+                    attrs: std::collections::HashMap::new(),
                     #[cfg(feature = "with_yew")]
                     #[cfg(not(tarpaulin))]
-                    vec![],
-                )
+                    listeners: vec![],
+                }
             }
             #[inline(always)]
             /// Attach a new attribute to this node.
@@ -80,12 +80,12 @@ macro_rules! impl_of_heading_new_fn {
             {
                 use $crate::attributes::IntoAttribute;
                 let (a, b) = a.into().into_attribute();
-                self.1.insert(a, b);
+                self.attrs.insert(a, b);
                 self
             }
             /// Read an attribute that has been set.
             pub fn read_attribute(&self, a: &'static str) -> Option<&Cow<'static, str>> {
-                self.1.get(a)
+                self.attrs.get(a)
             }
             /// Applies the provided function to this item.
             pub fn map<F>(mut self, mapping: F) -> Self
@@ -115,10 +115,10 @@ macro_rules! heading_of_vnode {
         impl $crate::into_vnode::IntoVNode for $name {
             fn into_vnode(self) -> ::yew::virtual_dom::VNode {
                 let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
-                for (k, v) in self.1.into_iter() {
+                for (k, v) in self.attrs.into_iter() {
                     vtag.add_attribute(k, v);
                 }
-                vtag.add_child(::yew::virtual_dom::VText::new(self.0.to_string()).into());
+                vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
                 vtag.into()
             }
         }

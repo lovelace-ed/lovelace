@@ -23,13 +23,13 @@ use super::body::body_node::BodyNode;
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
 /// for further information.
-pub struct Label(
-    Cow<'static, str>,
-    HashMap<&'static str, Cow<'static, str>>,
+pub struct Label {
+    text: Cow<'static, str>,
+    attrs: HashMap<&'static str, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
-    Vec<Rc<dyn Listener>>,
-);
+    listeners: Vec<Rc<dyn Listener>>,
+}
 
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
