@@ -66,6 +66,8 @@ jobs:
       - run: (xandikos --defaults -d dav) & (cargo test --release --no-fail-fast --all --workspace)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
+          # this secret key is only used here (nowhere else)
+          SECRET_KEY: zVYFJcgr4mWa9bQsCDDa8LP0xqXk8u4ZvtkKY6Jpqn4=
 
   test-mercutio-no-cache:
     runs-on: ubuntu-latest
