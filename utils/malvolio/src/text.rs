@@ -18,6 +18,7 @@ use crate::{impl_of_heading_new_fn, into_grouping_union, tags::body::body_node::
 use crate::heading_of_vnode;
 
 #[derive(Default, Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// A text node.
 pub struct Text {
     text: Cow<'static, str>,
