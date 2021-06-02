@@ -19,6 +19,7 @@ use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
 use super::body::body_node::BodyNode;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// A label for a form.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
