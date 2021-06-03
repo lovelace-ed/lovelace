@@ -1,32 +1,36 @@
-use malvolio::{prelude::*, text::Text};
+use malvolio::prelude::*;
 use mercutio::{compose, Apply};
 use portia::{
     colour::YellowBackground,
-    font::{SmallTitle, VerticalAlignCenter},
-    levels::{LayoutAxis, LayoutStrategy, Level, Spacing},
+    levels::{LayoutAxis, LayoutStrategy, Level},
     padding::DefaultPadding,
-    render::Render,
+    render::RenderCtx,
 };
+
+use crate::auth::OptionAuthCookie;
 
 pub struct Navbar;
 
-impl Render<Div> for Navbar {
-    fn render(self) -> Div {
+impl RenderCtx<Div> for Navbar {
+    type Ctx = OptionAuthCookie;
+
+    fn render(self, ctx: Self::Ctx) -> Div {
         Level::new()
-            .strategy(
-                LayoutStrategy::new()
-                    .axis(LayoutAxis::Horizontal)
-                    .spacing(Spacing::Between),
-            )
-            .child(H1::new("Lovelace").apply(SmallTitle))
-            .child(
-                Div::new()
-                    .apply(VerticalAlignCenter)
-                    .attribute(Id::new("auth-bar"))
-                    .child(A::new().href("/auth/login").text("Login"))
-                    .child(Text::new(" "))
-                    .child(A::new().href("/auth/register").text("Register")),
-            )
+            .strategy(LayoutStrategy::new().axis(LayoutAxis::Horizontal))
+            .apply(|navbar| {
+                if ctx.0.is_some() {
+                    todo!()
+                } else {
+                    navbar
+                        .child(a().href("/").text("Lovelace").apply(DefaultPadding))
+                        .child(a().href("/auth/login").text("Login").apply(DefaultPadding))
+                        .child(
+                            a().href("/auth/register")
+                                .text("Register")
+                                .apply(DefaultPadding),
+                        )
+                }
+            })
             .into_div()
             .apply(compose(YellowBackground, DefaultPadding))
     }

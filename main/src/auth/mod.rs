@@ -44,6 +44,18 @@ impl<'r> FromRequest<'r> for AuthCookie {
 #[derive(Debug, Copy, Clone)]
 pub struct OptionAuthCookie(pub Option<i32>);
 
+impl OptionAuthCookie {
+    pub fn none() -> Self {
+        Self(None)
+    }
+}
+
+impl From<AuthCookie> for OptionAuthCookie {
+    fn from(cookie: AuthCookie) -> Self {
+        OptionAuthCookie(Some(cookie.0))
+    }
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for OptionAuthCookie {
     type Error = AuthError;

@@ -6,7 +6,9 @@ A copy of this license can be found in the `licenses` directory at the root of t
 #[cfg(not(tarpaulin))]
 use crate::into_vnode::IntoVNode;
 use crate::{
-    attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, prelude::Id,
+    attributes::IntoAttribute,
+    into_attribute_for_grouping_enum, into_grouping_union,
+    prelude::{Id, Style},
     to_html, utility_enum,
 };
 use ammonia::clean;
@@ -183,12 +185,15 @@ utility_enum!(
         Download(Download),
         Target(Target),
         Id(Id),
+        Style(Style),
     }
 );
 
 into_grouping_union!(Id, AAttr);
 
-into_attribute_for_grouping_enum!(AAttr, Href, Download, Target, Id);
+into_grouping_union!(Style, AAttr);
+
+into_attribute_for_grouping_enum!(AAttr, Href, Download, Target, Id, Style);
 
 /// The "href" attribute (currently only usable with the `<a>` tags, but support for other tags is
 /// planned – if you need support now, feel free – and welcome/encouraged – to submit a pull
