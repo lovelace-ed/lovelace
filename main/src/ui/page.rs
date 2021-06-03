@@ -1,6 +1,8 @@
 use malvolio::prelude::*;
 use mercutio::Apply;
-use portia::{margin::ZeroMargin, render::Render};
+use portia::{margin::ZeroMargin, render::RenderCtx};
+
+use crate::auth::OptionAuthCookie;
 
 use super::navbar::Navbar;
 
@@ -29,11 +31,12 @@ impl Page {
     }
 }
 
-impl Render<Body> for Page {
-    fn render(self) -> Body {
+impl RenderCtx<Body> for Page {
+    type Ctx = OptionAuthCookie;
+    fn render(self, ctx: Self::Ctx) -> Body {
         Body::new()
             .apply(ZeroMargin)
-            .child(Render::<Div>::render(Navbar))
+            .child(RenderCtx::<Div>::render(Navbar, ctx))
             .children(self.children)
     }
 }

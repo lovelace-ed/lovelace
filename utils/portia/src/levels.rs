@@ -65,29 +65,31 @@ impl From<Level> for Div {
         } else {
             LayoutStrategy {
                 axis: LayoutAxis::Vertical,
-                spacing: Spacing::Fill,
+                spacing: None,
             }
         };
         Div::new()
             .map(|div| match layout_strategy.axis {
                 LayoutAxis::Horizontal => match layout_strategy.spacing {
-                    Spacing::Between => div.apply(compose(
+                    Some(Spacing::Between) => div.apply(compose(
                         compose(FlexDirectionRow, DisplayFlex),
                         SpaceBetween,
                     )),
-                    Spacing::Fill => {
+                    Some(Spacing::Fill) => {
                         div.apply(compose(compose(FlexDirectionRow, DisplayFlex), SpaceAround))
                     }
+                    None => div.apply(FlexDirectionRow),
                 },
                 LayoutAxis::Vertical => match layout_strategy.spacing {
-                    Spacing::Between => div.apply(compose(
+                    Some(Spacing::Between) => div.apply(compose(
                         compose(FlexDirectionColumn, DisplayFlex),
                         SpaceBetween,
                     )),
-                    Spacing::Fill => div.apply(compose(
+                    Some(Spacing::Fill) => div.apply(compose(
                         compose(FlexDirectionColumn, DisplayFlex),
                         SpaceAround,
                     )),
+                    None => div.apply(FlexDirectionRow),
                 },
             })
             .children(item.children.into_iter().map(|child| child.item))
@@ -132,10 +134,8 @@ pub enum LayoutAxis {
     Vertical,
 }
 
-#[derive(Copy, Clone, Debug, Derivative)]
-#[derivative(Default(new = "true"))]
+#[derive(Copy, Clone, Debug)]
 pub enum Spacing {
-    #[derivative(Default)]
     Between,
     Fill,
 }
@@ -145,7 +145,7 @@ pub enum Spacing {
 /// Determines how to display the children of this level of the layout heirarchy.
 pub struct LayoutStrategy {
     axis: LayoutAxis,
-    spacing: Spacing,
+    spacing: Option<Spacing>,
 }
 
 impl LayoutStrategy {
@@ -160,7 +160,7 @@ impl LayoutStrategy {
     where
         S: Into<Spacing>,
     {
-        self.spacing = spacing.into();
+        self.spacing = Some(spacing.into());
         self
     }
 }

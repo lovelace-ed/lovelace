@@ -1,3 +1,3 @@
 #[derive(CSS, Debug)]
-#[mercutio(elements(Div), css(padding = "15px"))]
+#[mercutio(elements(Div, A), css(padding = "15px"))]
 pub struct DefaultPadding;

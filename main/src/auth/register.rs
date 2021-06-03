@@ -6,11 +6,13 @@ use diesel::{insert_into, prelude::*};
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
+use portia::render::RenderCtx;
 use regex::Regex;
 use rocket::http::CookieJar;
 use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
+use crate::ui::page::Page;
 use crate::{
     db::Database,
     email::{EmailBuilder, RecipientBuilder, RecipientsBuilder, SendMail, SendgridMailSender},
@@ -18,6 +20,7 @@ use crate::{
     utils::{default_head, json_response::ApiResponse, timezones::timezone_field},
 };
 
+use super::OptionAuthCookie;
 use super::{verify::EmailVerificationToken, LOGIN_COOKIE};
 
 fn register_form() -> malvolio::prelude::Form {
@@ -71,9 +74,10 @@ pub fn register_page() -> Html {
     Html::default()
         .head(default_head("Login".to_string()))
         .body(
-            Body::default()
+            Page::new()
                 .child(H1::new("Register"))
-                .child(register_form()),
+                .child(register_form())
+                .render(OptionAuthCookie::none()),
         )
 }
 

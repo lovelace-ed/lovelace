@@ -3,13 +3,15 @@ use diesel::prelude::*;
 use malvolio::prelude::*;
 use mercutio::Apply;
 use portia::form::{FormStyle, FormSubmitInputStyle, FormTextInputStyle};
+use portia::render::RenderCtx;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::serde::json::Json;
 use thiserror::Error as ThisError;
 
+use crate::ui::page::Page;
 use crate::{db::Database, models::User, utils::default_head};
 
-use super::LOGIN_COOKIE;
+use super::{OptionAuthCookie, LOGIN_COOKIE};
 
 fn login_form() -> malvolio::prelude::Form {
     malvolio::prelude::Form::new()
@@ -43,7 +45,12 @@ fn login_form() -> malvolio::prelude::Form {
 pub fn login_page() -> Html {
     Html::default()
         .head(default_head("Login".to_string()))
-        .body(Body::default().child(H1::new("Login")).child(login_form()))
+        .body(
+            Page::default()
+                .child(H1::new("Login"))
+                .child(login_form())
+                .render(OptionAuthCookie::none()),
+        )
 }
 
 #[derive(ThisError, Debug)]

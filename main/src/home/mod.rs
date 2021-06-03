@@ -1,6 +1,6 @@
 use malvolio::prelude::*;
 use mercutio::{compose, Apply};
-use portia::{colour::GreyBackground, levels::Level, padding::DefaultPadding, render::Render};
+use portia::{colour::GreyBackground, levels::Level, padding::DefaultPadding, render::RenderCtx};
 use rocket::response::Redirect;
 
 use crate::{
@@ -47,7 +47,7 @@ pub fn home(auth_cookie: OptionAuthCookie) -> HtmlOrRedirect {
                         .into_div()
                         .apply(DefaultPadding)
                     )
-                    .render()
+                    .render(auth_cookie)
             )
         )
     }
