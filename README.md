@@ -4,9 +4,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/lovelace-ed/lovelace/Test?style=flat-square)
 [![Bors enabled](https://bors.tech/images/badge_small.svg)](https://app.bors.tech/repositories/31229)
 
-Designed to replace proprietary for-profit solutions, Lovelace is a computer system designed to
-get out of your way (when you want it to) and let you get on with education (whether as a student or
-teacher).
+Lovelace strives to be a friendly, reliable companion for schools.
 
 ## Using this (non-technical edition)
 
