@@ -8,7 +8,7 @@ use crate::{
     attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, utility_enum,
 };
 
-#[derive(Debug, Derivative)]
+#[derive(Debug, Derivative, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `<img>` tag.

@@ -10,6 +10,7 @@ use crate::{
         div::Div,
         form::Form,
         headings::{H1, H2, H3, H4, H5, H6},
+        img::Img,
         input::Input,
         label::Label,
         noscript::NoScript,
@@ -44,6 +45,7 @@ utility_enum!(
         Label(Label),
         Select(Select),
         NoScript(NoScript),
+        Img(Img),
         #[cfg(feature = "with_yew")]
         #[cfg(not(tarpaulin))]
         VNode(yew::virtual_dom::VNode),
@@ -54,9 +56,10 @@ utility_enum!(
 #[cfg(not(tarpaulin))]
 into_vnode_for_grouping_enum!(
     BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select, NoScript,
-    VNode
+    Img, VNode
 );
 
 enum_display!(
-    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Select, NoScript, Label
+    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Select, NoScript, Img,
+    Label
 );
