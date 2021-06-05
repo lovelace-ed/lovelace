@@ -43,7 +43,7 @@ rev = "735bd99"
 features = ["diesel_postgres_pool"]
 
 [dev-dependencies]
-wiremock = "0.5.2"
+wiremock = "0.5.3"
 
 [features]
 # tests which need a caldav server to run sit behind this feature
