@@ -28,6 +28,7 @@ use super::body::body_node::BodyNode;
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 pub struct A {
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     text: Cow<'static, str>,

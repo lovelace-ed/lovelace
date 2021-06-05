@@ -24,7 +24,8 @@ jobs:
         run: cargo fmt -- --check
 
       - name: Lint
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-features -- -D warnings
+
   test:
     runs-on: ubuntu-latest
     services:
