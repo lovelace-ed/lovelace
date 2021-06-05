@@ -2,17 +2,9 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use std::rc::Rc;
-use std::{borrow::Cow, collections::HashMap};
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use yew::virtual_dom::Listener;
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::heading_of_vnode;
+use std::{borrow::Cow, collections::HashMap};
+
 use crate::{
     heading_display, impl_of_heading_new_fn, into_attribute_for_grouping_enum, into_grouping_union,
     prelude::{Class, Id, Style},
@@ -23,6 +15,7 @@ use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h1> tag.
 ///
 /// See
@@ -30,10 +23,7 @@ use super::body::body_node::BodyNode;
 /// for further information.
 pub struct H1 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H1, h1);
@@ -44,6 +34,7 @@ heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h2> tag.
 ///
 /// See
@@ -51,10 +42,7 @@ heading_display!(H1);
 /// for further information.
 pub struct H2 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H2, h2);
@@ -65,6 +53,7 @@ heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h3> tag.
 ///
 /// See
@@ -72,10 +61,7 @@ heading_display!(H2);
 /// for further information.
 pub struct H3 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H3, h3);
@@ -86,6 +72,7 @@ heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h4> tag.
 ///
 /// See
@@ -93,10 +80,7 @@ heading_display!(H3);
 /// for further information.
 pub struct H4 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H4, h4);
@@ -107,6 +91,7 @@ heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h5> tag.
 ///
 /// See
@@ -114,10 +99,7 @@ heading_display!(H4);
 /// for further information.
 pub struct H5 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H5, h5);
@@ -128,6 +110,7 @@ heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <h6> tag.
 ///
 /// See
@@ -135,10 +118,7 @@ heading_display!(H5);
 /// for further information.
 pub struct H6 {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 impl_of_heading_new_fn!(H6, h6);
@@ -146,25 +126,6 @@ impl_of_heading_new_fn!(H6, h6);
 into_grouping_union!(H6, BodyNode);
 
 heading_display!(H6);
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H1);
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H2);
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H3);
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H4);
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H5);
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(H6);
 
 utility_enum!(
     /// An attribute for a heading tag.

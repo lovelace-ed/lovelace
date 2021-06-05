@@ -2,12 +2,7 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::utils::write_attributes_to_vtag;
+
 use crate::{
     into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, utility_enum,
     utils::write_attributes,
@@ -22,12 +17,13 @@ use super::input::{Name, Value};
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The `option` tag.
 ///
 /// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option) for
 /// further information..
 pub struct SelectOption {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     text: Cow<'static, str>,
 }
 
@@ -90,17 +86,6 @@ impl Display for SelectOption {
         f.write_str(">")?;
         self.text.fmt(f)?;
         f.write_str("</option>")
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for SelectOption {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("option");
-        write_attributes_to_vtag(self.attrs, &mut vtag);
-        vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
-        vtag.into()
     }
 }
 

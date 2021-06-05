@@ -2,15 +2,12 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-use self::body_node::BodyNode;
-use crate::attributes::IntoAttribute;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-use crate::{into_attribute_for_grouping_enum, into_grouping_union, prelude::Style, utility_enum};
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
+use self::body_node::BodyNode;
 use super::headings::{H1, H2, H3, H4, H5, H6};
+use crate::attributes::IntoAttribute;
+use crate::{into_attribute_for_grouping_enum, into_grouping_union, prelude::Style, utility_enum};
 
 /// Contains the `BodyNode` enum.
 pub mod body_node;
@@ -21,7 +18,7 @@ pub mod body_node;
 /// The <body> tag.
 pub struct Body {
     children: Vec<BodyNode>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 /// Creates a new `Body` tag – functionally equivalent to `Body::new()` (but shorter to type.)
@@ -38,16 +35,6 @@ utility_enum! {
 
 into_grouping_union!(Style, BodyAttr);
 into_attribute_for_grouping_enum!(BodyAttr, Style);
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Body {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("body");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        vtag.into()
-    }
-}
 
 impl Body {
     /// Attach multiple children to this tag, from an iterator of items implementing

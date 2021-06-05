@@ -68,16 +68,12 @@ extern crate derivative;
 #[macro_use]
 extern crate malvolio_codegen;
 
+#[cfg(feature = "with_proptest")]
+#[macro_use]
+extern crate proptest_derive;
+
 /// Attributes which can be attached to multiple nodes.
 pub mod attributes;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-pub mod comp;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-/// Contains a trait to allow you to convert items into `VNode`'s. You shouldn't need to use this,
-/// but it is sometimes helpful.
-pub mod into_vnode;
 /// A list of types which are useful for using the library. Unless you have name conflicts, we
 /// recommend just inserting a `use malvolio::prelude::*;` in files where you're using Malvolio.
 pub mod prelude;

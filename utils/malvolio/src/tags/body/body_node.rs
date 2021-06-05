@@ -21,10 +21,6 @@ use crate::{
     utility_enum,
 };
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode_for_grouping_enum;
-
 utility_enum!(
     #[allow(missing_docs)]
     /// A node which can be mounted to the <body> tag (or any of its children).
@@ -50,13 +46,6 @@ utility_enum!(
         #[cfg(not(tarpaulin))]
         VNode(yew::virtual_dom::VNode),
     }
-);
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-into_vnode_for_grouping_enum!(
-    BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Label, Select, NoScript,
-    Img, VNode
 );
 
 enum_display!(

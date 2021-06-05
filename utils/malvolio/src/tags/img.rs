@@ -13,7 +13,7 @@ use crate::{
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 /// The `<img>` tag.
 pub struct Img {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
     listeners: Vec<Rc<dyn Listener>>,
@@ -36,18 +36,6 @@ impl Display for Img {
         }
         f.write_str("\"")?;
         f.write_str("/>")
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl crate::into_vnode::IntoVNode for Img {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vnode = yew::virtual_dom::VTag::new("img");
-        for (a, b) in self.attrs {
-            vnode.add_attribute(a, b)
-        }
-        vnode.into()
     }
 }
 
@@ -98,8 +86,8 @@ impl Alt {
 }
 
 impl IntoAttribute for Alt {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("alt", self.value)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("alt".into(), self.value)
     }
 }
 
@@ -122,8 +110,8 @@ impl Src {
 }
 
 impl IntoAttribute for Src {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("src", self.src)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("src".into(), self.src)
     }
 }
 

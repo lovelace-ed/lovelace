@@ -4,14 +4,11 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute,
     into_attribute_for_grouping_enum, into_grouping_union,
     prelude::{Style, H1, H2, H3, H4, H5, H6},
-    to_html, utility_enum,
+    utility_enum,
 };
 
 use crate::tags::body::body_node::BodyNode;
@@ -19,6 +16,7 @@ use crate::tags::body::body_node::BodyNode;
 #[derive(Debug, Clone, Derivative)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// A HTML form. You can create a form with `Form::new()` or `Form::default()` (they are identical)
 /// and then use any of the provided methods to manipulate it (for example adding child elements or
 /// attributes).
@@ -63,25 +61,12 @@ use crate::tags::body::body_node::BodyNode;
 /// ```
 pub struct Form {
     children: Vec<BodyNode>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 /// Creates a new `Form` tag – functionally equivalent to `Form::new()` (but easier to type.)
 pub fn form() -> Form {
     Form::new()
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Form {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("form");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        for (a, b) in self.attrs {
-            vtag.add_attribute(a, b)
-        }
-        vtag.into()
-    }
 }
 
 impl Form {
@@ -143,7 +128,7 @@ impl Form {
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
-    to_html!();
+
     /// Attach a new `H1` instance to this class. Note that this method only allows you to provide
     /// text, and no additional attributes. If you want to specify extra attributes, you should
     /// instead use the "child" method (see the documentation of that method for more details).
@@ -319,15 +304,16 @@ into_grouping_union!(Style, FormAttr);
 /// further details.
 #[allow(missing_docs)]
 #[derive(Debug, Clone)]
+
 pub enum Method {
     Post,
     Get,
 }
 
 impl IntoAttribute for Method {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
         (
-            "method",
+            "method".into(),
             match self {
                 Method::Post => "post",
                 Method::Get => "get",
@@ -341,6 +327,7 @@ impl IntoAttribute for Method {
 /// [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-action) for
 /// further details.
 #[derive(Debug, Clone)]
+
 pub struct Action(Cow<'static, str>);
 
 impl Action {
@@ -354,8 +341,8 @@ impl Action {
 }
 
 impl IntoAttribute for Action {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("action", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("action".into(), self.0)
     }
 }
 

@@ -4,18 +4,8 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::{borrow::Cow, collections::HashMap};
 
-#[cfg(feature = "with_yew")]
-pub fn write_attributes_to_vtag(
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    vtag: &mut ::yew::virtual_dom::VTag,
-) {
-    for (key, value) in attrs.into_iter() {
-        vtag.add_attribute(key, value);
-    }
-}
-
 pub fn write_attributes(
-    attrs: &HashMap<&'static str, Cow<'static, str>>,
+    attrs: &HashMap<Cow<'static, str>, Cow<'static, str>>,
     f: &mut std::fmt::Formatter<'_>,
 ) -> std::fmt::Result {
     for (key, value) in attrs {

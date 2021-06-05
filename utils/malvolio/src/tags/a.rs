@@ -2,23 +2,15 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
+
 use crate::{
     attributes::IntoAttribute,
     into_attribute_for_grouping_enum, into_grouping_union,
     prelude::{Id, Style},
-    to_html, utility_enum,
+    utility_enum,
 };
 use ammonia::clean;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use yew::virtual_dom::Listener;
 
 use super::body::body_node::BodyNode;
 
@@ -37,29 +29,13 @@ use super::body::body_node::BodyNode;
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct A {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     text: Cow<'static, str>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
 }
 
 /// Creates a new `A` tag – functionally equivalent to `A::new()` (but easier to type.)
 pub fn a() -> A {
     A::new()
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for A {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vnode = yew::virtual_dom::VTag::new("a");
-        for (a, b) in self.attrs {
-            vnode.add_attribute(a, b);
-        }
-        vnode.add_child(yew::virtual_dom::VText::new(String::from(self.text)).into());
-        vnode.into()
-    }
 }
 
 impl A {
@@ -147,15 +123,6 @@ impl A {
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
-
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    /// Attaches a listener to this item. Only available if the `with_yew` feature is enabled.
-    pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
-        self.listeners.push(listener);
-        self
-    }
-    to_html!();
 }
 
 impl Display for A {
@@ -235,16 +202,16 @@ impl Download {
 }
 
 impl IntoAttribute for Download {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("download", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("download".into(), self.0)
     }
 }
 
 into_grouping_union!(Download, AAttr);
 
 impl IntoAttribute for Href {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("href", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("href".into(), self.0)
     }
 }
 
@@ -261,9 +228,9 @@ pub enum Target {
 into_grouping_union!(Target, AAttr);
 
 impl IntoAttribute for Target {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
         (
-            "target",
+            "target".into(),
             match self {
                 Target::Blank => "_blank".into(),
             },

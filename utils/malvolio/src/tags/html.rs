@@ -4,6 +4,7 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::fmt::Display;
 
+use super::{body::Body, head::Head};
 #[cfg(feature = "with_rocket")]
 use rocket::http::Status;
 #[cfg(feature = "with_rocket")]
@@ -11,21 +12,15 @@ use rocket::{response::Responder, Response};
 #[cfg(feature = "with_rocket")]
 use std::io::Cursor;
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-use crate::to_html;
-
-use super::{body::Body, head::Head};
-
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// Construct a HTML document. If you are trying to render to a string, this is what you want to use.
 ///
 /// If you're using Yew (enable the `with_yew` feature in your `Cargo.toml` to do this) then you
 /// probably want to use the relevant tag which your component should return instead.
 pub struct Html {
-    #[cfg(feature = "with_rocket")]
+    #[cfg(all(feature = "with_rocket", not(feature = "with_proptest")))]
     status: Status,
     head: Head,
     body: Body,
@@ -36,23 +31,10 @@ pub fn html() -> Html {
     Html::new()
 }
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Html {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut tag = yew::virtual_dom::VTag::new("html");
-        tag.add_children(vec![
-            IntoVNode::into_vnode(self.head),
-            IntoVNode::into_vnode(self.body),
-        ]);
-        tag.into()
-    }
-}
-
 impl Default for Html {
     fn default() -> Self {
         Self {
-            #[cfg(feature = "with_rocket")]
+            #[cfg(all(feature = "with_rocket", not(feature = "with_proptest")))]
             status: Status::Ok,
             head: Head::default(),
             body: Body::default(),
@@ -108,6 +90,4 @@ impl Html {
         self.status = status;
         self
     }
-
-    to_html!();
 }

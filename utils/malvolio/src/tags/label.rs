@@ -4,37 +4,21 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::{borrow::Cow, collections::HashMap};
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use std::rc::Rc;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use yew::virtual_dom::Listener;
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::heading_of_vnode;
-use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
-
 use super::body::body_node::BodyNode;
+
+use crate::{heading_display, impl_of_heading_new_fn, into_grouping_union};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// A label for a form.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label)
 /// for further information.
 pub struct Label {
     text: Cow<'static, str>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-heading_of_vnode!(Label);
 
 impl_of_heading_new_fn!(Label, label);
 

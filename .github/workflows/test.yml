@@ -2,7 +2,6 @@ name: Test
 
 on:
   push:
-    pull_request:
     branches:
       - staging
       - trying
@@ -77,25 +76,6 @@ jobs:
           override: true
       - run: (cd utils/mercutio_codegen && cargo test test_classes_to_file --features no_cache)
 
-  test-malvolio-in-browser:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
-      - uses: Swatinem/rust-cache@v1
-
-      - name: Install
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-      - run: (cd utils/malvolio && wasm-pack test --headless --chrome -- --features with_yew)
-
-      - run: (cd utils/malvolio && wasm-pack test --headless --firefox -- --features with_yew)
-
   test-prospero:
     runs-on: ubuntu-latest
 
@@ -126,10 +106,8 @@ jobs:
     needs:
       - lint
       - test
-      # tested seperately from everything else for speed
-      - test-malvolio-in-browser
       - test-prospero
-      # if it caches it causes problems because the proc macro is not executed :(
+      # if it caches it causes problems because the procedural macro is not executed :(
       - test-mercutio-no-cache
 
     runs-on: ubuntu-latest
@@ -140,5 +118,4 @@ jobs:
           [ ${{ needs.lint.result }} == success ] &&
           [ ${{ needs.test.result }} == success ] &&
           [ ${{ needs.test-prospero.result }} == success ] &&
-          [ ${{ needs.test-mercutio-no-cache.result }} == success ] &&
-          [ ${{ needs.test-malvolio-in-browser.result }} == success ] || exit 1
+          [ ${{ needs.test-mercutio-no-cache.result }} == success ] || exit 1

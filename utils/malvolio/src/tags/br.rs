@@ -4,13 +4,12 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::fmt::Display;
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-use crate::{into_grouping_union_without_lifetimes, to_html};
+use crate::into_grouping_union_without_lifetimes;
 
 use super::body::body_node::BodyNode;
+
 #[derive(Debug, Clone)]
+
 /// A new line.
 ///
 /// ```
@@ -22,21 +21,9 @@ use super::body::body_node::BodyNode;
 /// info.
 pub struct Br;
 
-impl Br {
-    to_html!();
-}
-
 impl Display for Br {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<br/>")
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Br {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        yew::virtual_dom::VTag::new("br").into()
     }
 }
 

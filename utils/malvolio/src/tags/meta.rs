@@ -4,9 +4,6 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute, into_attribute_for_grouping_enum, into_grouping_union, utility_enum,
 };
@@ -16,13 +13,14 @@ use super::head::head_node::HeadNode;
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// A metadata element. Useful for adding metadata which can not be represented through other HTML
 /// tags.
 ///
 /// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta) for
 /// further information.
 pub struct Meta {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 /// Creates a new `Meta` tag – functionally equivalent to `Meta::new()` (but easier to type.)
@@ -44,18 +42,6 @@ impl Meta {
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Meta {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("meta");
-        for (a, b) in self.attrs {
-            vtag.add_attribute(a, b)
-        }
-        vtag.into()
     }
 }
 
@@ -88,6 +74,7 @@ into_attribute_for_grouping_enum!(MetaAttr, Content, MetaName);
 /// The "name" attribute for meta tags. This is called `MetaName` to disambiguate it from other
 /// tags.
 #[derive(Debug, Clone)]
+
 pub enum MetaName {
     /// Specifies the charset of the HTML document. Note that for this to work, you also need to
     /// specify the `content` attribute on the relevant meta tag.
@@ -107,9 +94,9 @@ pub enum MetaName {
 }
 
 impl IntoAttribute for MetaName {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
         (
-            "name",
+            "name".into(),
             match self {
                 MetaName::Charset => "charset",
                 MetaName::Viewport => "viewport",
@@ -122,6 +109,7 @@ impl IntoAttribute for MetaName {
 into_grouping_union!(MetaName, MetaAttr);
 
 #[derive(Debug, Clone)]
+
 /// The "content" attribute for a <meta> tag.
 pub struct Content(Cow<'static, str>);
 
@@ -136,8 +124,8 @@ impl Content {
 }
 
 impl IntoAttribute for Content {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("content", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("content".into(), self.0)
     }
 }
 
