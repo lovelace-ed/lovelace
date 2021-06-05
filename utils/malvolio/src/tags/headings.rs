@@ -15,7 +15,7 @@ use super::body::body_node::BodyNode;
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h1> tag.
 ///
 /// See
@@ -34,7 +34,7 @@ heading_display!(H1);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h2> tag.
 ///
 /// See
@@ -53,7 +53,7 @@ heading_display!(H2);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h3> tag.
 ///
 /// See
@@ -72,7 +72,7 @@ heading_display!(H3);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h4> tag.
 ///
 /// See
@@ -91,7 +91,7 @@ heading_display!(H4);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h5> tag.
 ///
 /// See
@@ -110,7 +110,7 @@ heading_display!(H5);
 
 #[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
+#[cfg_attr(feature = "with_proptest", derive(Arbitrary))]
 /// The <h6> tag.
 ///
 /// See

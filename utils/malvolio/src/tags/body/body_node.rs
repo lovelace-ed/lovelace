@@ -52,3 +52,41 @@ enum_display!(
     BodyNode, H1, H2, H3, H4, H5, H6, P, Br, Text, Form, Div, A, Input, Select, NoScript, Img,
     Label
 );
+
+#[cfg(feature = "with_proptest")]
+pub(crate) mod body_proptest {
+    use super::*;
+
+    use proptest::prelude::*;
+
+    pub(crate) fn body_node() -> BoxedStrategy<BodyNode> {
+        let leaf = prop_oneof![
+            any::<H1>().prop_map(BodyNode::H1),
+            any::<H2>().prop_map(BodyNode::H2),
+            any::<H3>().prop_map(BodyNode::H3),
+            any::<H4>().prop_map(BodyNode::H4),
+            any::<H5>().prop_map(BodyNode::H5),
+            any::<H6>().prop_map(BodyNode::H6),
+        ];
+
+        leaf.prop_recursive(2, 16, 1, |inner| {
+            prop_oneof![
+                prop::collection::vec(inner.clone(), 0..10)
+                    .prop_map(|prop| { BodyNode::Div(Div::new().children(prop)) }),
+                prop::collection::vec(inner.clone(), 0..10)
+                    .prop_map(|item| { BodyNode::P(P::new().children(item)) })
+            ]
+        })
+        .boxed()
+    }
+
+    impl Arbitrary for BodyNode {
+        type Parameters = ();
+
+        fn arbitrary_with(_: Self::Parameters) -> Self::Strategy {
+            body_node()
+        }
+
+        type Strategy = BoxedStrategy<BodyNode>;
+    }
+}

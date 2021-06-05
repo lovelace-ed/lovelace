@@ -16,7 +16,6 @@ use crate::{into_grouping_union, text::Text};
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
-
 pub struct P {
     text: Cow<'static, str>,
     children: Vec<BodyNode>,
