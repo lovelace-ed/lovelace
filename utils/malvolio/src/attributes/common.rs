@@ -4,6 +4,7 @@ use super::IntoAttribute;
 
 #[derive(Debug, Derivative, Clone)]
 #[derivative(Default(new = "true"))]
+
 /// A builder for constructing values for the `class` attribute.
 pub struct Class(HashSet<Cow<'static, str>>);
 
@@ -32,15 +33,16 @@ impl Class {
 }
 
 impl IntoAttribute for Class {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
         (
-            "class",
+            "class".into(),
             self.0.into_iter().collect::<Vec<_>>().join(" ").into(),
         )
     }
 }
 
 #[derive(Debug, Default, Clone)]
+
 /// The "id" attribute.
 pub struct Id(Cow<'static, str>);
 
@@ -55,12 +57,13 @@ impl Id {
 }
 
 impl IntoAttribute for Id {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("id", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("id".into(), self.0)
     }
 }
 
 #[derive(Debug, Default, Clone)]
+
 /// The "style" attribute.
 pub struct Style(Cow<'static, str>);
 
@@ -75,7 +78,7 @@ impl Style {
 }
 
 impl IntoAttribute for Style {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("style", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("style".into(), self.0)
     }
 }

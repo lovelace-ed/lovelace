@@ -4,12 +4,10 @@ A copy of this license can be found in the `licenses` directory at the root of t
 */
 use std::{borrow::Cow, fmt::Display};
 
-use super::body::body_node::BodyNode;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-use crate::{into_grouping_union, text::Text};
 use ammonia::clean;
+
+use super::body::body_node::BodyNode;
+use crate::{into_grouping_union, text::Text};
 
 /// The <p> tag.
 ///
@@ -18,7 +16,9 @@ use ammonia::clean;
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 pub struct P {
+    text: Cow<'static, str>,
     children: Vec<BodyNode>,
 }
 
@@ -27,21 +27,12 @@ pub fn p() -> P {
     P::new()
 }
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for P {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("br");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        vtag.into()
-    }
-}
-
 into_grouping_union!(P, BodyNode);
 
 impl Display for P {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("<p>")?;
+        self.text.fmt(f)?;
         for child in &self.children {
             child.fmt(f)?;
         }
@@ -50,32 +41,30 @@ impl Display for P {
 }
 
 impl P {
-    /// Adds multiple children to the current `P` node after the currently existing ones. This
-    /// method accepts any
-    pub fn children<C>(mut self, children: Vec<C>) -> Self
-    where
-        C: Into<BodyNode>,
-    {
-        self.children
-            .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
-        self
-    }
-    /// Attach a child to this tag.
-    pub fn child<C>(mut self, child: C) -> Self
-    where
-        C: Into<BodyNode>,
-    {
-        self.children.push(child.into());
-        self
-    }
     /// A method to construct a paragraph containing the supplied text. This will sanitise the text
     /// provided beforehand.
     pub fn with_text<S>(text: S) -> Self
     where
-        S: Into<Cow<'static, str>>,
+        S: AsRef<str>,
     {
-        P::default().child(BodyNode::Text(Text::new(clean(&text.into()))))
+        Self {
+            text: clean(text.as_ref()).into(),
+            children: vec![],
+        }
     }
+
+    /// Attach a new child to this tag.
+    pub fn child(mut self, child: impl Into<BodyNode>) -> Self {
+        self.children.push(child.into());
+        self
+    }
+
+    /// Add new children to this tag from an iterator.
+    pub fn children(mut self, children: impl IntoIterator<Item = BodyNode>) -> Self {
+        self.children.extend(children);
+        self
+    }
+
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).
     ///

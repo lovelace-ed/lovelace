@@ -2,19 +2,18 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
 use crate::{
     attributes::IntoAttribute,
     into_attribute_for_grouping_enum, into_grouping_union,
     prelude::{Class, Id, Style},
-    to_html, utility_enum,
+    utility_enum,
 };
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 use std::rc::Rc;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
+
 #[cfg(feature = "with_yew")]
 #[cfg(not(tarpaulin))]
 use yew::virtual_dom::Listener;
@@ -29,7 +28,7 @@ use super::body::body_node::BodyNode;
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)
 /// for further information.
 pub struct Input {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
     listeners: Vec<Rc<dyn Listener>>,
@@ -38,24 +37,6 @@ pub struct Input {
 /// Creates a new `Input` tag – functionally equivalent to `Input::new()` (but easier to type.)
 pub fn input() -> Input {
     Input::new()
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Input {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("input");
-        self.attrs
-            .clone()
-            .iter()
-            .find(|item| item.0 == &"type")
-            .map(|(_, res)| vtag.set_kind(res.to_string()));
-        for (a, b) in self.attrs {
-            vtag.add_attribute(a, b)
-        }
-        vtag.add_listeners(self.listeners.clone());
-        vtag.into()
-    }
 }
 
 impl Display for Input {
@@ -85,10 +66,12 @@ impl Input {
         self.attrs.insert(a, b);
         self
     }
+
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
+
     #[cfg(feature = "with_yew")]
     #[cfg(not(tarpaulin))]
     /// Attaches a listener to the input item. Note that this is only available if you have enabled
@@ -97,6 +80,7 @@ impl Input {
         self.listeners.push(listener);
         self
     }
+
     /// Attaches multiple listeners to the input item. Note that this is only available if you have
     /// enabled the `with_yew` feature.
     #[cfg(feature = "with_yew")]
@@ -109,6 +93,7 @@ impl Input {
         self.listeners.extend(listeners.into_iter().map(Into::into));
         self
     }
+
     /// Apply a function to this tag.
     pub fn map<F>(self, mapping: F) -> Self
     where
@@ -116,7 +101,6 @@ impl Input {
     {
         mapping(self)
     }
-    to_html!();
 }
 
 utility_enum!(
@@ -161,9 +145,9 @@ pub enum Type {
 }
 
 impl IntoAttribute for Type {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
         (
-            "type",
+            "type".into(),
             match self {
                 Type::Text => "text",
                 Type::Email => "email",
@@ -188,8 +172,8 @@ impl IntoAttribute for Type {
 pub struct Name(Cow<'static, str>);
 
 impl IntoAttribute for Name {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("name", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("name".into(), self.0)
     }
 }
 
@@ -211,8 +195,8 @@ impl Name {
 pub struct Placeholder(Cow<'static, str>);
 
 impl IntoAttribute for Placeholder {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("placeholder", self.0)
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("placeholder".into(), self.0)
     }
 }
 
@@ -244,62 +228,8 @@ impl Value {
 }
 
 impl IntoAttribute for Value {
-    fn into_attribute(self) -> (&'static str, Cow<'static, str>) {
-        ("value", self.0)
-    }
-}
-
-#[cfg(test)]
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-mod test_yew {
-    use crate::component_named_app_with_html;
-    use crate::prelude::*;
-    use wasm_bindgen_test::*;
-    use yew::prelude::*;
-
-    wasm_bindgen_test_configure!(run_in_browser);
-
-    #[wasm_bindgen_test]
-    fn test_input_in_browser() {
-        component_named_app_with_html!(Input::default()
-            .attribute(Id::new("some-id"))
-            .attribute(Placeholder::new("some-placeholder"))
-            .attribute(Value::new("some-value"))
-            .to_html());
-        let document = web_sys::window().unwrap().document().unwrap();
-        let root = document
-            .create_element("div")
-            .expect("failed to create element");
-        yew::App::<App>::new().mount(root.clone());
-        let input = root
-            .get_elements_by_tag_name("input")
-            .named_item("some-id")
-            .unwrap();
-        assert_eq!(
-            input
-                .attributes()
-                .get_named_item("value")
-                .expect("failed to get placeholder")
-                .value(),
-            "some-value"
-        );
-        assert_eq!(
-            input
-                .attributes()
-                .get_named_item("id")
-                .expect("failed to get placeholder")
-                .value(),
-            "some-id"
-        );
-        assert_eq!(
-            input
-                .attributes()
-                .get_named_item("placeholder")
-                .expect("failed to get placeholder")
-                .value(),
-            "some-placeholder"
-        );
+    fn into_attribute(self) -> (Cow<'static, str>, Cow<'static, str>) {
+        ("value".into(), self.0)
     }
 }
 

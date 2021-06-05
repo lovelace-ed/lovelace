@@ -3,7 +3,6 @@ This source code file is distributed subject to the terms of the Mozilla Public 
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
 
-use crate::to_html;
 use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 use crate::{
@@ -15,24 +14,18 @@ use crate::{
 
 use crate::attributes::IntoAttribute;
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::utils::write_attributes_to_vtag;
-
 use super::{body::body_node::BodyNode, input::Name, option::SelectOption};
 
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The `select` tag.
 ///
 /// See [MDN's page on this](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select) for
 /// further information.
 pub struct Select {
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     children: Vec<SelectOption>,
 }
 
@@ -73,7 +66,6 @@ impl Select {
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
-    to_html!();
 }
 
 into_grouping_union!(Select, BodyNode);
@@ -87,17 +79,6 @@ impl Display for Select {
             child.fmt(f)?;
         }
         f.write_str("</select>")
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Select {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("select");
-        write_attributes_to_vtag(self.attrs, &mut vtag);
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        vtag.into()
     }
 }
 

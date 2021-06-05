@@ -8,10 +8,6 @@ use crate::{
     utility_enum,
 };
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode_for_grouping_enum;
-
 utility_enum!(
     #[allow(missing_docs)]
     /// A node which can be attached to the <head> tag.
@@ -21,8 +17,5 @@ utility_enum!(
         StyleTag(StyleTag),
     }
 );
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-into_vnode_for_grouping_enum!(HeadNode, Title, Meta, StyleTag);
 
 enum_display!(HeadNode, Title, Meta, StyleTag);

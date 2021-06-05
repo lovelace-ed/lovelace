@@ -9,18 +9,14 @@ use crate::{
     prelude::{Style, H1, H2, H3, H4, H5, H6},
 };
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
-use crate::{
-    into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, to_html, utility_enum,
-};
+use crate::{into_attribute_for_grouping_enum, into_grouping_union, prelude::Id, utility_enum};
 
 use super::body::body_node::BodyNode;
 
 #[derive(Debug, Derivative, Clone)]
 #[derivative(Default(new = "true"))]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// A div. These are useful for ensuring that your HTML pages are well-structured as well as for
 /// applying CSS styling.
 ///
@@ -28,25 +24,12 @@ use super::body::body_node::BodyNode;
 /// for further information.
 pub struct Div {
     children: Vec<BodyNode>,
-    attrs: HashMap<&'static str, Cow<'static, str>>,
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
 /// Creates a new `Div` tag – functionally equivalent to `Div::new()` (but easier to type.)
 pub fn div() -> Div {
     Div::new()
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Div {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = yew::virtual_dom::VTag::new("div");
-        vtag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        for (a, b) in self.attrs {
-            vtag.add_attribute(a, b)
-        }
-        vtag.into()
-    }
 }
 
 impl Div {
@@ -117,7 +100,6 @@ impl Div {
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
-    to_html!();
     /// Attach a new `H1` instance to this class. Note that this method only allows you to provide
     /// text, and no additional attributes. If you want to specify extra attributes, you should
     /// instead use the "child" method (see the documentation of that method for more details).
@@ -262,7 +244,7 @@ impl Display for Div {
             attr.1.fmt(f)?;
             f.write_str("\"")?;
         }
-        f.write_str("/>")?;
+        f.write_str(">")?;
         for node in &self.children {
             node.fmt(f)?;
         }
@@ -315,6 +297,7 @@ mod tests {
                     .map(|string| P::with_text(string)),
             )
             .to_string();
+        dbg!(&document);
         let document = scraper::Html::parse_document(&document);
         let div_selector = scraper::Selector::parse("div").unwrap();
         let div = document.select(&div_selector).next().unwrap();

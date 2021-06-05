@@ -6,9 +6,6 @@ A copy of this license can be found in the `licenses` directory at the root of t
 use std::fmt::Display;
 
 use self::head_node::HeadNode;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
 
 /// Items which can be mounted to head.
 pub mod head_node;
@@ -16,6 +13,7 @@ pub mod head_node;
 #[derive(Derivative, Debug, Clone)]
 #[derivative(Default = "new")]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
+
 /// The <head> tag.
 pub struct Head {
     children: Vec<HeadNode>,
@@ -24,16 +22,6 @@ pub struct Head {
 /// Creates a new `Head` tag – functionally equivalent to `Head::new()` (but easier to type.)
 pub fn head() -> Head {
     Head::new()
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for Head {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut tag = yew::virtual_dom::VTag::new("head");
-        tag.add_children(self.children.into_iter().map(IntoVNode::into_vnode));
-        tag.into()
-    }
 }
 
 impl Head {

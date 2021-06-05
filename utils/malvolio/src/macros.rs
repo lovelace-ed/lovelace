@@ -52,9 +52,6 @@ macro_rules! impl_of_heading_new_fn {
                 Self {
                     text: From::from(::ammonia::clean(&from.to_string())),
                     attrs: std::collections::HashMap::new(),
-                    #[cfg(feature = "with_yew")]
-                    #[cfg(not(tarpaulin))]
-                    listeners: vec![],
                 }
             }
             /// Create a new item of this type **without first sanitizing the text**. You only want
@@ -67,9 +64,6 @@ macro_rules! impl_of_heading_new_fn {
                 Self {
                     text: from.into(),
                     attrs: std::collections::HashMap::new(),
-                    #[cfg(feature = "with_yew")]
-                    #[cfg(not(tarpaulin))]
-                    listeners: vec![],
                 }
             }
             #[inline(always)]
@@ -101,29 +95,6 @@ macro_rules! impl_of_heading_new_fn {
             fn from(string: &'static str) -> Self {
                 $name::new(string)
             }
-        }
-    };
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-#[macro_export]
-#[doc(hidden)]
-/// For internal use only.
-macro_rules! heading_of_vnode {
-    ($name:ident) => {
-        impl $crate::into_vnode::IntoVNode for $name {
-            fn into_vnode(self) -> ::yew::virtual_dom::VNode {
-                let mut vtag = ::yew::virtual_dom::VTag::new(stringify!($name));
-                for (k, v) in self.attrs.into_iter() {
-                    vtag.add_attribute(k, v);
-                }
-                vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
-                vtag.into()
-            }
-        }
-        impl $name {
-            $crate::to_html!();
         }
     };
 }
@@ -171,26 +142,6 @@ macro_rules! into_grouping_union_without_lifetimes {
     };
 }
 
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-#[macro_export]
-#[doc(hidden)]
-/// For internal use only.
-macro_rules! into_vnode_for_grouping_enum {
-    ($name:ident, $($variant:ident),*) => {
-        impl $crate::into_vnode::IntoVNode for $name {
-            fn into_vnode(self) -> yew::virtual_dom::VNode {
-                match self {
-                    $(
-                        Self::$variant(x) => {$crate::into_vnode::IntoVNode::into_vnode(x)}
-                    ),*
-
-                }
-            }
-        }
-    };
-}
-
 #[macro_export]
 #[doc(hidden)]
 /// For internal use only.
@@ -206,28 +157,13 @@ macro_rules! add_single_attribute {
 
 #[macro_export]
 #[doc(hidden)]
-/// Generates a function to call `into_vnode`
-macro_rules! to_html {
-    () => {
-        #[cfg(feature = "with_yew")]
-        #[cfg(not(tarpaulin))]
-        /// Turn this item into a `VNode`. You only need to call this on the item that you
-        /// return in the `html` function.
-        pub fn to_html(self) -> yew::virtual_dom::VNode {
-            $crate::into_vnode::IntoVNode::into_vnode(self)
-        }
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
 /// Generates code to convert an attribute into a grouping enum.
 ///
 /// For internal use only.
 macro_rules! into_attribute_for_grouping_enum {
     ($name:ident, $($variant:ident),*) => {
         impl $crate::attributes::IntoAttribute for $name {
-            fn into_attribute(self) -> (&'static str, std::borrow::Cow<'static, str>) {
+            fn into_attribute(self) -> (std::borrow::Cow<'static, str>, std::borrow::Cow<'static, str>) {
                 match self {
                     $(
                         Self::$variant(x) => {$crate::attributes::IntoAttribute::into_attribute(x)}

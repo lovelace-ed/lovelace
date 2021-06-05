@@ -2,9 +2,6 @@ use crate::prelude::BodyNode;
 use std::{borrow::Cow, fmt::Display};
 
 use crate::into_grouping_union;
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-use crate::into_vnode::IntoVNode;
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
@@ -38,16 +35,6 @@ impl Display for NoScript {
         f.write_str("<noscript>")?;
         f.write_str(&self.text)?;
         f.write_str("</noscript>")
-    }
-}
-
-#[cfg(feature = "with_yew")]
-#[cfg(not(tarpaulin))]
-impl IntoVNode for NoScript {
-    fn into_vnode(self) -> yew::virtual_dom::VNode {
-        let mut vtag = ::yew::virtual_dom::VTag::new("noscript");
-        vtag.add_child(::yew::virtual_dom::VText::new(self.text.to_string()).into());
-        vtag.into()
     }
 }
 

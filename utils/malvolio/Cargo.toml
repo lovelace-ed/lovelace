@@ -9,82 +9,17 @@ repository = "https://github.com/lovelace-ed/lovelace"
 homepage = "https://github.com/lovelace-ed/lovelace"
 license = "MPL-2.0"
 keywords = ["web-applications", "HTML"]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
 with_rocket = ["rocket"]
-with_yew = ["yew"]
 pub_fields = ["malvolio_codegen"]
 
 [dependencies]
 ammonia = "3.1.1"
 derivative = "2.2.0"
 rocket = { version = "0.5.0-dev", rev = "735bd99", git = "https://github.com/SergioBenitez/Rocket", optional = true }
-yew = { version = "0.18.0", optional = true }
 malvolio_codegen = { path = "../malvolio_codegen", optional = true }
 
 [dev-dependencies]
 scraper = "0.12.0"
-wasm-bindgen-test = "0.3.24"
 
-[dev-dependencies.web-sys]
-version = "0.3.51"
-features = [
-  "AbortController",
-  "AbortSignal",
-  "AnimationEvent",
-  "Attr",
-  "BinaryType",
-  "Blob",
-  "BlobPropertyBag",
-  "console",
-  "DedicatedWorkerGlobalScope",
-  "Document",
-  "DomTokenList",
-  "DragEvent",
-  "Element",
-  "ErrorEvent",
-  "Event",
-  "EventTarget",
-  "File",
-  "FileList",
-  "FileReader",
-  "FocusEvent",
-  "Headers",
-  "HtmlCollection",
-  "HtmlElement",
-  "HtmlButtonElement",
-  "HtmlInputElement",
-  "HtmlSelectElement",
-  "HtmlTextAreaElement",
-  "InputEvent",
-  "KeyboardEvent",
-  "Location",
-  "MessageEvent",
-  "MouseEvent",
-  "NamedNodeMap",
-  "Node",
-  "ObserverCallback",
-  "PointerEvent",
-  "ProgressEvent",
-  "ReferrerPolicy",
-  "Request",
-  "RequestCache",
-  "RequestCredentials",
-  "RequestInit",
-  "RequestMode",
-  "RequestRedirect",
-  "Response",
-  "Storage",
-  "Text",
-  "TouchEvent",
-  "TransitionEvent",
-  "UiEvent",
-  "Url",
-  "WebSocket",
-  "WheelEvent",
-  "Window",
-  "Worker",
-  "WorkerGlobalScope",
-  "WorkerOptions",
-]
