@@ -42,9 +42,6 @@ utility_enum!(
         Select(Select),
         NoScript(NoScript),
         Img(Img),
-        #[cfg(feature = "with_yew")]
-        #[cfg(not(tarpaulin))]
-        VNode(yew::virtual_dom::VNode),
     }
 );
 
@@ -67,6 +64,13 @@ pub(crate) mod body_proptest {
             any::<H4>().prop_map(BodyNode::H4),
             any::<H5>().prop_map(BodyNode::H5),
             any::<H6>().prop_map(BodyNode::H6),
+            any::<Br>().prop_map(BodyNode::Br),
+            any::<A>().prop_map(BodyNode::A),
+            any::<Input>().prop_map(BodyNode::Input),
+            any::<Label>().prop_map(BodyNode::Label),
+            any::<Select>().prop_map(BodyNode::Select),
+            any::<NoScript>().prop_map(BodyNode::NoScript),
+            any::<Img>().prop_map(BodyNode::Img)
         ];
 
         leaf.prop_recursive(2, 16, 1, |inner| {
@@ -74,7 +78,9 @@ pub(crate) mod body_proptest {
                 prop::collection::vec(inner.clone(), 0..10)
                     .prop_map(|prop| { BodyNode::Div(Div::new().children(prop)) }),
                 prop::collection::vec(inner.clone(), 0..10)
-                    .prop_map(|item| { BodyNode::P(P::new().children(item)) })
+                    .prop_map(|item| { BodyNode::P(P::new().children(item)) }),
+                prop::collection::vec(inner.clone(), 0..10)
+                    .prop_map(|item| { BodyNode::Form(Form::new().children(item)) })
             ]
         })
         .boxed()
