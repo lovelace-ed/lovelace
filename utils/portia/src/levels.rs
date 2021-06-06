@@ -69,29 +69,27 @@ impl From<Level> for Div {
             }
         };
         Div::new()
-            .map(|div| match layout_strategy.axis {
-                LayoutAxis::Horizontal => match layout_strategy.spacing {
-                    Some(Spacing::Between) => div.apply(compose(
+            .map(
+                |div| match (layout_strategy.axis, layout_strategy.spacing) {
+                    (LayoutAxis::Horizontal, None) => div.apply(FlexDirectionRow),
+                    (LayoutAxis::Horizontal, Some(Spacing::Between)) => div.apply(compose(
                         compose(FlexDirectionRow, DisplayFlex),
                         SpaceBetween,
                     )),
-                    Some(Spacing::Fill) => {
+                    (LayoutAxis::Horizontal, Some(Spacing::Fill)) => {
                         div.apply(compose(compose(FlexDirectionRow, DisplayFlex), SpaceAround))
                     }
-                    None => div.apply(FlexDirectionRow),
-                },
-                LayoutAxis::Vertical => match layout_strategy.spacing {
-                    Some(Spacing::Between) => div.apply(compose(
+                    (LayoutAxis::Vertical, None) => div.apply(FlexDirectionColumn),
+                    (LayoutAxis::Vertical, Some(Spacing::Between)) => div.apply(compose(
                         compose(FlexDirectionColumn, DisplayFlex),
                         SpaceBetween,
                     )),
-                    Some(Spacing::Fill) => div.apply(compose(
+                    (LayoutAxis::Vertical, Some(Spacing::Fill)) => div.apply(compose(
                         compose(FlexDirectionColumn, DisplayFlex),
                         SpaceAround,
                     )),
-                    None => div.apply(FlexDirectionRow),
                 },
-            })
+            )
             .children(item.children.into_iter().map(|child| child.item))
     }
 }
