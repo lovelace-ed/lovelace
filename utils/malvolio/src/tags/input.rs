@@ -30,9 +30,6 @@ use super::body::body_node::BodyNode;
 /// for further information.
 pub struct Input {
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
 }
 
 /// Creates a new `Input` tag – functionally equivalent to `Input::new()` (but easier to type.)
@@ -71,28 +68,6 @@ impl Input {
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
-    }
-
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    /// Attaches a listener to the input item. Note that this is only available if you have enabled
-    /// the `with_yew` feature.
-    pub fn listener(mut self, listener: Rc<dyn Listener>) -> Self {
-        self.listeners.push(listener);
-        self
-    }
-
-    /// Attaches multiple listeners to the input item. Note that this is only available if you have
-    /// enabled the `with_yew` feature.
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    pub fn listeners<I, T>(mut self, listeners: I) -> Self
-    where
-        I: IntoIterator<Item = T>,
-        T: Into<Rc<dyn Listener>>,
-    {
-        self.listeners.extend(listeners.into_iter().map(Into::into));
-        self
     }
 
     /// Apply a function to this tag.

@@ -15,9 +15,6 @@ use crate::{
 /// The `<img>` tag.
 pub struct Img {
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
-    #[cfg(feature = "with_yew")]
-    #[cfg(not(tarpaulin))]
-    listeners: Vec<Rc<dyn Listener>>,
 }
 
 /// Creates a new `Img` tag – functionally equivalent to `Img::new()` (but easier to type.)
