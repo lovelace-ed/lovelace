@@ -96,6 +96,9 @@ impl Div {
         self.attrs.insert(a, b);
         self
     }
+
+    crate::define_raw_attribute_fn!();
+
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)

@@ -50,6 +50,7 @@ impl SelectOption {
         self.text = clean(&text.into()).into();
         self
     }
+
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).
     ///
@@ -63,6 +64,7 @@ impl SelectOption {
         self.text = text.into();
         self
     }
+
     /// Attach a new attribute to this type. Note that this will overwrite existing values for the
     /// attribute, if one has been provided.
     pub fn attribute<A>(mut self, attr: A) -> Self
@@ -73,6 +75,9 @@ impl SelectOption {
         self.attrs.insert(a, b);
         self
     }
+
+    crate::define_raw_attribute_fn!();
+
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)

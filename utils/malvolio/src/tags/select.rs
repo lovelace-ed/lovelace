@@ -45,6 +45,7 @@ impl Select {
             .extend(children.into_iter().map(Into::into).collect::<Vec<_>>());
         self
     }
+
     /// Add a single child to a <select> tag.
     pub fn child<C>(mut self, child: C) -> Self
     where
@@ -53,6 +54,7 @@ impl Select {
         self.children.push(child.into());
         self
     }
+
     /// Add an attribute to the select in question.
     pub fn attribute<A>(mut self, attr: A) -> Self
     where
@@ -62,6 +64,9 @@ impl Select {
         self.attrs.insert(a, b);
         self
     }
+
+    crate::define_raw_attribute_fn!();
+
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)

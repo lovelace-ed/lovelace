@@ -180,7 +180,8 @@ fn test_headings() {
                 .child(H5::new("Some other other heading"))
                 .child(
                     H4::new("Some other other other heading")
-                        .attribute(Class::from(Cow::Borrowed("heading-class"))),
+                        .attribute(Class::from(Cow::Borrowed("heading-class")))
+                        .raw_attribute("raw-attr-key", "raw-attr-value"),
                 ),
         )
         .to_string();
@@ -213,4 +214,5 @@ fn test_headings() {
     let h4 = document.select(&h4_selector).next().unwrap();
     assert_eq!(h4.text().next().unwrap(), "Some other other other heading");
     assert_eq!(h4.value().attr("class").unwrap(), "heading-class");
+    assert_eq!(h4.value().attr("raw-attr-key").unwrap(), "raw-attr-value");
 }
