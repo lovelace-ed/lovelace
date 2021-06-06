@@ -23,6 +23,10 @@ use super::body::body_node::BodyNode;
 /// for further information.
 pub struct H1 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
@@ -42,6 +46,10 @@ heading_display!(H1);
 /// for further information.
 pub struct H2 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
@@ -61,6 +69,10 @@ heading_display!(H2);
 /// for further information.
 pub struct H3 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
@@ -80,6 +92,10 @@ heading_display!(H3);
 /// for further information.
 pub struct H4 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
@@ -99,6 +115,10 @@ heading_display!(H4);
 /// for further information.
 pub struct H5 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
@@ -118,6 +138,10 @@ heading_display!(H5);
 /// for further information.
 pub struct H6 {
     text: Cow<'static, str>,
+    #[cfg_attr(
+        feature = "with_proptest",
+        proptest(strategy = "crate::strategies::hashmap_strategy()")
+    )]
     attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
 }
 
