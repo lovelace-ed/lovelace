@@ -76,11 +76,11 @@ pub(crate) mod body_proptest {
         leaf.prop_recursive(2, 16, 1, |inner| {
             prop_oneof![
                 prop::collection::vec(inner.clone(), 0..10)
-                    .prop_map(|prop| { BodyNode::Div(Div::new().children(prop)) }),
+                    .prop_map(|prop| { BodyNode::Div(Div::default().children(prop)) }),
                 prop::collection::vec(inner.clone(), 0..10)
-                    .prop_map(|item| { BodyNode::P(P::new().children(item)) }),
+                    .prop_map(|item| { BodyNode::P(P::default().children(item)) }),
                 prop::collection::vec(inner.clone(), 0..10)
-                    .prop_map(|item| { BodyNode::Form(Form::new().children(item)) })
+                    .prop_map(|item| { BodyNode::Form(Form::default().children(item)) })
             ]
         })
         .boxed()
