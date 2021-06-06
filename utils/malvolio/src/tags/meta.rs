@@ -39,10 +39,13 @@ impl Meta {
         self.attrs.insert(a, b);
         self
     }
+
     /// Read an attribute that has been set
     pub fn read_attribute(&self, attribute: &'static str) -> Option<&Cow<'static, str>> {
         self.attrs.get(attribute)
     }
+
+    crate::define_raw_attribute_fn!();
 }
 
 impl Display for Meta {

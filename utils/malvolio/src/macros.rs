@@ -66,7 +66,6 @@ macro_rules! impl_of_heading_new_fn {
                     attrs: std::collections::HashMap::new(),
                 }
             }
-            #[inline(always)]
             /// Attach a new attribute to this node.
             pub fn attribute<A>(mut self, a: A) -> Self
             where
@@ -77,9 +76,15 @@ macro_rules! impl_of_heading_new_fn {
                 self.attrs.insert(a, b);
                 self
             }
+
+            crate::define_raw_attribute_fn!();
+
             /// Read an attribute that has been set.
-            pub fn read_attribute(&self, a: &'static str) -> Option<&Cow<'static, str>> {
-                self.attrs.get(a)
+            pub fn read_attribute(
+                &self,
+                a: impl Into<Cow<'static, str>>,
+            ) -> Option<&Cow<'static, str>> {
+                self.attrs.get(&a.into())
             }
             /// Applies the provided function to this item.
             pub fn map<F>(mut self, mapping: F) -> Self
@@ -138,6 +143,25 @@ macro_rules! into_grouping_union_without_lifetimes {
             fn from(t: $name) -> $enum_name {
                 $enum_name::$name(t)
             }
+        }
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! define_raw_attribute_fn {
+    () => {
+        /// Attach an attribute to this tag from the provided raw data.
+        ///
+        /// Note that if you can, you should use the `attribute` method, because it takes better
+        /// advantage of Rust's type system.
+        pub fn raw_attribute(
+            mut self,
+            key: impl Into<Cow<'static, str>>,
+            value: impl Into<Cow<'static, str>>,
+        ) -> Self {
+            self.attrs.insert(key.into(), value.into());
+            self
         }
     };
 }
