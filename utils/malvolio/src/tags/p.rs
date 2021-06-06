@@ -2,35 +2,45 @@
 This source code file is distributed subject to the terms of the Mozilla Public License v2.0.
 A copy of this license can be found in the `licenses` directory at the root of this project.
 */
-use std::{borrow::Cow, fmt::Display};
+use std::{borrow::Cow, collections::HashMap, fmt::Display};
 
 use ammonia::clean;
 
 use super::body::body_node::BodyNode;
-use crate::{into_grouping_union, text::Text};
+
+use crate::{
+    attributes::IntoAttribute,
+    into_attribute_for_grouping_enum, into_grouping_union,
+    prelude::{Class, Id},
+    text::Text,
+    utility_enum,
+    utils::write_attributes,
+};
 
 /// The <p> tag.
 ///
 /// See the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p) for more
 /// info.
-#[derive(Derivative, Debug, Clone)]
-#[derivative(Default(new = "true"))]
+#[derive(Default, Debug, Clone)]
 #[cfg_attr(feature = "pub_fields", derive(FieldsAccessibleVariant))]
 pub struct P {
+    attrs: HashMap<Cow<'static, str>, Cow<'static, str>>,
     text: Cow<'static, str>,
     children: Vec<BodyNode>,
 }
 
 /// Creates a new `P` tag – functionally equivalent to `P::new()` (but easier to type.)
 pub fn p() -> P {
-    P::new()
+    P::default()
 }
 
 into_grouping_union!(P, BodyNode);
 
 impl Display for P {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("<p>")?;
+        f.write_str("<p ")?;
+        write_attributes(&self.attrs, f)?;
+        f.write_str(">")?;
         self.text.fmt(f)?;
         for child in &self.children {
             child.fmt(f)?;
@@ -40,6 +50,11 @@ impl Display for P {
 }
 
 impl P {
+    /// Create a new paragraph with the provided text, sanitising it first.
+    pub fn new(text: impl AsRef<str>) -> Self {
+        Self::with_text(text)
+    }
+
     /// A method to construct a paragraph containing the supplied text. This will sanitise the text
     /// provided beforehand.
     pub fn with_text<S>(text: S) -> Self
@@ -48,7 +63,15 @@ impl P {
     {
         Self {
             text: clean(text.as_ref()).into(),
-            children: vec![],
+            ..Default::default()
+        }
+    }
+
+    /// Create a new `<p>` tag, without sanitising the text first.
+    pub fn new_unchecked(text: impl Into<Cow<'static, str>>) -> Self {
+        Self {
+            text: text.into(),
+            ..Default::default()
         }
     }
 
@@ -79,6 +102,7 @@ impl P {
     {
         self.child(BodyNode::Text(Text::new(text.into())))
     }
+
     /// Adds the supplied text to this node, overwriting the previously existing text (if text has
     /// already been added to the node).
     ///
@@ -91,7 +115,32 @@ impl P {
     {
         self.child(BodyNode::Text(Text::new_unchecked(text.into())))
     }
+
+    /// Set the specified attribute on this `P` tag.
+    pub fn attribute(mut self, attr: impl Into<PAttr>) -> Self {
+        let (key, value) = attr.into().into_attribute();
+        self.attrs.insert(key, value);
+        self
+    }
+
+    /// Read an attribute from this tag, if it exists.
+    pub fn read_attribute(&self, key: impl Into<Cow<'static, str>>) -> Option<&Cow<'static, str>> {
+        self.attrs.get(&key.into())
+    }
 }
+
+utility_enum! {
+    #[allow(missing_docs)]
+    pub enum PAttr {
+        Id(Id),
+        Class(Class)
+    }
+}
+
+into_attribute_for_grouping_enum!(PAttr, Id, Class);
+
+into_grouping_union!(Id, PAttr);
+into_grouping_union!(Class, PAttr);
 
 #[cfg(test)]
 mod test {
@@ -113,5 +162,31 @@ mod test {
                 .as_str(),
             "Some text"
         );
+    }
+
+    #[test]
+    fn test_p_attrs() {
+        let document = P::new("Some text")
+            .attribute(Id::new("an-id"))
+            .attribute(Class::from("a-class"))
+            .to_string();
+        dbg!(&document);
+        let document = scraper::Html::parse_document(&document);
+        let p = scraper::Selector::parse("p").unwrap();
+        let p = document.select(&p).next().unwrap();
+        assert_eq!(
+            p.children()
+                .next()
+                .unwrap()
+                .value()
+                .as_text()
+                .unwrap()
+                .to_string()
+                .as_str(),
+            "Some text"
+        );
+        let el = p.value();
+        assert_eq!(el.id(), Some("an-id"));
+        assert_eq!(el.attr("class"), Some("a-class"));
     }
 }
