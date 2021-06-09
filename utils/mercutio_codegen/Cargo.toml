@@ -12,7 +12,7 @@ darling = "0.13.0"
 nanoid = "0.4.0"
 proc-macro2 = "1.0.27"
 quote = "1.0.9"
-syn = "1.0.72"
+syn = "1.0.73"
 
 [dev-dependencies]
 trybuild = "1.0.42"
