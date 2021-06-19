@@ -69,7 +69,7 @@ async fn view_message_base(
         Ok(t) => Ok((message, t)),
         Err(e) => {
             error!("{:#?}", e);
-            return Err(ViewMessageError::DatabaseError);
+            Err(ViewMessageError::DatabaseError)
         }
     }
 }

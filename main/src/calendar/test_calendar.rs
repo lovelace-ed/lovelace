@@ -180,7 +180,7 @@ async fn google_oauth_caldav_integration_test() {
     let res = client.get(inp).dispatch().await;
     let string = res.into_string().await.unwrap();
     assert!(string.contains("Connected your calendar"));
-    let (_, google_calendar) = Database::get_one(&client.rocket())
+    let (_, google_calendar) = Database::get_one(client.rocket())
         .await
         .unwrap()
         .run(move |c| {
@@ -199,7 +199,7 @@ async fn google_oauth_caldav_integration_test() {
 
 /// Runs the test sequence (adds a number of events and checks that they are added to the calendar)
 async fn sequence(client: &Client, class_id: i32) {
-    logout(&client).await;
+    logout(client).await;
     login_user(TEACHER_USERNAME, TEACHER_PASSWORD, client).await;
     let res = client
         .post(format!("/class/{}/task/async/create", class_id))

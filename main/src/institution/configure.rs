@@ -243,7 +243,7 @@ mod test_configure_institution {
             .await
             .expect("could not find institution");
         assert_eq!(institution.domain, "subdomain.example.com");
-        assert_eq!(institution.enforce_same_domain, false);
+        assert!(!institution.enforce_same_domain);
         assert_eq!(institution.name, NAME);
     }
 
@@ -292,7 +292,7 @@ mod test_configure_institution {
             .await
             .expect("could not find institution");
         assert_eq!(institution.domain, WEBSITE);
-        assert_eq!(institution.enforce_same_domain, false);
+        assert!(!institution.enforce_same_domain);
         assert_eq!(institution.name, NAME);
     }
 }

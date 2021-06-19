@@ -201,7 +201,7 @@ mod async_task_tests {
     #[rocket::async_test]
     async fn test_teacher_can_view_specific_asynchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -222,7 +222,7 @@ mod async_task_tests {
     #[rocket::async_test]
     async fn test_student_can_view_specific_asynchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -261,7 +261,7 @@ mod async_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -288,7 +288,7 @@ mod async_task_tests {
             use crate::schema::class_asynchronous_task::dsl as class_asynchronous_task;
             use crate::schema::student_class_asynchronous_task::dsl as student_class_asynchronous_task;
 
-            let results = Database::get_one(&client.rocket())
+            let results = Database::get_one(client.rocket())
                 .await
                 .unwrap()
                 .run(|c| {
@@ -311,7 +311,7 @@ mod async_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -339,7 +339,7 @@ mod async_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -365,7 +365,7 @@ mod async_task_tests {
     #[rocket::async_test]
     async fn test_teacher_can_delete_asynchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))

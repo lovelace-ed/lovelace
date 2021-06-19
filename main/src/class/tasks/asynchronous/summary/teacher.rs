@@ -57,7 +57,7 @@ pub async fn get_teacher_async_tasks_summary(
             error!("{:#?}", e);
             ShowAsyncTaskSummaryError::DatabaseError
         })?;
-    let student_count = crate::models::Class::student_count(class_id, &conn)
+    let student_count = crate::models::Class::student_count(class_id, conn)
         .await
         .map_err(|e| {
             error!("{:#?}", e);

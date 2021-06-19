@@ -335,7 +335,7 @@ mod test {
     #[rocket::async_test]
     async fn test_can_view_notifications() {
         let client = client().await;
-        Database::get_one(&client.rocket())
+        Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| create_dummy_setup(c))
@@ -354,7 +354,7 @@ mod test {
     #[rocket::async_test]
     async fn test_can_mark_notifications_as_read() {
         let client = client().await;
-        let ids = Database::get_one(&client.rocket())
+        let ids = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| create_dummy_setup(c))
@@ -391,7 +391,7 @@ mod test {
     #[rocket::async_test]
     async fn test_can_delete_notifications() {
         let client = client().await;
-        let ids = Database::get_one(&client.rocket())
+        let ids = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(move |c| create_dummy_setup(c))

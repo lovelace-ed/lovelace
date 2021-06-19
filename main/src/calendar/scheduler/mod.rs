@@ -220,7 +220,7 @@ fn fill_slot(
                 .starts(slot.start)
                 .ends(slot.start.add(Duration::minutes(25)))
                 .summary(
-                    &format!(
+                    format!(
                         "Task title: {} Task description: {}",
                         task.title, task.description
                     )
@@ -256,7 +256,7 @@ pub async fn schedule_class(class_id: i32, conn: &Database) -> Result<(), Schedu
     {
         Ok(users) => {
             for user_id in users {
-                two_week_schedule(user_id, &conn).await?;
+                two_week_schedule(user_id, conn).await?;
             }
             Ok(())
         }

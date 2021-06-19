@@ -84,7 +84,7 @@ impl Connection for TestPgConnection {
     }
 
     fn transaction_manager(&self) -> &Self::TransactionManager {
-        &self.0.transaction_manager()
+        self.0.transaction_manager()
     }
 }
 

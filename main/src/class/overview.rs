@@ -261,8 +261,8 @@ pub mod test_class_overview_handling_with_institutions {
                     parent_group: None,
                     institution_id,
                     code: Some(&nanoid!(5)),
-                    name: STUDENT_GROUP_NAME.into(),
-                    description: STUDENT_GROUP_DESCRIPTION.into(),
+                    name: STUDENT_GROUP_NAME,
+                    description: STUDENT_GROUP_DESCRIPTION,
                 })
                 .returning(student_group::id)
                 .get_result::<i32>(c)

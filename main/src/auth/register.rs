@@ -215,10 +215,10 @@ pub async fn register_base(
             diesel::result::Error::DatabaseError(
                 diesel::result::DatabaseErrorKind::UniqueViolation,
                 _,
-            ) => return Err(RegisterError::UserAlreadyRegistered),
+            ) => Err(RegisterError::UserAlreadyRegistered),
             _ => {
                 error!("{:#?}", problem);
-                return Err(RegisterError::DatabaseError);
+                Err(RegisterError::DatabaseError)
             }
         },
     }
