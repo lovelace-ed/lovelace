@@ -170,10 +170,10 @@ async fn apply_edit_task(
             .await
         {
             Ok(sync_task) => Ok(sync_task),
-            Err(_) => return Err(LovelaceError::DatabaseError),
+            Err(_) => Err(LovelaceError::DatabaseError),
         }
     } else {
-        return Err(LovelaceError::DatabaseError);
+        Err(LovelaceError::DatabaseError)
     }
 }
 

@@ -203,7 +203,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_teacher_can_view_specific_synchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -223,7 +223,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_student_can_view_specific_synchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -258,7 +258,7 @@ mod synchronous_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -289,7 +289,7 @@ mod synchronous_task_tests {
             use crate::schema::class_synchronous_task::dsl as class_synchronous_task;
             use crate::schema::student_class_synchronous_task::dsl as student_class_synchronous_task;
 
-            let results = Database::get_one(&client.rocket())
+            let results = Database::get_one(client.rocket())
                 .await
                 .unwrap()
                 .run(|c| {
@@ -310,7 +310,7 @@ mod synchronous_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -342,7 +342,7 @@ mod synchronous_task_tests {
         const NEW_TASK_TITLE: &str = "new-task-title";
         const NEW_TASK_DESCRIPTION: &str = "new-task-description";
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -372,7 +372,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_teacher_can_delete_synchronous_task() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -388,7 +388,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_permissions_for_viewing_create_task_page() {
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -412,7 +412,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_permissions_for_viewing_edit_task_page() {
         let client = client().await;
-        let (class_id, _, _, tasks) = Database::get_one(&client.rocket())
+        let (class_id, _, _, tasks) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))
@@ -439,7 +439,7 @@ mod synchronous_task_tests {
     #[rocket::async_test]
     async fn test_view_task_summary_page() {
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| populate_database(c))

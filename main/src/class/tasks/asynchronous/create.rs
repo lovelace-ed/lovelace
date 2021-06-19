@@ -157,13 +157,13 @@ async fn new_async_task(
                 }
                 Err(e) => {
                     error!("{:#?}", e);
-                    return Err(CreateAsyncTaskError::DatabaseError);
+                    Err(CreateAsyncTaskError::DatabaseError)
                 }
             }
         }
         Err(e) => {
             error!("{:#?}", e);
-            return Err(CreateAsyncTaskError::DatabaseError);
+            Err(CreateAsyncTaskError::DatabaseError)
         }
     }
 }
@@ -186,9 +186,7 @@ pub async fn html_create_new_async_task(
         Err(e) => match e {
             CreateAsyncTaskError::DatabaseError => database_error(),
             CreateAsyncTaskError::PermissionError => permission_error(),
-            CreateAsyncTaskError::InvalidDate => {
-                return invalid_date(Some(create_new_async_task_form()))
-            }
+            CreateAsyncTaskError::InvalidDate => invalid_date(Some(create_new_async_task_form())),
         },
     }
 }

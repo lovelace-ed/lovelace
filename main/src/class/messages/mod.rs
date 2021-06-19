@@ -185,7 +185,7 @@ mod class_tests {
         const MESSAGE_TITLE: &str = "sometitleofatitle";
         const MESSAGE_BODY: &str = "somebodyof a message";
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
@@ -200,7 +200,7 @@ mod class_tests {
         assert_eq!(create_message_res.status().code, 303);
         {
             use crate::schema::class_message::dsl as class_message;
-            let res = Database::get_one(&client.rocket())
+            let res = Database::get_one(client.rocket())
                 .await
                 .unwrap()
                 .run(|c| {
@@ -221,7 +221,7 @@ mod class_tests {
         const NEW_CONTENTS: &str = "new-contents-here-we-come";
 
         let client = client().await;
-        let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
+        let (class_id, message_ids, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
@@ -256,7 +256,7 @@ mod class_tests {
     #[rocket::async_test]
     async fn test_can_view_messages() {
         let client = client().await;
-        let (class_id, _, _, _) = Database::get_one(&client.rocket())
+        let (class_id, _, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
@@ -281,7 +281,7 @@ mod class_tests {
     async fn test_reply_to_class_message() {
         const REPLY_CONTENTS: &str = "somereplycontents235";
         let client = client().await;
-        let (class_id, message_ids, _, _) = Database::get_one(&client.rocket())
+        let (class_id, message_ids, _, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
@@ -314,14 +314,14 @@ mod class_tests {
     async fn test_can_edit_reply_to_class_message() {
         const NEW_MESSAGE_CONTENTS: &str = "somecontents that is new";
         let client = client().await;
-        let (class_id, message_ids, student_id, _) = Database::get_one(&client.rocket())
+        let (class_id, message_ids, student_id, _) = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| setup_test_env(c))
             .await;
         login_user(STUDENT_USERNAME, STUDENT_PASSWORD, &client).await;
         let message_id_1 = message_ids[0];
-        let message_reply_id = Database::get_one(&client.rocket())
+        let message_reply_id = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(move |c| add_message_reply(message_id_1, student_id, class_id, c))

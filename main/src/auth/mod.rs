@@ -171,7 +171,7 @@ mod test_authentication {
     async fn test_email_verification() {
         use crate::schema::users::dsl as users;
         let client = client().await;
-        let user_id = Database::get_one(&client.rocket())
+        let user_id = Database::get_one(client.rocket())
             .await
             .unwrap()
             .run(|c| {
@@ -213,7 +213,7 @@ mod test_authentication {
         assert!(string.contains("verified"));
         assert_eq!(
             {
-                Database::get_one(&client.rocket())
+                Database::get_one(client.rocket())
                     .await
                     .unwrap()
                     .run(move |c| {
