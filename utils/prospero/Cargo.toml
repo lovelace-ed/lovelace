@@ -23,4 +23,4 @@ concurrent = []
 caldav_test = []
 
 [dev-dependencies]
-tokio = { version = "1.7.0", features = ["macros", "rt"] }
+tokio = { version = "1.7.1", features = ["macros", "rt"] }
