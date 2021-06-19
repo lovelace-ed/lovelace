@@ -1,4 +1,4 @@
-FROM rust:1.52 as cargo-build
+FROM rust:1.53 as cargo-build
 
 COPY ./ ./
 
