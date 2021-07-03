@@ -8,7 +8,7 @@ edition = "2018"
 malvolio = { path = "../utils/malvolio", features = ["with_rocket"] }
 mercutio = { path = "../utils/mercutio" }
 portia = { path = "../utils/portia" }
-thiserror = "1.0.25"
+thiserror = "1.0.26"
 diesel = { version = "1.4.7", features = ["r2d2", "chrono", "postgres"] }
 log = "0.4.14"
 diesel_migrations = "1.4.0"
