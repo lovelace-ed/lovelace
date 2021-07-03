@@ -15,7 +15,7 @@ ical = "0.7.0"
 icalendar = "0.10.0"
 reqwest = "0.11.4"
 roxmltree = "0.14.1"
-thiserror = "1.0.25"
+thiserror = "1.0.26"
 uuid = { version = "0.8.2", features = ["v4"] }
 
 [features]
