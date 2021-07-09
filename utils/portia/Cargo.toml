@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 derivative = "2.2.0"
-malvolio = { path = "../malvolio" }
+malvolio = "0.3.0" 
 mercutio = { path = "../mercutio" }
