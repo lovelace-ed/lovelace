@@ -17,7 +17,7 @@ syn = "1.0.73"
 [dev-dependencies]
 trybuild = "1.0.42"
 mercutio = { path = "../mercutio" }
-malvolio = { path = "../malvolio" }
+malvolio = "0.3.0"
 
 [features]
 no_cache = []
