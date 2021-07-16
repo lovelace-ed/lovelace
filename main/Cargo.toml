@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 mercutio = { path = "../utils/mercutio" }
 portia = { path = "../utils/portia" }
-malvolio = { version = "0.3.0", features = ["with_rocket"] }
+malvolio = { version = "0.3.1", features = ["with_rocket"] }
 thiserror = "1.0.26"
 diesel = { version = "1.4.7", features = ["r2d2", "chrono", "postgres"] }
 log = "0.4.14"
