@@ -1305,9 +1305,9 @@ dependencies = [
 
 [[package]]
 name = "malvolio"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e76cb9d4b1b16db3c497136c298529a3eaa16d67636775984b4c163aeca81b"
+checksum = "6b2cc9f3bcd88d476793b1eae35047e7c88f64d5c19c1f90ac24972e07405f78"
 dependencies = [
  "ammonia",
  "derivative",

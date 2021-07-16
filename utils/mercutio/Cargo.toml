@@ -8,4 +8,4 @@ edition = "2018"
 mercutio_codegen = { path = "../mercutio_codegen" }
 
 [dev-dependencies]
-malvolio = "0.3.0"
+malvolio = "0.3.1"
