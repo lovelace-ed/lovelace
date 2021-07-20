@@ -48,7 +48,7 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost/postgres
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
   test-prospero:
@@ -84,6 +84,6 @@ jobs:
           (cd utils/prospero && cargo +nightly tarpaulin --all-features --verbose --timeout 300 --out Xml \
           --exclude-files utils/mercutio_codegen/src/inner.rs utils/mercutio_codegen/src/lib.rs)
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
